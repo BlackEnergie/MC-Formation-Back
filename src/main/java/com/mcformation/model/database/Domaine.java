@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
 @Setter
@@ -19,7 +18,4 @@ public class Domaine {
 
     @Column(unique = true)
     private String code;
-
-    @ManyToMany(mappedBy = "domaines")
-    private List<Formateur> formateurs;
 }
