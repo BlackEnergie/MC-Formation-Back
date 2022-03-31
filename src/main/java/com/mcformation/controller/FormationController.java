@@ -1,7 +1,6 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.database.Domaine;
-import com.mcformation.model.database.Formateur;
 import com.mcformation.repository.DomaineRepository;
 import com.mcformation.repository.FormateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
