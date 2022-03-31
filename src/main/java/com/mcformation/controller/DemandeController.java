@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/demande")
 public class DemandeController {
+
     @Autowired
     DemandeService demandeService;
 
-    @PostMapping()
+    @PostMapping("/creer")
     public ResponseEntity<Demande> create(@RequestBody DemandeApi newDemande) {
         Demande demande = demandeService.create(newDemande);
         return new ResponseEntity<>(demande, HttpStatus.OK);
