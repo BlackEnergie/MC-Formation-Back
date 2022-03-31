@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DemandeApi {
-    private String date;
+    private String dateDemande;
     private List<DomaineApi> domaines;
     private String sujet;
     private String detail;

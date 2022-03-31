@@ -17,10 +17,8 @@ public class DonneeController {
     DonneesService donneesService;
 
     @GetMapping("/domaines")
-    public ResponseEntity<List> getAllDomaines() {
+    public ResponseEntity<List<DomaineApi>> getAllDomaines() {
         List<DomaineApi> domaines=donneesService.getAllDomaines();
         return new ResponseEntity<>(domaines, HttpStatus.OK);
     }
-
-
 }
