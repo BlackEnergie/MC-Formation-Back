@@ -17,10 +17,10 @@ import java.util.Optional;
 public class FormationController {
 
     @Autowired
-    FormateurRepository formateurRepository;
-
-    @Autowired
     DomaineRepository domaineRepository;
+    
+    @Autowired
+    FormateurRepository formateurRepository;
 
     @GetMapping("/get")
     public ResponseEntity<Domaine> getFormation() {

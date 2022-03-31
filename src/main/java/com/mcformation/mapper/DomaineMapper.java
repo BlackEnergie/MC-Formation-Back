@@ -27,7 +27,7 @@ public interface DomaineMapper {
             @Mapping(source = "source.description", target = "description"),
             @Mapping(source = "source.code", target = "code")
     })
-    Domaine DomaineApiToDomaineDao(DomaineApi source);
+    Domaine domaineApiToDomaineDao(DomaineApi source);
 
 
 }

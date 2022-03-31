@@ -22,6 +22,8 @@ public class Demande {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Date dateDemande;
+    private String sujet;
+    private String detail;
 
     @ManyToMany
     private List<Domaine> domaines;
