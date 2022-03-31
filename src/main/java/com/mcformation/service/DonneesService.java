@@ -16,11 +16,9 @@ public class DonneesService {
     @Autowired
     private DomaineRepository domaineRepository;
 
-    private final DomaineMapper domaineMapper = Mappers.getMapper(DomaineMapper.class);
-
     public List<DomaineApi> getAllDomaines() {
         List<Domaine> domaineList = (List<Domaine>) domaineRepository.findAll();
-        return domaineMapper.domaineDaoListToDomaineApiList(domaineList);
+        return DomaineMapper.INSTANCE.domaineDaoListToDomaineApiList(domaineList);
     }
 
 }
