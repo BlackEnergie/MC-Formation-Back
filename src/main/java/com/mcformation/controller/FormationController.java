@@ -1,9 +1,12 @@
 package com.mcformation.controller;
 
+import com.mcformation.model.Erole;
 import com.mcformation.model.database.Domaine;
 import com.mcformation.model.database.Formateur;
+import com.mcformation.model.database.Role;
 import com.mcformation.repository.DomaineRepository;
 import com.mcformation.repository.FormateurRepository;
+import com.mcformation.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +21,16 @@ import java.util.Optional;
 public class FormationController {
 
     @Autowired
-    FormateurRepository formateurRepository;
-
-    @Autowired
-    DomaineRepository domaineRepository;
+    RoleRepository roleRepository;
 
     @GetMapping("/get")
-    public ResponseEntity<Domaine> getFormation() {
-
-        Optional<Domaine> domaineOptional = domaineRepository.findById(1L);
-        Domaine domaine = domaineOptional.orElse(null);
-
-        return new ResponseEntity<>(domaine, HttpStatus.OK);
+    public String getFormation() {
+        Role role = new Role();
+        role.setNom(Erole.ROLE_USER);
+        roleRepository.save(role);
+        role.setNom(Erole.ROLE_ADMIN);
+        roleRepository.save(role);
+        return "voila";
     }
 
 
