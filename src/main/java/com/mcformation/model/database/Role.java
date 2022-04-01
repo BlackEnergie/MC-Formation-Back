@@ -19,4 +19,25 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private Erole nom;
 
+    public Role(){};
+
+    public Role(Erole nom){
+        this.nom = nom;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Erole getNom(){
+        return nom;
+    }
+
+    public void setNom(Erole nom) {
+        this.nom = nom;
+    }
 }

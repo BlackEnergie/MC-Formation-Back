@@ -69,23 +69,23 @@ public class AuthController {
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
         // Create new user's account
-        Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), signUpRequest.getEmail(), signUpRequest.getPassword());
+        Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), encoder.encode(signUpRequest.getPassword()), signUpRequest.getEmail());
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
         if (strRoles == null) {
-            Role userRole = roleRepository.findByNom(Erole.ROLE_USER.toString())
+            Role userRole = roleRepository.findByNom(Erole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        Role adminRole = roleRepository.findByNom(Erole.ROLE_ADMIN.toString())
+                        Role adminRole = roleRepository.findByNom(Erole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
                         break;
                     default:
-                        Role userRole = roleRepository.findByNom(Erole.ROLE_USER.toString())
+                        Role userRole = roleRepository.findByNom(Erole.ROLE_USER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(userRole);
                 }
