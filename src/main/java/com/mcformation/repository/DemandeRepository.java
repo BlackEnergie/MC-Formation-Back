@@ -9,4 +9,5 @@ import org.springframework.data.repository.CrudRepository;
 public interface DemandeRepository extends CrudRepository<Demande,Long>{
     
     Optional<Demande> findById(Long id);
+
 }
