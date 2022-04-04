@@ -39,6 +39,7 @@ public class UserDetailsImpl implements UserDetails {
         List<GrantedAuthority> authorities = utilisateur.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getNom().name()))
                 .collect(Collectors.toList());
+
         return new UserDetailsImpl(
                 utilisateur.getId(),
                 utilisateur.getNomUtilisateur(),
@@ -54,7 +55,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
 

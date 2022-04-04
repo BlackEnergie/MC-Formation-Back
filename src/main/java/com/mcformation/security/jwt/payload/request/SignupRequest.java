@@ -15,11 +15,13 @@ public class SignupRequest {
         @Email
         private String email;
 
+        private Set<String> role;
+
         @NotBlank
-        @Size(min = 6, max = 40)
+        @Size(min = 6, max = 70)
         private String password;
 
-        private Set<String> role;
+
 
         public String getNomUtilisateur() {
             return nomUtilisateur;
@@ -34,7 +36,7 @@ public class SignupRequest {
     }
 
 
-    public void setNomUtilisateur(String nomUtilisateur) {
+        public void setNomUtilisateur(String nomUtilisateur) {
             this.nomUtilisateur = nomUtilisateur;
         }
 

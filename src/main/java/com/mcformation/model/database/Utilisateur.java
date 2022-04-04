@@ -25,7 +25,7 @@ public class Utilisateur {
     @ManyToMany
     private Set<Role> roles;
 
-    public Utilisateur(String nomUtilisateur, String password, String email) {
+    public Utilisateur(String nomUtilisateur, String email,String password) {
         this.nomUtilisateur = nomUtilisateur;
         this.password = password;
         this.email = email;
