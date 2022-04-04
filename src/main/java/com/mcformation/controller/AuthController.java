@@ -1,8 +1,12 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.Erole;
+import com.mcformation.model.database.Association;
 import com.mcformation.model.database.Role;
 import com.mcformation.model.database.Utilisateur;
+import com.mcformation.repository.AssociationRepository;
+import com.mcformation.repository.FormateurRepository;
+import com.mcformation.repository.MembreBureauNationalRepository;
 import com.mcformation.repository.RoleRepository;
 import com.mcformation.repository.UtilisateurRepository;
 import com.mcformation.security.jwt.JwtUtils;
@@ -42,6 +46,14 @@ public class AuthController {
     PasswordEncoder encoder;
     @Autowired
     JwtUtils jwtUtils;
+    @Autowired
+    AssociationRepository associationRepository;
+    @Autowired
+    FormateurRepository formateurRepository;
+    @Autowired
+    MembreBureauNationalRepository membreBureauNationalRepository;
+
+
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -74,6 +86,9 @@ public class AuthController {
         }
         // Create new user's account
         Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
+        utilisateur.setAssociation(associationRepository.findByNomComplet(signUpRequest.getAssociation()));
+        utilisateur.setFormateur(formateurRepository.findByNom(signUpRequest.getFormateur()));
+        utilisateur.setMembreBureauNational(membreBureauNationalRepository.findByPoste(signUpRequest.getMembreBureauNational()));
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
         if (strRoles == null) {

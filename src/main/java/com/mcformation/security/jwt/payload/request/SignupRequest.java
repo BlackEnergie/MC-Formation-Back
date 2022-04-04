@@ -2,6 +2,12 @@ package com.mcformation.security.jwt.payload.request;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+
+import com.mcformation.model.database.Association;
+import com.mcformation.model.database.Formateur;
+import com.mcformation.model.database.MembreBureauNational;
+import com.mcformation.repository.AssociationRepository;
+
 import java.util.Set;
 
 public class SignupRequest {
@@ -21,7 +27,11 @@ public class SignupRequest {
         @Size(min = 6, max = 70)
         private String password;
 
+        private String nomAssociation ;
 
+        private String nomFormateur;
+    
+        private String posteMembreBureauNational;
 
         public String getNomUtilisateur() {
             return nomUtilisateur;
@@ -56,4 +66,27 @@ public class SignupRequest {
             this.password = password;
         }
 
+        public String getAssociation() {
+            return nomAssociation;
+        }
+
+        public void setAssociation(String nomAssociation) {
+            this.nomAssociation = nomAssociation;
+        }
+
+        public String getFormateur() {
+            return nomFormateur;
+        }
+
+        public void setFormateur(String nomFormateur) {
+            this.nomFormateur = nomFormateur;
+        }
+
+        public String getMembreBureauNational() {
+            return posteMembreBureauNational;
+        }
+
+        public void setMembreBureauNational(String posteMembreBureauNational) {
+            this.posteMembreBureauNational = posteMembreBureauNational;
+        }
 }

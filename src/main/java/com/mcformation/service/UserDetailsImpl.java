@@ -53,6 +53,18 @@ public class UserDetailsImpl implements UserDetails {
         return authorities;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getNomUtilisateur() {
+        return nomUtilisateur;
+    }
+
     @Override
     public String getPassword() {
         return password;

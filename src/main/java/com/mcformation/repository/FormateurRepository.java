@@ -11,6 +11,6 @@ public interface FormateurRepository extends CrudRepository<Formateur, Long> {
 
     Optional<Formateur> findById(Long id);
 
-    Optional<Formateur> findByNom(String nom);
+    Formateur findByNom(String nom);
 
 }

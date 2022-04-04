@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -14,7 +15,7 @@ import java.util.Set;
 public class Utilisateur {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nomUtilisateur;
@@ -24,6 +25,15 @@ public class Utilisateur {
 
     @ManyToMany
     private Set<Role> roles;
+
+    @ManyToOne
+    private Association association;
+
+    @ManyToOne
+    private Formateur formateur;
+
+    @ManyToOne
+    private MembreBureauNational membreBureauNational;
 
     public Utilisateur(String nomUtilisateur, String email,String password) {
         this.nomUtilisateur = nomUtilisateur;
@@ -73,5 +83,29 @@ public class Utilisateur {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Association getAssociation() {
+        return association;
+    }
+
+    public void setAssociation(Association association) {
+        this.association = association;
+    }
+
+    public Formateur getFormateur() {
+        return formateur;
+    }
+
+    public void setFormateur(Formateur formateur) {
+        this.formateur = formateur;
+    }
+
+    public MembreBureauNational getMembreBureauNational() {
+        return membreBureauNational;
+    }
+
+    public void setMembreBureauNational(MembreBureauNational membreBureauNational) {
+        this.membreBureauNational = membreBureauNational;
     }
 }

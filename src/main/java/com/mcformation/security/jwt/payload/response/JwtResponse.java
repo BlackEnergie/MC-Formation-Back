@@ -10,6 +10,9 @@ public class JwtResponse {
     private String nomUtilisateur;
     private String email;
     private List<String> roles;
+    private String nomAssociation;
+    private String nomFormateur;
+    private String posteMembreBureauNational;
 
     public JwtResponse(String accessToken, Long id, String nomUtilisateur, String email, List<String> roles) {
         this.token = accessToken;
