@@ -1,13 +1,6 @@
 package com.mcformation.model.database;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 @Entity
 public class MembreBureauNational {
@@ -15,17 +8,13 @@ public class MembreBureauNational {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
     private String poste;
 
 
-    public MembreBureauNational (String email, String poste){
-        this.email = email;
-        this.poste = poste;
-
-    }
-    @OneToMany(targetEntity=Utilisateur.class, mappedBy="membreBureauNational")
-    private List<Utilisateur> utilisateurs = new ArrayList<>();
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "utilisateur_id")
+    private Utilisateur utilisateur;
 
     public Long getId() {
         return id;
@@ -35,13 +24,6 @@ public class MembreBureauNational {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     public String getPoste() {
         return poste;
@@ -51,7 +33,12 @@ public class MembreBureauNational {
         this.poste = poste;
     }
 
-    public MembreBureauNational() {
 
+    public Utilisateur getUtilisateur() {
+        return utilisateur;
+    }
+
+    public void setUtilisateur(Utilisateur utilisateur) {
+        this.utilisateur = utilisateur;
     }
 }

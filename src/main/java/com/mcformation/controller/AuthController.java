@@ -1,9 +1,7 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.Erole;
-import com.mcformation.model.database.Association;
-import com.mcformation.model.database.Role;
-import com.mcformation.model.database.Utilisateur;
+import com.mcformation.model.database.*;
 import com.mcformation.repository.AssociationRepository;
 import com.mcformation.repository.FormateurRepository;
 import com.mcformation.repository.MembreBureauNationalRepository;
@@ -54,7 +52,6 @@ public class AuthController {
     MembreBureauNationalRepository membreBureauNationalRepository;
 
 
-
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -77,6 +74,7 @@ public class AuthController {
                 roles));
     }
 
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
@@ -86,36 +84,59 @@ public class AuthController {
         }
         // Create new user's account
         Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-        utilisateur.setAssociation(associationRepository.findByNomComplet(signUpRequest.getNomAssociation()));
-        utilisateur.setFormateur(formateurRepository.findByNom(signUpRequest.getNomFormateur()));
-        utilisateur.setMembreBureauNational(membreBureauNationalRepository.findByPoste(signUpRequest.getPosteMembreBureauNational()));
-        System.out.println(utilisateur.getAssociation());
 
-        Set<String> strRoles = signUpRequest.getRole();
+
         Set<Role> roles = new HashSet<>();
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByNom(Erole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByNom(Erole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
-                        break;
-                    default:
-                        Role userRole = roleRepository.findByNom(Erole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
+        signUpRequest.setRole(null);
+
+        Association association = signUpRequest.getAssociation();
+        MembreBureauNational membreBureauNational = signUpRequest.getMembreBureauNational();
+        Formateur formateur = signUpRequest.getFormateur();
+
+        boolean requestValid = false;
+
+
+        if (association != null) {
+            if (membreBureauNational == null && formateur == null) {
+                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_ASSO);
+                association.setUtilisateur(utilisateur);
+                associationRepository.save(association);
+                requestValid = true;
+            }
         }
-        utilisateur.setRoles(roles);
-        utilisateurRepository.save(utilisateur);
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+
+        if (membreBureauNational != null) {
+            if (association == null && formateur == null) {
+
+                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_BN);
+                membreBureauNational.setUtilisateur(utilisateur);
+                membreBureauNationalRepository.save(membreBureauNational);
+                requestValid = true;
+            }
+        }
+
+        if (formateur != null) {
+            if (association == null && membreBureauNational == null) {
+                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_FORMATEUR);
+                formateur.setUtilisateur(utilisateur);
+                formateurRepository.save(formateur);
+                requestValid = true;
+            }
+        }
+        if (!requestValid) {
+            throw new RuntimeException("Erreur : requête invalide");
+
+        }
+
+        return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès!"));
     }
 
+    private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
+        Role role = roleRepository.findByNom(erole).orElseThrow(() -> new RuntimeException("Erreur: Le role n'existe pas"));
+        Set<Role> roles = new HashSet<>();
+        roles.add(role);
+        utilisateur.setRoles(roles);
+        return utilisateurRepository.save(utilisateur);
+    }
 
 }

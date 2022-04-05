@@ -26,13 +26,16 @@ public class Utilisateur {
     @ManyToMany
     private Set<Role> roles;
 
-    @ManyToOne @JoinColumn(name="asso_id")
+    @OneToOne(mappedBy = "utilisateur")
+    @PrimaryKeyJoinColumn
     private Association association;
 
-    @OneToOne
+    @OneToOne(mappedBy = "utilisateur")
+    @PrimaryKeyJoinColumn
     private Formateur formateur;
 
-    @ManyToOne @JoinColumn(name="bureau_id")
+    @OneToOne(mappedBy = "utilisateur")
+    @PrimaryKeyJoinColumn
     private MembreBureauNational membreBureauNational;
 
     public Utilisateur(String nomUtilisateur, String email,String password) {

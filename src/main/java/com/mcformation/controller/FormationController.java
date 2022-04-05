@@ -25,12 +25,8 @@ public class FormationController {
 
     @GetMapping("/get")
     public String getFormation() {
-        Role role = new Role();
-        role.setNom(Erole.ROLE_USER);
-        roleRepository.save(role);
-        role.setNom(Erole.ROLE_ADMIN);
-        roleRepository.save(role);
-        return "voila";
+
+        return null;
     }
 
 
