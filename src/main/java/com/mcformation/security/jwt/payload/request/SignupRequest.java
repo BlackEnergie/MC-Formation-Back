@@ -3,9 +3,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import com.mcformation.model.database.Association;
-import com.mcformation.model.database.Formateur;
-import com.mcformation.model.database.MembreBureauNational;
+
 import com.mcformation.repository.AssociationRepository;
 
 import java.util.Set;
@@ -32,6 +30,7 @@ public class SignupRequest {
         private String nomFormateur;
     
         private String posteMembreBureauNational;
+
 
         public String getNomUtilisateur() {
             return nomUtilisateur;
@@ -66,15 +65,15 @@ public class SignupRequest {
             this.password = password;
         }
 
-        public String getAssociation() {
-            return nomAssociation;
+        public String getNomAssociation() {
+            return this.nomAssociation;
         }
 
         public void setAssociation(String nomAssociation) {
             this.nomAssociation = nomAssociation;
         }
 
-        public String getFormateur() {
+        public String getNomFormateur() {
             return nomFormateur;
         }
 
@@ -82,8 +81,8 @@ public class SignupRequest {
             this.nomFormateur = nomFormateur;
         }
 
-        public String getMembreBureauNational() {
-            return posteMembreBureauNational;
+        public String getPosteMembreBureauNational() {
+            return this.posteMembreBureauNational;
         }
 
         public void setMembreBureauNational(String posteMembreBureauNational) {

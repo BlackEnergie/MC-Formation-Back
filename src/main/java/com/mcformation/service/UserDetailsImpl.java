@@ -1,13 +1,13 @@
 package com.mcformation.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mcformation.model.database.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.mcformation.model.database.Utilisateur;
-import com.mcformation.model.database.Role;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +26,7 @@ public class UserDetailsImpl implements UserDetails {
     private String email;
     private Collection<? extends GrantedAuthority> authorities;
 
+
     public UserDetailsImpl(Long id, String nomUtilisateur, String email, String password,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -33,6 +34,7 @@ public class UserDetailsImpl implements UserDetails {
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+
     }
 
     public static UserDetailsImpl build(Utilisateur utilisateur) {

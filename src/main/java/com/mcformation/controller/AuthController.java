@@ -86,9 +86,11 @@ public class AuthController {
         }
         // Create new user's account
         Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-        utilisateur.setAssociation(associationRepository.findByNomComplet(signUpRequest.getAssociation()));
-        utilisateur.setFormateur(formateurRepository.findByNom(signUpRequest.getFormateur()));
-        utilisateur.setMembreBureauNational(membreBureauNationalRepository.findByPoste(signUpRequest.getMembreBureauNational()));
+        utilisateur.setAssociation(associationRepository.findByNomComplet(signUpRequest.getNomAssociation()));
+        utilisateur.setFormateur(formateurRepository.findByNom(signUpRequest.getNomFormateur()));
+        utilisateur.setMembreBureauNational(membreBureauNationalRepository.findByPoste(signUpRequest.getPosteMembreBureauNational()));
+        System.out.println(utilisateur.getAssociation());
+
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
         if (strRoles == null) {
