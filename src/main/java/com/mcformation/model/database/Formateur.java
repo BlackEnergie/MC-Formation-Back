@@ -32,6 +32,11 @@ public class Formateur {
     )
     private List<Domaine> domaines;
 
+    @PrePersist
+    protected void onCreate() {
+        dateCreation = new Date(System.currentTimeMillis());
+    }
+
     public Long getId() {
         return id;
     }
