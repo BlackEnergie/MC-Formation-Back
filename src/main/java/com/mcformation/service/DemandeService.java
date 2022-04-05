@@ -1,25 +1,27 @@
 package com.mcformation.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.mcformation.mapper.DemandeMapper;
+import com.mcformation.mapper.UtilisateurMapper;
+import com.mcformation.model.api.AssociationApi;
 import com.mcformation.model.api.DemandeApi;
+import com.mcformation.model.api.DomaineApi;
+import com.mcformation.model.api.MessageApi;
 import com.mcformation.model.database.Association;
 import com.mcformation.model.database.Demande;
 import com.mcformation.model.database.Domaine;
-
-import org.springframework.stereotype.Service;
-
 import com.mcformation.repository.AssociationRepository;
 import com.mcformation.repository.DemandeRepository;
 import com.mcformation.repository.DomaineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DemandeService {
-    
+
     @Autowired
     private DemandeRepository demandeRepository;
     @Autowired
@@ -27,32 +29,32 @@ public class DemandeService {
     @Autowired
     private AssociationRepository associationRepository;
 
-    public Demande create(DemandeApi newDemande) {
-        List<Domaine> domaines= new ArrayList<>();
-        Association association;
-        Optional<Domaine> domaineOptional;
-        Optional<Association> associationOptional;
-        List<Demande> demandesAssociation;
-        List <Domaine> listDomaines= newDemande.getDomaines();
-        Demande demandedao = DemandeMapper.INSTANCE.demandeApiToDemandeDao(newDemande);
-        for(int i=0;i<listDomaines.size();i++){
-            domaineOptional= domaineRepository.findByCode(listDomaines.get(i).getCode());
-            if (domaineOptional.isPresent()) {
-                domaines.add(domaineOptional.get());
-            }
+    public MessageApi create(DemandeApi demandeApi) {
+        MessageApi messageApi = new MessageApi();
+        List<DomaineApi> domaineApiList = demandeApi.getDomaines();
+        List<Domaine> domaineDaoList = new ArrayList<>();
+        Demande demandeDao = DemandeMapper.INSTANCE.demandeApiToDemandeDao(demandeApi);
+        for (DomaineApi domaineApi: domaineApiList) {
+            Optional<Domaine> domaineDao = domaineRepository.findByCode(domaineApi.getCode());
+            domaineDao.ifPresent(domaineDaoList::add);
         }
-        demandedao.setDomaines(domaines);
-        Demande demandeEnregistre=demandeRepository.save(demandedao);
-       
-        String emailAssociation= newDemande.getAssociation().getEmail();
-        associationOptional = associationRepository.findByEmail(emailAssociation);
-        if(associationOptional.isPresent()){
-            demandesAssociation = associationOptional.get().getDemandes();
-            demandesAssociation.add(demandedao);
-            associationOptional.get().setDemandes(demandesAssociation);
+        demandeDao.setDomaines(domaineDaoList);
+        demandeDao = demandeRepository.save(demandeDao);
+
+        DemandeApi demandeCree = DemandeMapper.INSTANCE.demandeDaoToDemandeApi(demandeDao);
+
+        String emailAssociation = demandeApi.getAssociation().getEmail();
+        Optional<Association> associationOptional = associationRepository.findByEmail(emailAssociation);
+        if (associationOptional.isPresent()) {
+            Association associationDao = associationOptional.get();
+            associationDao.getDemandes().add(demandeDao);
+            associationDao = associationRepository.save(associationDao);
+            AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApi(associationDao);
+            demandeCree.setAssociation(associationApi);
         }
-        association= associationOptional.orElse(null);
-        associationRepository.save(association);
-        return demandeEnregistre;
+        messageApi.setMessage(String.format("Votre demande de formation \"%s\" a bien été enregistrée.", demandeCree.getSujet()));
+        messageApi.setCode(201);
+        return messageApi;
     }
+
 }
