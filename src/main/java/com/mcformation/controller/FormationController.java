@@ -1,7 +1,6 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.database.Domaine;
-import com.mcformation.model.database.Formateur;
 import com.mcformation.repository.DomaineRepository;
 import com.mcformation.repository.FormateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,10 @@ import java.util.Optional;
 public class FormationController {
 
     @Autowired
-    FormateurRepository formateurRepository;
-
-    @Autowired
     DomaineRepository domaineRepository;
+    
+    @Autowired
+    FormateurRepository formateurRepository;
 
     @GetMapping("/get")
     public ResponseEntity<Domaine> getFormation() {

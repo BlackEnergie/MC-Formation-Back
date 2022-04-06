@@ -1,33 +1,13 @@
-package com.mcformation.model.database;
+package com.mcformation.model.api;
 
 import com.mcformation.model.utils.College;
 
-import javax.persistence.*;
-import java.util.List;
-
-@Entity
-public class Association {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    @Column(unique = true)
+public class AssociationApi {
     private String email;
     private String ville;
     private College college;
     private String acronyme;
     private String nomComplet;
-
-    @OneToMany(targetEntity = Demande.class)
-    private List<Demande> demandes;
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getEmail() {
         return email;
@@ -67,13 +47,5 @@ public class Association {
 
     public void setNomComplet(String nomComplet) {
         this.nomComplet = nomComplet;
-    }
-
-    public List<Demande> getDemandes() {
-        return demandes;
-    }
-
-    public void setDemandes(List<Demande> demandes) {
-        this.demandes = demandes;
     }
 }

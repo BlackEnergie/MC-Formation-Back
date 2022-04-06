@@ -1,13 +1,7 @@
 package com.mcformation.model.database;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.persistence.*;
-import java.util.List;
 
-@Getter
-@Setter
 @Entity
 public class Domaine {
 
@@ -20,6 +14,30 @@ public class Domaine {
     @Column(unique = true)
     private String code;
 
-    @ManyToMany(mappedBy = "domaines")
-    private List<Formateur> formateurs;
+    public Long getId(){
+        return id;
+    }
+    public String getLibelle(){
+        return libelle;
+    }
+    public String getDescription(){
+        return description;
+    }
+    public String getCode(){
+        return code;
+    }
+    public void setId(Long newId){
+        this.id=newId;
+    }
+    public void setLibelle(String newLibelle){
+        this.libelle=newLibelle;
+    }
+    public void setDescription(String newDescription){
+        this.description=newDescription;
+    }
+    public void setCode(String newCode){
+        this.code=newCode;
+    }
+    
+
 }
