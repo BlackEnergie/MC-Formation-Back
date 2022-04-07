@@ -1,5 +1,6 @@
-package com.mcformation.config;
+package com.mcformation.config.properties;
 
+import com.mcformation.config.properties.YamlPropertySourceFactory;
 import com.mcformation.model.database.Domaine;
 import com.mcformation.model.database.Role;
 import org.springframework.boot.context.properties.ConfigurationProperties;

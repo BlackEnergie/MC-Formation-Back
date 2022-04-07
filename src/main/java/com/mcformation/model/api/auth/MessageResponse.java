@@ -1,4 +1,4 @@
-package com.mcformation.security.jwt.payload.response;
+package com.mcformation.model.api.auth;
 
 public class MessageResponse {
     private String message;

@@ -1,4 +1,4 @@
-package com.mcformation.config;
+package com.mcformation.config.properties;
 
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertiesPropertySource;

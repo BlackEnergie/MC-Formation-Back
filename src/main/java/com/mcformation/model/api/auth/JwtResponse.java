@@ -1,4 +1,4 @@
-package com.mcformation.security.jwt.payload.response;
+package com.mcformation.model.api.auth;
 
 import java.util.List;
 

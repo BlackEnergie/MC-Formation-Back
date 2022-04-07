@@ -8,7 +8,7 @@ import com.mcformation.model.database.Role;
 import com.mcformation.model.utils.College;
 import com.mcformation.model.utils.Erole;
 import com.mcformation.repository.RoleRepository;
-import com.mcformation.security.jwt.payload.request.SignupRequest;
+import com.mcformation.model.api.auth.SignupRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;

@@ -1,4 +1,4 @@
-package com.mcformation.security.jwt.payload.request;
+package com.mcformation.model.api.auth;
 
 import javax.validation.constraints.NotBlank;
 public class LoginRequest {

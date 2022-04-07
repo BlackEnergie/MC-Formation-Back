@@ -1,5 +1,6 @@
 package com.mcformation.config;
 
+import com.mcformation.config.properties.YamlDonneesProperties;
 import com.mcformation.repository.DomaineRepository;
 import com.mcformation.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ public class ConfigurationBaseDeDonnees {
     private void configurationBDD() {
         configurationRoles();
         configurationDomaines();
-
     }
 
     @Transactional
