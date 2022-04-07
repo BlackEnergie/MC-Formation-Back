@@ -10,10 +10,15 @@ public class Formateur {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String email;
+
     private Date dateCreation;
     private String nom;
     private String prenom;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "utilisateur_id")
+    private Utilisateur utilisateur;
 
     @ManyToMany
     @JoinTable(
@@ -23,20 +28,17 @@ public class Formateur {
     )
     private List<Domaine> domaines;
 
+    @PrePersist
+    protected void onCreate() {
+        dateCreation = new Date(System.currentTimeMillis());
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Date getDateCreation() {
@@ -61,6 +63,14 @@ public class Formateur {
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
+    }
+
+    public Utilisateur getUtilisateur() {
+        return utilisateur;
+    }
+
+    public void setUtilisateur(Utilisateur utilisateur) {
+        this.utilisateur = utilisateur;
     }
 
     public List<Domaine> getDomaines() {
