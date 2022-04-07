@@ -7,10 +7,8 @@ import java.util.Optional;
 
 public interface FormateurRepository extends CrudRepository<Formateur, Long> {
 
-    Optional<Formateur> getById(Long id);
+    Formateur findByNom(String nom);
 
     Optional<Formateur> findById(Long id);
-
-    Formateur findByNom(String nom);
 
 }
