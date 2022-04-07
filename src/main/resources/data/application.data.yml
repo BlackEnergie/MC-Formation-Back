@@ -1,0 +1,28 @@
+data:
+  roles:
+    -
+      id: 1
+      nom: ROLE_ASSO
+    -
+      id: 2
+      nom: ROLE_FORMATEUR
+    -
+      id: 3
+      nom: ROLE_BN
+
+  domaines:
+    -
+      id: 1
+      code: 1
+      libelle: Administration associatif
+      description: Comment gérer votre association administrativement.
+    -
+      id: 2
+      code: 2
+      libelle: Affaires académiques
+      description: Relations entre votre association et son environnement universitaire et fédératif.
+    -
+      id: 3
+      code: 3
+      libelle: Association d'alumni
+      description: Gestion d'une association d'anciens élèves.
