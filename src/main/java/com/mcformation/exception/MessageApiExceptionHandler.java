@@ -33,11 +33,19 @@ public class MessageApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     protected ResponseEntity<MessageApi> handleRunTimeException(RuntimeException ex) {
+        return createResponseEntityMessageApi(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    protected ResponseEntity<MessageApi> handleUnsupportedOperationException(UnsupportedOperationException ex) {
+        return createResponseEntityMessageApi(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<MessageApi> createResponseEntityMessageApi(Exception ex, HttpStatus httpStatus) {
         MessageApi messageApi = new MessageApi();
-        HttpStatus code = HttpStatus.INTERNAL_SERVER_ERROR;
-        messageApi.setCode(code.value());
+        messageApi.setCode(httpStatus.value());
         messageApi.setMessage(ex.getMessage());
-        return new ResponseEntity<>(messageApi, code);
+        return new ResponseEntity<>(messageApi, httpStatus);
     }
 
 }

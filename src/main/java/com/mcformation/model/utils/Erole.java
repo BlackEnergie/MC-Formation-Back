@@ -1,4 +1,4 @@
-package com.mcformation.model;
+package com.mcformation.model.utils;
 
 public enum Erole {
     ROLE_USER,

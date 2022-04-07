@@ -1,6 +1,6 @@
 package com.mcformation.controller;
 
-import com.mcformation.model.Erole;
+import com.mcformation.model.utils.Erole;
 import com.mcformation.model.database.*;
 import com.mcformation.repository.AssociationRepository;
 import com.mcformation.repository.FormateurRepository;

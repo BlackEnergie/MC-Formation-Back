@@ -2,8 +2,6 @@ package com.mcformation.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcformation.model.database.*;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,9 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-@Getter
-@Setter
 
 public class UserDetailsImpl implements UserDetails {
 
@@ -98,4 +93,27 @@ public class UserDetailsImpl implements UserDetails {
         return true;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNomUtilisateur(String nomUtilisateur) {
+        this.nomUtilisateur = nomUtilisateur;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
 }

@@ -12,4 +12,7 @@ public interface UtilisateurRepository extends CrudRepository<Utilisateur, Long>
     Boolean existsByNomUtilisateur(String nomUtilisateur);
 
     Optional<Utilisateur> findByNomUtilisateur(String nom);
+
+    Optional<Utilisateur> findByEmail(String email);
+
 }

@@ -1,16 +1,9 @@
 package com.mcformation.model.database;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
-
-@Getter
-@Setter
 @Entity
 public class Utilisateur {
 
@@ -39,7 +32,7 @@ public class Utilisateur {
     @PrimaryKeyJoinColumn
     private MembreBureauNational membreBureauNational;
 
-    public Utilisateur(String nomUtilisateur, String email,String password) {
+    public Utilisateur(String nomUtilisateur, String email, String password) {
         this.nomUtilisateur = nomUtilisateur;
         this.password = password;
         this.email = email;

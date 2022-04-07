@@ -2,15 +2,8 @@ package com.mcformation.model.database;
 
 import javax.persistence.*;
 
-import com.mcformation.model.Erole;
-import lombok.Getter;
-import lombok.Setter;
-import com.mcformation.model.Erole;
+import com.mcformation.model.utils.Erole;
 
-
-
-@Getter
-@Setter
 @Entity
 public class Role {
     @Id

@@ -1,10 +1,9 @@
 package com.mcformation.model.database;
 
-import com.mcformation.model.College;
-import javax.persistence.*;
+import com.mcformation.model.utils.College;
+
 import javax.persistence.*;
 import java.util.List;
-
 
 @Entity
 public class Association {
@@ -31,14 +30,6 @@ public class Association {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getVille() {
@@ -71,14 +62,6 @@ public class Association {
 
     public void setNomComplet(String nomComplet) {
         this.nomComplet = nomComplet;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Utilisateur getUtilisateur() {

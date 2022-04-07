@@ -1,12 +1,12 @@
 package com.mcformation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mcformation.model.Erole;
-import com.mcformation.model.database.Formateur;
 import com.mcformation.model.database.Association;
-import com.mcformation.model.College;
+import com.mcformation.model.database.Formateur;
 import com.mcformation.model.database.MembreBureauNational;
 import com.mcformation.model.database.Role;
+import com.mcformation.model.utils.College;
+import com.mcformation.model.utils.Erole;
 import com.mcformation.repository.RoleRepository;
 import com.mcformation.security.jwt.payload.request.SignupRequest;
 import org.junit.Before;
@@ -97,14 +97,14 @@ public class AuthControllerTest {
 
     @Test
     public void nouvelleAssociation_reponse200() throws Exception {
-        SignupRequest signupRequest = nouvelleSignupRequestAssociation("AMB",College.A, "Asso Miage Bordeaux", "Ville", "Association");
+        SignupRequest signupRequest = nouvelleSignupRequestAssociation("AMB", College.A, "Asso Miage Bordeaux", "Ville", "Association");
         String request = objectMapper.writeValueAsString(signupRequest);
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
-    
+
     @Test
     public void nouveauMembreBureauNational_reponse200() throws Exception {
         SignupRequest signupRequest = nouvelleSignupRequestMembreBureauNational("président", "membreBureauNational");
@@ -132,7 +132,7 @@ public class AuthControllerTest {
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON));
-        request ="{\"nomUtilisateur\":\"Formateur2\",\"password\":\""+this.motDePasse+"\"}";
+        request = "{\"nomUtilisateur\":\"Formateur2\",\"password\":\"" + this.motDePasse + "\"}";
         this.mvc.perform(post("/api/auth/signin")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -141,17 +141,17 @@ public class AuthControllerTest {
 
     @Test
     public void connexionAssociation() throws Exception {
-        SignupRequest signupRequest = nouvelleSignupRequestAssociation("AMB",College.A, "Asso Miage Bordeaux", "Ville", "Association2");
+        SignupRequest signupRequest = nouvelleSignupRequestAssociation("AMB", College.A, "Asso Miage Bordeaux", "Ville", "Association2");
         String request = objectMapper.writeValueAsString(signupRequest);
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON));
-        request ="{\"nomUtilisateur\":\"Association2\",\"password\":\""+this.motDePasse+"\"}";
+        request = "{\"nomUtilisateur\":\"Association2\",\"password\":\"" + this.motDePasse + "\"}";
         this.mvc.perform(post("/api/auth/signin")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        
+
     }
 
     @Test
@@ -161,7 +161,7 @@ public class AuthControllerTest {
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON));
-        request ="{\"nomUtilisateur\":\"membreBureauNational2\",\"password\":\""+this.motDePasse+"\"}";
+        request = "{\"nomUtilisateur\":\"membreBureauNational2\",\"password\":\"" + this.motDePasse + "\"}";
         this.mvc.perform(post("/api/auth/signin")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -195,9 +195,9 @@ public class AuthControllerTest {
         signupRequest.setAssociation(association);
         return signupRequest;
     }
-    
+
     private SignupRequest nouvelleSignupRequestMembreBureauNational(String poste, String nomUtilisateur) {
-        MembreBureauNational membreBureauNational = new MembreBureauNational ();
+        MembreBureauNational membreBureauNational = new MembreBureauNational();
         membreBureauNational.setPoste(poste);
         SignupRequest signupRequest = getSignupRequest(nomUtilisateur);
         signupRequest.setMembreBureauNational(membreBureauNational);

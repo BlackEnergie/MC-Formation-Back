@@ -1,6 +1,6 @@
 package com.mcformation.repository;
 
-import com.mcformation.model.Erole;
+import com.mcformation.model.utils.Erole;
 import com.mcformation.model.database.Role;
 import org.springframework.data.repository.CrudRepository;
 
