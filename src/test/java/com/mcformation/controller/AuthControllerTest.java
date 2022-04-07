@@ -45,27 +45,14 @@ public class AuthControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private String email = "email";
-    private String nomUtilisateur = "user";
     private String motDePasse = "password";
-    
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setup() throws Exception {
         this.mvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
-        this.nouveauNomUtilisateur();
-        this.nouvelEmail();
         this.configurationBaseDeDonnees();
-    }
-
-    private void nouvelEmail() {
-        email += "A";
-    }
-
-    private void nouveauNomUtilisateur() {
-        nomUtilisateur += "A";
     }
 
     private boolean testRoleConfiguration() {
@@ -100,56 +87,27 @@ public class AuthControllerTest {
 
     @Test
     public void nouveauFormateur_reponse200() throws Exception {
-        SignupRequest signupRequest = nouvelleSignupRequestFormateur("Roger", "Hugo");
+        SignupRequest signupRequest = nouvelleSignupRequestFormateur("Roger", "Hugo", "Formateur");
         String request = objectMapper.writeValueAsString(signupRequest);
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-    }
-
-    private SignupRequest getSignupRequest() {
-        SignupRequest request = new SignupRequest();
-        request.setEmail(email);
-        request.setPassword(motDePasse);
-        request.setNomUtilisateur(nomUtilisateur);
-        return request;
-    }
-
-    private SignupRequest nouvelleSignupRequestFormateur(String nom, String prenom) {
-        Formateur formateur = new Formateur();
-        formateur.setNom(nom);
-        formateur.setPrenom(prenom);
-        SignupRequest signupRequest = getSignupRequest();
-        signupRequest.setFormateur(formateur);
-        return signupRequest;
     }
 
     @Test
     public void nouvelleAssociation_reponse200() throws Exception {
-        SignupRequest signupRequest = nouvelleSignupRequestAssociation("AMB",College.A, "Asso Miage Bordeaux", "Ville");
+        SignupRequest signupRequest = nouvelleSignupRequestAssociation("AMB",College.A, "Asso Miage Bordeaux", "Ville", "Association");
         String request = objectMapper.writeValueAsString(signupRequest);
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
-
-    private SignupRequest nouvelleSignupRequestAssociation(String acronyme, College college, String nomComplet, String ville) {
-        Association association = new Association();
-        association.setAcronyme(acronyme);
-        association.setCollege(college);
-        association.setNomComplet(nomComplet);
-        association.setVille(ville);
-        SignupRequest signupRequest = getSignupRequest();
-        signupRequest.setAssociation(association);
-        return signupRequest;
-    }
-
     
     @Test
     public void nouveauMembreBureauNational_reponse200() throws Exception {
-        SignupRequest signupRequest = nouvelleSignupRequestMembreBureauNational("président");
+        SignupRequest signupRequest = nouvelleSignupRequestMembreBureauNational("président", "membreBureauNational");
         String request = objectMapper.writeValueAsString(signupRequest);
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
@@ -157,38 +115,9 @@ public class AuthControllerTest {
                 .andExpect(status().isOk());
     }
 
-    private SignupRequest nouvelleSignupRequestMembreBureauNational(String poste) {
-        MembreBureauNational membreBureauNational = new MembreBureauNational ();
-        membreBureauNational.setPoste(poste);
-        SignupRequest signupRequest = getSignupRequest();
-        signupRequest.setMembreBureauNational(membreBureauNational);
-        return signupRequest;
-    }
-   
     @Test
-    public void nouveauFormateur_reponse200Email() throws Exception {
-        this.email = "test@gmail.com";
-        SignupRequest signupRequest = nouvelleSignupRequestFormateurEmail("test.nom", "test.premon");
-        String request = objectMapper.writeValueAsString(signupRequest);
-        this.mvc.perform(post("/api/auth/signup")
-                .content(request)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    private SignupRequest nouvelleSignupRequestFormateurEmail(String nom, String prenom) {
-        Formateur formateurEmail = new Formateur();
-        formateurEmail.setNom(nom);
-        formateurEmail.setPrenom(prenom);
-        SignupRequest signupRequest = getSignupRequest();
-        signupRequest.setFormateur(formateurEmail);
-        return signupRequest;
-    }
-
-    @Test
-    public void nouveauFormateur_reponse400Email() throws Exception {
-        this.email = "test@gmail.com";
-        SignupRequest signupRequest = nouvelleSignupRequestFormateurEmailErreur("test.nomErreur", "test.premonErreur");
+    public void nouveauFormateur_reponse400() throws Exception {
+        SignupRequest signupRequest = nouvelleSignupRequestFormateurEmailErreur("test.nomErreur", "test.premonErreur", "Formateur");
         String request = objectMapper.writeValueAsString(signupRequest);
         this.mvc.perform(post("/api/auth/signup")
                 .content(request)
@@ -196,18 +125,14 @@ public class AuthControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    private SignupRequest nouvelleSignupRequestFormateurEmailErreur(String nom, String prenom) {
-        Formateur formateurEmailErreur = new Formateur();
-        formateurEmailErreur.setNom(nom);
-        formateurEmailErreur.setPrenom(prenom);
-        SignupRequest signupRequest = getSignupRequest();
-        signupRequest.setFormateur(formateurEmailErreur);
-        return signupRequest;
-    }
-
     @Test
     public void connexionFormateur() throws Exception {
-        String request ="{\"nomUtilisateur\":\"userA\",\"password\":\"passwordA\"}";
+        SignupRequest signupRequest = nouvelleSignupRequestFormateur("Roger", "Hugo", "Formateur2");
+        String request = objectMapper.writeValueAsString(signupRequest);
+        this.mvc.perform(post("/api/auth/signup")
+                .content(request)
+                .contentType(MediaType.APPLICATION_JSON));
+        request ="{\"nomUtilisateur\":\"Formateur2\",\"password\":\""+this.motDePasse+"\"}";
         this.mvc.perform(post("/api/auth/signin")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -216,18 +141,75 @@ public class AuthControllerTest {
 
     @Test
     public void connexionAssociation() throws Exception {
-        String request ="{\"nomUtilisateur\":\"userAA\",\"password\":\"passwordAA\"}";
+        SignupRequest signupRequest = nouvelleSignupRequestAssociation("AMB",College.A, "Asso Miage Bordeaux", "Ville", "Association2");
+        String request = objectMapper.writeValueAsString(signupRequest);
+        this.mvc.perform(post("/api/auth/signup")
+                .content(request)
+                .contentType(MediaType.APPLICATION_JSON));
+        request ="{\"nomUtilisateur\":\"Association2\",\"password\":\""+this.motDePasse+"\"}";
+        this.mvc.perform(post("/api/auth/signin")
+                .content(request)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        
+    }
+
+    @Test
+    public void connexionMembreBureauNational() throws Exception {
+        SignupRequest signupRequest = nouvelleSignupRequestMembreBureauNational("président", "membreBureauNational2");
+        String request = objectMapper.writeValueAsString(signupRequest);
+        this.mvc.perform(post("/api/auth/signup")
+                .content(request)
+                .contentType(MediaType.APPLICATION_JSON));
+        request ="{\"nomUtilisateur\":\"membreBureauNational2\",\"password\":\""+this.motDePasse+"\"}";
         this.mvc.perform(post("/api/auth/signin")
                 .content(request)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
-    @Test
-    public void connexionMembreBureauNational() throws Exception {
-        String request ="{\"nomUtilisateur\":\"userAAA\",\"password\":\"passwordAAA\"}";
-        this.mvc.perform(post("/api/auth/signin")
-                .content(request)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+
+    private SignupRequest getSignupRequest(String nomUtilisateur) {
+        SignupRequest request = new SignupRequest();
+        request.setEmail(nomUtilisateur);
+        request.setPassword(motDePasse);
+        request.setNomUtilisateur(nomUtilisateur);
+        return request;
+    }
+
+    private SignupRequest nouvelleSignupRequestFormateur(String nom, String prenom, String nomUtilisateur) {
+        Formateur formateur = new Formateur();
+        formateur.setNom(nom);
+        formateur.setPrenom(prenom);
+        SignupRequest signupRequest = getSignupRequest(nomUtilisateur);
+        signupRequest.setFormateur(formateur);
+        return signupRequest;
+    }
+
+    private SignupRequest nouvelleSignupRequestAssociation(String acronyme, College college, String nomComplet, String ville, String nomUtilisateur) {
+        Association association = new Association();
+        association.setAcronyme(acronyme);
+        association.setCollege(college);
+        association.setNomComplet(nomComplet);
+        association.setVille(ville);
+        SignupRequest signupRequest = getSignupRequest(nomUtilisateur);
+        signupRequest.setAssociation(association);
+        return signupRequest;
+    }
+    
+    private SignupRequest nouvelleSignupRequestMembreBureauNational(String poste, String nomUtilisateur) {
+        MembreBureauNational membreBureauNational = new MembreBureauNational ();
+        membreBureauNational.setPoste(poste);
+        SignupRequest signupRequest = getSignupRequest(nomUtilisateur);
+        signupRequest.setMembreBureauNational(membreBureauNational);
+        return signupRequest;
+    }
+
+    private SignupRequest nouvelleSignupRequestFormateurEmailErreur(String nom, String prenom, String nomUtilisateur) {
+        Formateur formateurEmailErreur = new Formateur();
+        formateurEmailErreur.setNom(nom);
+        formateurEmailErreur.setPrenom(prenom);
+        SignupRequest signupRequest = getSignupRequest(nomUtilisateur);
+        signupRequest.setFormateur(formateurEmailErreur);
+        return signupRequest;
     }
 }
