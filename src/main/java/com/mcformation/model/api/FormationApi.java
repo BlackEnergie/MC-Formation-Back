@@ -1,6 +1,7 @@
 package com.mcformation.model.api;
 
 import java.util.Date;
+import java.util.List;
 
 public class FormationApi {
    
@@ -13,8 +14,9 @@ public class FormationApi {
     private String parties;
     private String materiels;
     private String cadre;
-    
     private DemandeApi demande;
+    
+    private List<FormateurApi> formateurs;
 
     public Date getDate() {
         return date;
@@ -94,5 +96,12 @@ public class FormationApi {
 
     public void setDemande(DemandeApi demande) {
         this.demande = demande;
+    }
+    public List<FormateurApi> getFormateurs() {
+        return formateurs;
+    }
+
+    public void setFormateurs(List<FormateurApi> formateurs) {
+        this.formateurs = formateurs;
     }
 }

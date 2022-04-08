@@ -11,20 +11,14 @@ import com.mcformation.service.FormationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/formation")
 public class FormationController {
     @Autowired
     FormationService formationService;
 
-    @GetMapping("/get")
-    public String getFormation() {
-        return "";
-    }
     @GetMapping("/formations")
     public ResponseEntity<List<FormationApi>> getAllFormations() {
         List<FormationApi> formations=formationService.getAllFormations();

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface UtilisateurRepository extends CrudRepository<Utilisateur, Long> {
 
-    Optional<Utilisateur> findById(long id);
+    Optional<Utilisateur> findById(Long id);
 
     Boolean existsByNomUtilisateur(String nomUtilisateur);
 
