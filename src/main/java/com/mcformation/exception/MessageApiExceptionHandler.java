@@ -4,6 +4,7 @@ import com.mcformation.model.api.MessageApi;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -29,6 +30,11 @@ public class MessageApiExceptionHandler extends ResponseEntityExceptionHandler {
         messageApi.setCode(HttpStatus.BAD_REQUEST.value());
         messageApi.setMessage(message.toString());
         return new ResponseEntity<>(messageApi, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<MessageApi> handleBadCredentialsException(BadCredentialsException ex) {
+        return createResponseEntityMessageApi(ex, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(RuntimeException.class)
