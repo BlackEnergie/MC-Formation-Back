@@ -57,7 +57,7 @@ public class DemandeService {
                 Association associationDao = utilisateur.getAssociation();
                 associationDao.getDemandes().add(demandeDao);
                 associationDao = associationRepository.save(associationDao);
-                AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApi(associationDao);
+                AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiDetail(associationDao);
                 demandeCree.setAssociation(associationApi);
             } else {
                 throw new UnsupportedOperationException("Cet utilisateur ne peut pas créer de demande de formation.");

@@ -3,14 +3,9 @@ package com.mcformation.model.database;
 import java.sql.Date;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
+import com.mcformation.model.utils.StatutDemande;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
@@ -19,20 +14,29 @@ public class Demande {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @CreationTimestamp
-    private Date dateDemande;
     private String sujet;
     private String detail;
+
+    @Enumerated(EnumType.STRING)
+    private StatutDemande statut;
+
+    @CreationTimestamp
+    private Date dateDemande;
 
     @ManyToMany
     private List<Domaine> domaines;
 
     @OneToOne
-    @JoinColumn(name = "formation_id", referencedColumnName = "id")
+    @JoinColumn(name = "formation_id")
     private Formation formation;
     
     @ManyToMany
     private List<Association> associationsFavorables;
+
+    @PrePersist
+    protected void onCreate() {
+        statut = StatutDemande.DEMANDE;
+    }
 
     public Long getId(){
         return id;
@@ -89,5 +93,12 @@ public class Demande {
     public void setFormation(Formation formation) {
         this.formation = formation;
     }
-    
+
+    public StatutDemande getStatut() {
+        return statut;
+    }
+
+    public void setStatut(StatutDemande statut) {
+        this.statut = statut;
+    }
 }

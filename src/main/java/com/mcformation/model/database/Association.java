@@ -7,19 +7,22 @@ import java.util.List;
 
 @Entity
 public class Association {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String ville;
-    private College college;
-    private String acronyme;
-    private String nomComplet;
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
+
+    private String ville;
+    private String acronyme;
+    private String nomComplet;
+
+    @Enumerated(EnumType.STRING)
+    private College college;
 
     @OneToMany(targetEntity = Demande.class)
     private List<Demande> demandes;

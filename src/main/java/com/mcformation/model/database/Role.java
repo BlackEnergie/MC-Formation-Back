@@ -9,14 +9,9 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Enumerated(EnumType.STRING)
     private Erole nom;
-
-    public Role(){};
-
-    public Role(Erole nom){
-        this.nom = nom;
-    }
 
     public Long getId() {
         return id;
