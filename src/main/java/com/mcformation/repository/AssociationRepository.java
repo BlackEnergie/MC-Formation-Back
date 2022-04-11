@@ -3,7 +3,6 @@ package com.mcformation.repository;
 import java.util.Optional;
 
 import com.mcformation.model.database.Association;
-import com.mcformation.model.database.Demande;
 import com.mcformation.model.database.Utilisateur;
 
 import org.springframework.data.jpa.repository.Query;

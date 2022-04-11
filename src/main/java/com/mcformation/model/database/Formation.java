@@ -23,10 +23,6 @@ public class Formation {
     @ManyToMany
     private List<Formateur> formateurs;
 
-    @OneToOne
-    @JoinColumn(name = "demande_id", referencedColumnName = "id")
-    private Demande demande;
-
     public Long getId() {
         return id;
     }
@@ -105,14 +101,6 @@ public class Formation {
 
     public void setCadre(String cadre) {
         this.cadre = cadre;
-    }
-
-    public Demande getDemande() {
-        return demande;
-    }
-
-    public void setDemande(Demande demande) {
-        this.demande = demande;
     }
 
     public List<Formateur> getFormateurs() {

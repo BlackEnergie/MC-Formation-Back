@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper()
+@Mapper(uses = {FormateurMapper.class})
 public interface FormationMapper {
 
     FormationMapper INSTANCE = Mappers.getMapper(FormationMapper.class);

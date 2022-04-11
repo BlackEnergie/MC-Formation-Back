@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -25,44 +27,67 @@ public class Demande {
     @ManyToMany
     private List<Domaine> domaines;
 
+    @OneToOne
+    @JoinColumn(name = "formation_id", referencedColumnName = "id")
+    private Formation formation;
+    
     @ManyToMany
     private List<Association> associationsFavorables;
 
     public Long getId(){
         return id;
     }
+    
     public Date getDateDemande(){
         return dateDemande;
     }
+
     public String getSujet(){
         return sujet;
     }
+
     public String getDetail(){
         return detail;
     }
+
     public List<Domaine> getDomaines(){
         return domaines;
     }
+
     public List<Association> getAssociationsFavorables(){
         return associationsFavorables;
     }
+
     public void setId(Long id){
         this.id=id;
     }
+
     public void setDateDemande(Date newDate){
         this.dateDemande=newDate;
     }
+
     public void setSujet(String newSujet){
         this.sujet=newSujet;
     }
+
     public void setDetail(String newDetail){
         this.detail=newDetail;
     }
+
     public void setDomaines(List<Domaine> newDomaines){
         this.domaines=newDomaines;
     }
+
     public void setAssociationsFavorables(List<Association> newAssociationsFavorables){
         this.associationsFavorables=newAssociationsFavorables;
+    }
+
+    public Formation getFormation() {
+        return formation;
+    }
+
+    public void setFormation(Formation formation) {
+        this.formation = formation;
     }
     
 }

@@ -14,6 +14,8 @@ public class FormationApi {
     private String parties;
     private String materiels;
     private String cadre;
+    private String sujet;
+    private String detail;
     private DemandeApi demande;
     
     private List<FormateurApi> formateurs;
@@ -89,19 +91,29 @@ public class FormationApi {
     public void setCadre(String cadre) {
         this.cadre = cadre;
     }
-
-    public DemandeApi getDemande() {
-        return demande;
-    }
-
-    public void setDemande(DemandeApi demande) {
-        this.demande = demande;
-    }
     public List<FormateurApi> getFormateurs() {
         return formateurs;
     }
 
     public void setFormateurs(List<FormateurApi> formateurs) {
         this.formateurs = formateurs;
+    }
+    public String getSujet() {
+        return sujet;
+    }
+    public void setSujet(String sujet) {
+        this.sujet = sujet;
+    }
+    public String getDetail() {
+        return detail;
+    }
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+    public DemandeApi getDemande() {
+        return demande;
+    }
+    public void setDemande(DemandeApi demande) {
+        this.demande = demande;
     }
 }
