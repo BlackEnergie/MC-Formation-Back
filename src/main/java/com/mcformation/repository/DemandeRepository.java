@@ -1,15 +1,16 @@
 package com.mcformation.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.mcformation.model.database.Demande;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface DemandeRepository extends CrudRepository<Demande,Long>{
+public interface DemandeRepository extends PagingAndSortingRepository<Demande,Long>{
     
     Optional<Demande> findById(Long id);
 
-    List<Demande> findTop5ByOrderByDateDemandeDesc();
+    Page<Demande> findAll(Pageable pageable);
 }

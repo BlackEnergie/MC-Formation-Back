@@ -9,6 +9,8 @@ import com.mcformation.model.database.Demande;
 import com.mcformation.repository.AssociationRepository;
 import com.mcformation.repository.DemandeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,9 +23,9 @@ public class FormationService {
     @Autowired
     private DemandeRepository demandeRepository;
 
-    public List<FormationApi> getFormationsAccueil() {
+    public List<FormationApi> getFormationsAccueil(int page,int size) {
         List<FormationApi> formationApiList = new ArrayList<>();
-        List<Demande> demandeList = demandeRepository.findTop5ByOrderByDateDemandeDesc();
+        Page<Demande> demandeList =demandeRepository.findAll(PageRequest.of(page, size));
         for (Demande demande : demandeList) {
             FormationApi formationApi = DemandeMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
             Association association = associationRepository.findByIdDemande(demande.getId());
