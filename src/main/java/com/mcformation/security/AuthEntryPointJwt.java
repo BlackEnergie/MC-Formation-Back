@@ -1,4 +1,4 @@
-package com.mcformation.security.jwt;
+package com.mcformation.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package com.mcformation.security.jwt;
+package com.mcformation.security;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.mcformation.security.jwt.JwtUtils;
+import com.mcformation.utils.JwtUtils;
 
 
 public class AuthTokenFilter extends OncePerRequestFilter {

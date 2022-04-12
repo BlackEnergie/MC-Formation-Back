@@ -7,7 +7,7 @@ import com.mcformation.repository.FormateurRepository;
 import com.mcformation.repository.MembreBureauNationalRepository;
 import com.mcformation.repository.RoleRepository;
 import com.mcformation.repository.UtilisateurRepository;
-import com.mcformation.security.jwt.JwtUtils;
+import com.mcformation.utils.JwtUtils;
 import com.mcformation.model.api.auth.LoginRequest;
 import com.mcformation.model.api.auth.SignupRequest;
 import com.mcformation.model.api.auth.JwtResponse;

@@ -1,4 +1,4 @@
-package com.mcformation.security.jwt;
+package com.mcformation.utils;
 
 import com.mcformation.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
