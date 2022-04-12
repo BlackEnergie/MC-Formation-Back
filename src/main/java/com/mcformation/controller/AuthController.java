@@ -1,14 +1,11 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.MessageApi;
-import com.mcformation.model.utils.Erole;
+import com.mcformation.model.api.auth.*;
 import com.mcformation.model.database.*;
+import com.mcformation.model.utils.Erole;
 import com.mcformation.repository.*;
 import com.mcformation.security.jwt.JwtUtils;
-import com.mcformation.model.api.auth.LoginRequest;
-import com.mcformation.model.api.auth.SignupRequest;
-import com.mcformation.model.api.auth.JwtResponse;
-import com.mcformation.model.api.auth.MessageResponse;
 import com.mcformation.service.UtilisateurService;
 import com.mcformation.service.auth.UserDetailsImpl;
 import com.mcformation.service.email.EmailService;
@@ -16,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,7 +56,6 @@ public class AuthController {
     private JwtUtils jwtUtils;
     @Autowired
     private EmailService emailService;
-
 
 
     @PostMapping("/signin")
@@ -147,6 +144,32 @@ public class AuthController {
         utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
         emailService.sendResetTokenEmail(token, utilisateur);
         MessageApi messageApi = new MessageApi(200, "Email envoyé");
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+    @PostMapping("/checkToken")
+    public ResponseEntity<MessageApi> checkPasswordTokenValid(@RequestParam("token") String token) {
+        String result = utilisateurService.validatePasswordResetToken(token);
+        if (result != null) {
+            throw new BadCredentialsException(result);
+        }
+        MessageApi messageApi = new MessageApi(200, "Token valide");
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+    @PostMapping("/savePassword")
+    public ResponseEntity<MessageApi> savePassword(@RequestBody PasswordApi passwordApi) {
+        String result = utilisateurService.validatePasswordResetToken(passwordApi.getToken());
+        if (result != null) {
+            throw new BadCredentialsException(result);
+        }
+        Utilisateur utilisateur = utilisateurService.getUserByPasswordResetToken(passwordApi.getToken());
+        if (utilisateur != null) {
+            utilisateurService.changeUserPassword(utilisateur, passwordApi.getNewPassword());
+        } else {
+            throw new BadCredentialsException("Pas d'utilisateur associé");
+        }
+        MessageApi messageApi = new MessageApi(200, "Mot de passe modifié avec succès");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 

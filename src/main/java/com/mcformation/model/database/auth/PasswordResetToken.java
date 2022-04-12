@@ -4,11 +4,12 @@ import com.mcformation.model.database.Utilisateur;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 public class PasswordResetToken {
 
-    private static final int EXPIRATION = 60 * 24;
+    private static final int EXPIRATION = 3600 * 24 * 1000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,7 +21,12 @@ public class PasswordResetToken {
     @JoinColumn(nullable = false, name = "utilisateur_id")
     private Utilisateur utilisateur;
 
-    private Date expiryDate;
+    private Timestamp expiryDate;
+
+    @PrePersist
+    protected void onCreate() {
+        expiryDate = new Timestamp(System.currentTimeMillis()+EXPIRATION);
+    }
 
     public static int getEXPIRATION() {
         return EXPIRATION;
@@ -50,11 +56,11 @@ public class PasswordResetToken {
         this.utilisateur = utilisateur;
     }
 
-    public Date getExpiryDate() {
+    public Timestamp getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(Timestamp expiryDate) {
         this.expiryDate = expiryDate;
     }
 }
