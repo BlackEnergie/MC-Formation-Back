@@ -1,4 +1,4 @@
-package com.mcformation.service;
+package com.mcformation.service.auth;
 
 import com.mcformation.model.database.Utilisateur;
 import com.mcformation.repository.UtilisateurRepository;
@@ -15,6 +15,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     UtilisateurRepository utilisateurRepository;
+
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String nomUtilisateur) throws UsernameNotFoundException {

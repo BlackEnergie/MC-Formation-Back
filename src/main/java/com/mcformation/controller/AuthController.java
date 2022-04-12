@@ -1,19 +1,19 @@
 package com.mcformation.controller;
 
+import com.mcformation.model.api.MessageApi;
 import com.mcformation.model.utils.Erole;
 import com.mcformation.model.database.*;
-import com.mcformation.repository.AssociationRepository;
-import com.mcformation.repository.FormateurRepository;
-import com.mcformation.repository.MembreBureauNationalRepository;
-import com.mcformation.repository.RoleRepository;
-import com.mcformation.repository.UtilisateurRepository;
+import com.mcformation.repository.*;
 import com.mcformation.security.jwt.JwtUtils;
 import com.mcformation.model.api.auth.LoginRequest;
 import com.mcformation.model.api.auth.SignupRequest;
 import com.mcformation.model.api.auth.JwtResponse;
 import com.mcformation.model.api.auth.MessageResponse;
-import com.mcformation.service.UserDetailsImpl;
+import com.mcformation.service.UtilisateurService;
+import com.mcformation.service.auth.UserDetailsImpl;
+import com.mcformation.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,10 +22,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -35,21 +37,28 @@ import java.util.stream.Collectors;
 public class AuthController {
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     @Autowired
-    UtilisateurRepository utilisateurRepository;
+    private PasswordEncoder encoder;
     @Autowired
-    RoleRepository roleRepository;
+    private UtilisateurService utilisateurService;
+
     @Autowired
-    PasswordEncoder encoder;
+    private UtilisateurRepository utilisateurRepository;
     @Autowired
-    JwtUtils jwtUtils;
+    private RoleRepository roleRepository;
     @Autowired
-    AssociationRepository associationRepository;
+    private AssociationRepository associationRepository;
     @Autowired
-    FormateurRepository formateurRepository;
+    private FormateurRepository formateurRepository;
     @Autowired
-    MembreBureauNationalRepository membreBureauNationalRepository;
+    private MembreBureauNationalRepository membreBureauNationalRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+    @Autowired
+    private EmailService emailService;
+
 
 
     @PostMapping("/signin")
@@ -84,9 +93,7 @@ public class AuthController {
         }
         // Create new user's account
         Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-
-
-        Set<Role> roles = new HashSet<>();
+        Erole role = null;
         signUpRequest.setRole(null);
 
         Association association = signUpRequest.getAssociation();
@@ -98,7 +105,8 @@ public class AuthController {
 
         if (association != null) {
             if (membreBureauNational == null && formateur == null) {
-                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_ASSO);
+                role = Erole.ROLE_ASSO;
+                utilisateur = saveUtilisateur(utilisateur, role);
                 association.setUtilisateur(utilisateur);
                 associationRepository.save(association);
                 requestValid = true;
@@ -107,8 +115,8 @@ public class AuthController {
 
         if (membreBureauNational != null) {
             if (association == null && formateur == null) {
-
-                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_BN);
+                role = Erole.ROLE_BN;
+                utilisateur = saveUtilisateur(utilisateur, role);
                 membreBureauNational.setUtilisateur(utilisateur);
                 membreBureauNationalRepository.save(membreBureauNational);
                 requestValid = true;
@@ -117,7 +125,8 @@ public class AuthController {
 
         if (formateur != null) {
             if (association == null && membreBureauNational == null) {
-                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_FORMATEUR);
+                role = Erole.ROLE_FORMATEUR;
+                utilisateur = saveUtilisateur(utilisateur, role);
                 formateur.setUtilisateur(utilisateur);
                 formateurRepository.save(formateur);
                 requestValid = true;
@@ -127,8 +136,18 @@ public class AuthController {
             throw new RuntimeException("Erreur : requête invalide");
 
         }
-
+        emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), role);
         return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès!"));
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<MessageApi> resetPassword(HttpServletRequest request, @RequestParam("email") String userEmail) {
+        Utilisateur utilisateur = utilisateurService.findUtilisateurByEmail(userEmail);
+        String token = UUID.randomUUID().toString();
+        utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
+        emailService.sendResetTokenEmail(token, utilisateur);
+        MessageApi messageApi = new MessageApi(200, "Email envoyé");
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
     private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {

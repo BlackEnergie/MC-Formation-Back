@@ -1,4 +1,4 @@
-package com.mcformation.service;
+package com.mcformation.service.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcformation.model.database.*;
@@ -66,7 +66,6 @@ public class UserDetailsImpl implements UserDetails {
     public String getPassword() {
         return password;
     }
-
 
     @Override
     public String getUsername() {

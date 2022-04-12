@@ -2,8 +2,7 @@ package com.mcformation.security;
 
 import com.mcformation.security.jwt.AuthEntryPointJwt;
 import com.mcformation.security.jwt.AuthTokenFilter;
-import com.mcformation.service.UserDetailsImpl;
-import com.mcformation.service.UserDetailsServiceImpl;
+import com.mcformation.service.auth.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
