@@ -9,12 +9,12 @@ import com.mcformation.model.database.Demande;
 import com.mcformation.repository.AssociationRepository;
 import com.mcformation.repository.DemandeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FormationService {
@@ -23,9 +23,9 @@ public class FormationService {
     @Autowired
     private DemandeRepository demandeRepository;
 
-    public List<FormationApi> getFormationsAccueil(int page,int size) {
+    public List<FormationApi> getFormationsAccueil(int offset,int limit,String statut) {
         List<FormationApi> formationApiList = new ArrayList<>();
-        Page<Demande> demandeList =demandeRepository.findAll(PageRequest.of(page, size));
+        List<Demande> demandeList =demandeRepository.findFormations(offset, limit,statut);
         for (Demande demande : demandeList) {
             FormationApi formationApi = DemandeMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
             Association association = associationRepository.findByIdDemande(demande.getId());
@@ -35,5 +35,18 @@ public class FormationService {
         }
         return formationApiList;
     }
-
+    @Transactional(rollbackFor = UnsupportedOperationException.class)
+    public FormationApi getFormation(Long id) {
+        FormationApi formationApi;
+        Optional<Demande> demande =demandeRepository.findById(id);
+        if(demande.isPresent()){
+            formationApi = DemandeMapper.INSTANCE.demandeDaoToFormationApiDetail(demande.get());
+            Association association = associationRepository.findByIdDemande(demande.get().getId());
+            AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(association);
+            formationApi.setAssociation(associationApi);
+        } else {
+            throw new UnsupportedOperationException("La formation/demande n'existe pas.");
+        }
+        return formationApi;
+    }   
 }
