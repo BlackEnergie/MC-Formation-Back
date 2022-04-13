@@ -62,4 +62,12 @@ public class CreateUserToken {
     public void setExpirationDate(Timestamp expirationDate) {
         this.expirationDate = expirationDate;
     }
+
+    public Erole getRole() {
+        return role;
+    }
+
+    public void setRole(Erole role) {
+        this.role = role;
+    }
 }

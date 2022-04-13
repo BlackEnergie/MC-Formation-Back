@@ -1,8 +1,10 @@
 package com.mcformation.service;
 
 import com.mcformation.model.database.Utilisateur;
+import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 import com.mcformation.repository.PasswordTokenRepository;
+import com.mcformation.repository.UserTokenRepository;
 import com.mcformation.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +23,9 @@ public class UtilisateurService {
     private UtilisateurRepository utilisateurRepository;
 
     @Autowired
+    private UserTokenRepository userTokenRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public Utilisateur findUtilisateurByEmail(String email) {
@@ -33,6 +38,8 @@ public class UtilisateurService {
         }
         return utilisateur;
     }
+
+    //PASSWORD
 
     public void createPasswordResetTokenForUtilisateur(Utilisateur utilisateur, String token) {
         PasswordResetToken myToken = new PasswordResetToken();
@@ -66,4 +73,29 @@ public class UtilisateurService {
         PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(token);
         return passwordResetToken.getUtilisateur();
     }
+
+    //EMAIL
+
+    public String validateEmailToken(String token) {
+        final CreateUserToken passToken = userTokenRepository.findByToken(token);
+        return !isUserTokenFound(passToken) ? "Token invalide"
+                : isUserTokenExpired(passToken) ? "Token expiré"
+                : null;
+    }
+
+    public String getRoleByToken(String token){
+        final CreateUserToken passToken = userTokenRepository.findByToken(token);
+        return passToken.getRole().toString();
+    }
+
+    private boolean isUserTokenFound(CreateUserToken passToken) {
+        return passToken != null;
+    }
+
+    private boolean isUserTokenExpired(CreateUserToken passToken) {
+        final Calendar cal = Calendar.getInstance();
+        return passToken.getExpirationDate().before(cal.getTime());
+    }
+
+
 }

@@ -22,13 +22,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -56,6 +52,8 @@ public class AuthController {
     private MembreBureauNationalRepository membreBureauNationalRepository;
     @Autowired
     private PasswordTokenRepository passwordTokenRepository;
+    @Autowired
+    private UserTokenRepository userTokenRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -87,11 +85,105 @@ public class AuthController {
 
     @PostMapping("/signup/invite")
     public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) {
-        MessageApi messageApi = new MessageApi();
+
         CreateUserToken createUserToken = new CreateUserToken();
+        createUserToken.setToken(UUID.randomUUID().toString());
         Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setEmail(inviteRequest.getEmail());
+        Erole role = null;
+        if (inviteRequest.getRole().equals("Association")) {
+            role = Erole.ROLE_ASSO;
+            createUserToken.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, role);
+            createUserToken.setUtilisateur(utilisateur);
+            userTokenRepository.save(createUserToken);
+            utilisateurRepository.save(utilisateur);
+
+        }
+        if (inviteRequest.getRole().equals("Formateur")) {
+            role = Erole.ROLE_FORMATEUR;
+            createUserToken.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, role);
+            createUserToken.setUtilisateur(utilisateur);
+            userTokenRepository.save(createUserToken);
+            utilisateurRepository.save(utilisateur);
+        }
+        emailService.sendCreateUserTokenEmail(createUserToken.getToken(), utilisateur);
+        MessageApi messageApi = new MessageApi(200, "Email envoyé");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
+
+
+    public void checkToken(String token) {
+
+        String result = utilisateurService.validateEmailToken(token);
+        if (result != null) {
+            throw new BadCredentialsException(result);
+        }
+    }
+
+    @PostMapping("/emailToken/checkToken")
+    public ResponseEntity<MessageApi> checkEmailToken(@RequestParam("token") String token) {
+
+        checkToken(token);
+        String role = utilisateurService.getRoleByToken(token);
+
+        MessageApi messageApi = new MessageApi(200, role);
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/signupEmail")
+    public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) {
+
+        checkToken(token);
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findByEmail(userTokenRepository.findByToken(token).getUtilisateur().getEmail());
+
+        if (utilisateurOptional.isPresent()) {
+            if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: Username is already taken!"));
+            }
+            // Create new user's account
+
+            Utilisateur utilisateur = utilisateurOptional.get();
+            utilisateur.setNomUtilisateur(signUpRequest.getNomUtilisateur());
+            utilisateur.setPassword(encoder.encode(signUpRequest.getPassword()));
+
+
+
+            Association association = signUpRequest.getAssociation();
+            Formateur formateur = signUpRequest.getFormateur();
+
+            boolean requestValid = false;
+
+            if (utilisateur.getRoles().stream().findFirst().get().getNom().equals(Erole.ROLE_ASSO)) {
+                    association.setUtilisateur(utilisateur);
+                    associationRepository.save(association);
+                    requestValid = true;
+            }
+
+            if (utilisateur.getRoles().stream().findFirst().get().getNom().equals(Erole.ROLE_FORMATEUR)) {
+                    formateur.setUtilisateur(utilisateur);
+                    formateurRepository.save(formateur);
+                    requestValid = true;
+            }
+            if (!requestValid) {
+                throw new RuntimeException("Erreur : requête invalide");
+
+            }
+            emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), role);
+            CreateUserToken createUserToken = userTokenRepository.findByToken(token);
+            createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
+            userTokenRepository.save(createUserToken);
+            return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
+        }
+        throw new BadCredentialsException("Mauvaises informations saisies");
+
+
+    }
+
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {

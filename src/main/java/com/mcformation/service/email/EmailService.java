@@ -17,6 +17,8 @@ public class EmailService {
     private final String PREFIX_SUJET = "[MC-Formation-Web] | ";
     private final String BASE_URL = "http://localhost:8080";
     private final String CHANGE_PASSWORD_URL = "/api/auth/changePassword";
+    private final String SIGNUP_INVITE_URL = "/api/auth/signup/invite";
+
 
     @Autowired
     private JavaMailSender emailSender;
@@ -32,6 +34,12 @@ public class EmailService {
     public void sendResetTokenEmail(String token, Utilisateur utilisateur) {
         String url = BASE_URL + CHANGE_PASSWORD_URL + "?token=" + token;
         String message = "Réinitialisez votre mot de passe";
+        sendSimpleMessage(utilisateur.getEmail(), message, message + ": " + url);
+    }
+
+    public void sendCreateUserTokenEmail(String token, Utilisateur utilisateur) {
+        String url = BASE_URL + SIGNUP_INVITE_URL + "?token=" + token;
+        String message = "Veuillez créer votre utilisateur";
         sendSimpleMessage(utilisateur.getEmail(), message, message + ": " + url);
     }
 
