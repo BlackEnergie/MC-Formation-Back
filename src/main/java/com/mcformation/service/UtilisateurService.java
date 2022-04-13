@@ -43,7 +43,6 @@ public class UtilisateurService {
 
     public String validatePasswordResetToken(String token) {
         final PasswordResetToken passToken = passwordTokenRepository.findByToken(token);
-
         return !isTokenFound(passToken) ? "Token invalide"
                 : isTokenExpired(passToken) ? "Token expiré"
                 : null;
@@ -55,7 +54,7 @@ public class UtilisateurService {
 
     private boolean isTokenExpired(PasswordResetToken passToken) {
         final Calendar cal = Calendar.getInstance();
-        return passToken.getExpiryDate().before(cal.getTime());
+        return passToken.getExpirationDate().before(cal.getTime());
     }
 
     public void changeUserPassword(Utilisateur utilisateur, String password) {

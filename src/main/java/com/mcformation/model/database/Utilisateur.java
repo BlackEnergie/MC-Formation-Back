@@ -1,5 +1,6 @@
 package com.mcformation.model.database;
 
+import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 
 import javax.persistence.*;
@@ -13,16 +14,16 @@ public class Utilisateur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String nomUtilisateur;
 
     @Column(unique = true)
     private String email;
+
     private String password;
 
-    @OneToOne(mappedBy = "utilisateur")
-    private PasswordResetToken passwordResetToken;
-
     @ManyToMany
+    // TODO: passer en ManyToOne
     private Set<Role> roles;
 
     @OneToOne(mappedBy = "utilisateur")
@@ -36,6 +37,12 @@ public class Utilisateur {
     @OneToOne(mappedBy = "utilisateur")
     @PrimaryKeyJoinColumn
     private MembreBureauNational membreBureauNational;
+
+    @OneToOne(mappedBy = "utilisateur")
+    private PasswordResetToken passwordResetToken;
+
+    @OneToOne(mappedBy = "utilisateur")
+    private CreateUserToken createUserToken;
 
     public Utilisateur(String nomUtilisateur, String email, String password) {
         this.nomUtilisateur = nomUtilisateur;
@@ -117,5 +124,13 @@ public class Utilisateur {
 
     public void setPasswordResetToken(PasswordResetToken passwordResetToken) {
         this.passwordResetToken = passwordResetToken;
+    }
+
+    public CreateUserToken getCreateUserToken() {
+        return createUserToken;
+    }
+
+    public void setCreateUserToken(CreateUserToken createUserToken) {
+        this.createUserToken = createUserToken;
     }
 }

@@ -3,6 +3,8 @@ package com.mcformation.controller;
 import com.mcformation.model.api.MessageApi;
 import com.mcformation.model.api.auth.*;
 import com.mcformation.model.database.*;
+import com.mcformation.model.database.auth.CreateUserToken;
+import com.mcformation.model.database.auth.PasswordResetToken;
 import com.mcformation.model.utils.Erole;
 import com.mcformation.repository.*;
 import com.mcformation.security.jwt.JwtUtils;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +34,7 @@ import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -51,19 +54,21 @@ public class AuthController {
     private FormateurRepository formateurRepository;
     @Autowired
     private MembreBureauNationalRepository membreBureauNationalRepository;
+    @Autowired
+    private PasswordTokenRepository passwordTokenRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
     @Autowired
     private EmailService emailService;
 
+    ////////////////////////
+    //       LOGIN        //
+    ////////////////////////
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
-
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
@@ -73,13 +78,20 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getNomUtilisateur(),
-                userDetails.getEmail(),
-                roles));
+        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getNomUtilisateur(), userDetails.getEmail(), roles));
     }
 
+    ////////////////////////
+    //      REGISTER      //
+    ////////////////////////
+
+    @PostMapping("/signup/invite")
+    public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) {
+        MessageApi messageApi = new MessageApi();
+        CreateUserToken createUserToken = new CreateUserToken();
+        Utilisateur utilisateur = new Utilisateur();
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
@@ -98,7 +110,6 @@ public class AuthController {
         Formateur formateur = signUpRequest.getFormateur();
 
         boolean requestValid = false;
-
 
         if (association != null) {
             if (membreBureauNational == null && formateur == null) {
@@ -134,11 +145,23 @@ public class AuthController {
 
         }
         emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), role);
-        return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès!"));
+        return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
     }
 
+    private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
+        Role role = roleRepository.findByNom(erole).orElseThrow(() -> new RuntimeException("Erreur: Le role n'existe pas"));
+        Set<Role> roles = new HashSet<>();
+        roles.add(role);
+        utilisateur.setRoles(roles);
+        return utilisateurRepository.save(utilisateur);
+    }
+
+    ////////////////////////
+    //   RESET PASSWORD   //
+    ////////////////////////
+
     @PostMapping("/resetPassword")
-    public ResponseEntity<MessageApi> resetPassword(HttpServletRequest request, @RequestParam("email") String userEmail) {
+    public ResponseEntity<MessageApi> resetPassword(@RequestParam("email") String userEmail) {
         Utilisateur utilisateur = utilisateurService.findUtilisateurByEmail(userEmail);
         String token = UUID.randomUUID().toString();
         utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
@@ -147,7 +170,7 @@ public class AuthController {
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
-    @PostMapping("/checkToken")
+    @PostMapping("/resetPassword/checkToken")
     public ResponseEntity<MessageApi> checkPasswordTokenValid(@RequestParam("token") String token) {
         String result = utilisateurService.validatePasswordResetToken(token);
         if (result != null) {
@@ -157,28 +180,23 @@ public class AuthController {
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
-    @PostMapping("/savePassword")
+    @PostMapping("/resetPassword/savePassword")
     public ResponseEntity<MessageApi> savePassword(@RequestBody PasswordApi passwordApi) {
         String result = utilisateurService.validatePasswordResetToken(passwordApi.getToken());
         if (result != null) {
             throw new BadCredentialsException(result);
         }
-        Utilisateur utilisateur = utilisateurService.getUserByPasswordResetToken(passwordApi.getToken());
+        PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(passwordApi.getToken());
+        Utilisateur utilisateur = passwordResetToken.getUtilisateur();
         if (utilisateur != null) {
             utilisateurService.changeUserPassword(utilisateur, passwordApi.getNewPassword());
         } else {
             throw new BadCredentialsException("Pas d'utilisateur associé");
         }
+        passwordResetToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
+        passwordTokenRepository.save(passwordResetToken);
         MessageApi messageApi = new MessageApi(200, "Mot de passe modifié avec succès");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
-    }
-
-    private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
-        Role role = roleRepository.findByNom(erole).orElseThrow(() -> new RuntimeException("Erreur: Le role n'existe pas"));
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-        utilisateur.setRoles(roles);
-        return utilisateurRepository.save(utilisateur);
     }
 
 }

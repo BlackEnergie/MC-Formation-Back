@@ -10,7 +10,6 @@ public class Association {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String ville;
     private College college;
     private String acronyme;

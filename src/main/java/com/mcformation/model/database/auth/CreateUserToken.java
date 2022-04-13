@@ -1,12 +1,13 @@
 package com.mcformation.model.database.auth;
 
 import com.mcformation.model.database.Utilisateur;
+import com.mcformation.model.utils.Erole;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-public class PasswordResetToken {
+public class CreateUserToken {
 
     private static final int EXPIRATION = 3600 * 24 * 1000;
 
@@ -14,6 +15,7 @@ public class PasswordResetToken {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String token;
+    private Erole role;
     private Timestamp expirationDate;
 
     @OneToOne(targetEntity = Utilisateur.class, fetch = FetchType.EAGER)
@@ -57,7 +59,7 @@ public class PasswordResetToken {
         return expirationDate;
     }
 
-    public void setExpirationDate(Timestamp expiryDate) {
-        this.expirationDate = expiryDate;
+    public void setExpirationDate(Timestamp expirationDate) {
+        this.expirationDate = expirationDate;
     }
 }
