@@ -7,7 +7,7 @@ public class SignupInviteRequest {
     @NotBlank
     private String email;
     @NotBlank
-    private String role;
+    private Erole role;
 
     public String getEmail() {
         return email;
@@ -17,11 +17,11 @@ public class SignupInviteRequest {
         this.email = email;
     }
 
-    public String getRole() {
+    public Erole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Erole role) {
         this.role = role;
     }
 }

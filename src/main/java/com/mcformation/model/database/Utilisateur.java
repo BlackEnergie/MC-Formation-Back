@@ -22,9 +22,9 @@ public class Utilisateur {
 
     private String password;
 
-    @ManyToMany
+    @ManyToOne
     // TODO: passer en ManyToOne
-    private Set<Role> roles;
+    private Role roles;
 
     @OneToOne(mappedBy = "utilisateur")
     @PrimaryKeyJoinColumn
@@ -47,9 +47,6 @@ public class Utilisateur {
         this.email = email;
     }
 
-    public Utilisateur() {
-        this.roles = new HashSet<>();
-    }
 
     public Long getId() {
         return id;
@@ -83,11 +80,11 @@ public class Utilisateur {
         this.password = password;
     }
 
-    public Set<Role> getRoles() {
+    public Role getRole() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRole(Role roles) {
         this.roles = roles;
     }
 

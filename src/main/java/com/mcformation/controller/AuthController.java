@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -88,23 +89,15 @@ public class AuthController {
 
         CreateUserToken createUserToken = new CreateUserToken();
         createUserToken.setToken(UUID.randomUUID().toString());
-        if(utilisateurRepository.existsByEmail(inviteRequest.getEmail())){
+        if (utilisateurRepository.existsByEmail(inviteRequest.getEmail())) {
             MessageApi messageApi = new MessageApi(400, "Email existant");
             return new ResponseEntity<>(messageApi, HttpStatus.BAD_REQUEST);
         }
         createUserToken.setEmail(inviteRequest.getEmail());
-        Erole role = null;
-        if (inviteRequest.getRole().equals("Association")) {
-            role = Erole.ROLE_ASSO;
-            createUserToken.setRole(role);
-            userTokenRepository.save(createUserToken);
-        }
-        if (inviteRequest.getRole().equals("Formateur")) {
-            role = Erole.ROLE_FORMATEUR;
-            createUserToken.setRole(role);
-            userTokenRepository.save(createUserToken);
-        }
-        emailService.sendCreateUserTokenEmail(createUserToken.getToken(),inviteRequest.getEmail());
+        Erole role = inviteRequest.getRole();
+        createUserToken.setRole(role);
+        userTokenRepository.save(createUserToken);
+        emailService.sendCreateUserTokenEmail(createUserToken.getToken(), inviteRequest.getEmail());
         MessageApi messageApi = new MessageApi(200, "Email envoyé");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
@@ -122,9 +115,9 @@ public class AuthController {
     public ResponseEntity<MessageApi> checkEmailToken(@RequestParam("token") String token) {
 
         checkToken(token);
-        String role = utilisateurService.getRoleByToken(token);
+        Erole role = userTokenRepository.findByToken(token).getRole();
 
-        MessageApi messageApi = new MessageApi(200, role);
+        MessageApi messageApi = new MessageApi(200, role.name());
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
@@ -143,24 +136,30 @@ public class AuthController {
         // Create new user's account
         Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), userTokenRepository.findByToken(token).getEmail(), encoder.encode(signUpRequest.getPassword()));
         Erole role = userTokenRepository.findByToken(token).getRole();
+
         Association association = signUpRequest.getAssociation();
         Formateur formateur = signUpRequest.getFormateur();
+        MembreBureauNational membreBureauNational = signUpRequest.getMembreBureauNational();
 
-        if (role==Erole.ROLE_ASSO) {
-                utilisateur = saveUtilisateur(utilisateur, role);
-                association.setUtilisateur(utilisateur);
-                associationRepository.save(association);
-        }
-        else if (role==Erole.ROLE_FORMATEUR) {
-                utilisateur = saveUtilisateur(utilisateur, role);
-                formateur.setUtilisateur(utilisateur);
-                formateurRepository.save(formateur);
-        }
-        else{
+        if (role == Erole.ROLE_ASSO && association != null) {
+            utilisateur = saveUtilisateur(utilisateur, role);
+            association.setUtilisateur(utilisateur);
+            associationRepository.save(association);
+
+        } else if (role == Erole.ROLE_FORMATEUR && formateur != null) {
+            utilisateur = saveUtilisateur(utilisateur, role);
+            formateur.setUtilisateur(utilisateur);
+            formateurRepository.save(formateur);
+
+        } else if (role == Erole.ROLE_BN && membreBureauNational != null) {
+            utilisateur = saveUtilisateur(utilisateur, role);
+            membreBureauNational.setUtilisateur(utilisateur);
+            membreBureauNationalRepository.save(membreBureauNational);
+        } else {
             throw new RuntimeException("Erreur : requête invalide");
         }
 
-        emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), utilisateur.getRoles().stream().findFirst().get().getNom());
+        emailService.confirmCreateUserEmail(utilisateur.getEmail());
         CreateUserToken createUserToken = userTokenRepository.findByToken(token);
         createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
         userTokenRepository.save(createUserToken);
@@ -219,15 +218,13 @@ public class AuthController {
             throw new RuntimeException("Erreur : requête invalide");
 
         }
-        emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), role);
+        emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), utilisateur.getRole());
         return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
     }
 
     private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
         Role role = roleRepository.findByNom(erole).orElseThrow(() -> new RuntimeException("Erreur: Le role n'existe pas"));
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-        utilisateur.setRoles(roles);
+        utilisateur.setRole(role);
         return utilisateurRepository.save(utilisateur);
     }
 

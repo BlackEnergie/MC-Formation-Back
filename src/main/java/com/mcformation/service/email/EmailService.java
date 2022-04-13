@@ -1,5 +1,6 @@
 package com.mcformation.service.email;
 
+import com.mcformation.model.database.Role;
 import com.mcformation.model.database.Utilisateur;
 import com.mcformation.model.utils.Erole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender emailSender;
 
-    public void sendNewUserNotification(String email, String username, Erole role) {
+    public void sendNewUserNotification(String email, String username, Role role) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Date date = new Date();
         StringBuilder subject = new StringBuilder("Nouvel utilisateur ").append(role).append(" créé : '").append(username).append("' ");
@@ -41,6 +42,11 @@ public class EmailService {
         String url = BASE_URL + SIGNUP_INVITE_URL + "?token=" + token;
         String message = "Veuillez créer votre utilisateur";
         sendSimpleMessage(email, message, message + ": " + url);
+    }
+
+    public void confirmCreateUserEmail(String email){
+        String message = "Votre compte a bien été crée";
+        sendSimpleMessage(email, "Confirmation création compte", message);
     }
 
     private void sendSimpleMessage(String to, String subject, String text) {
