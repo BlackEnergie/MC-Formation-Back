@@ -37,10 +37,10 @@ public class EmailService {
         sendSimpleMessage(utilisateur.getEmail(), message, message + ": " + url);
     }
 
-    public void sendCreateUserTokenEmail(String token, Utilisateur utilisateur) {
+    public void sendCreateUserTokenEmail(String token,String email) {
         String url = BASE_URL + SIGNUP_INVITE_URL + "?token=" + token;
         String message = "Veuillez créer votre utilisateur";
-        sendSimpleMessage(utilisateur.getEmail(), message, message + ": " + url);
+        sendSimpleMessage(email, message, message + ": " + url);
     }
 
     private void sendSimpleMessage(String to, String subject, String text) {

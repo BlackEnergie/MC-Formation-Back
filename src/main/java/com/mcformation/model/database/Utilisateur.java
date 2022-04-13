@@ -41,9 +41,6 @@ public class Utilisateur {
     @OneToOne(mappedBy = "utilisateur")
     private PasswordResetToken passwordResetToken;
 
-    @OneToOne(mappedBy = "utilisateur")
-    private CreateUserToken createUserToken;
-
     public Utilisateur(String nomUtilisateur, String email, String password) {
         this.nomUtilisateur = nomUtilisateur;
         this.password = password;
@@ -126,11 +123,4 @@ public class Utilisateur {
         this.passwordResetToken = passwordResetToken;
     }
 
-    public CreateUserToken getCreateUserToken() {
-        return createUserToken;
-    }
-
-    public void setCreateUserToken(CreateUserToken createUserToken) {
-        this.createUserToken = createUserToken;
-    }
 }

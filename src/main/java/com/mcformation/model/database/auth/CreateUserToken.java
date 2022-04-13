@@ -1,6 +1,5 @@
 package com.mcformation.model.database.auth;
 
-import com.mcformation.model.database.Utilisateur;
 import com.mcformation.model.utils.Erole;
 
 import javax.persistence.*;
@@ -16,11 +15,8 @@ public class CreateUserToken {
     private Long id;
     private String token;
     private Erole role;
+    private String email;
     private Timestamp expirationDate;
-
-    @OneToOne(targetEntity = Utilisateur.class, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false, name = "utilisateur_id")
-    private Utilisateur utilisateur;
 
     @PrePersist
     protected void onCreate() {
@@ -47,12 +43,12 @@ public class CreateUserToken {
         this.token = token;
     }
 
-    public Utilisateur getUtilisateur() {
-        return utilisateur;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUtilisateur(Utilisateur utilisateur) {
-        this.utilisateur = utilisateur;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Timestamp getExpirationDate() {

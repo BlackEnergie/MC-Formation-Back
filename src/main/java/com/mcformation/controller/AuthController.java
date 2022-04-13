@@ -88,27 +88,23 @@ public class AuthController {
 
         CreateUserToken createUserToken = new CreateUserToken();
         createUserToken.setToken(UUID.randomUUID().toString());
-        Utilisateur utilisateur = new Utilisateur();
-        utilisateur.setEmail(inviteRequest.getEmail());
+        if(utilisateurRepository.existsByEmail(inviteRequest.getEmail())){
+            MessageApi messageApi = new MessageApi(400, "Email existant");
+            return new ResponseEntity<>(messageApi, HttpStatus.BAD_REQUEST);
+        }
+        createUserToken.setEmail(inviteRequest.getEmail());
         Erole role = null;
         if (inviteRequest.getRole().equals("Association")) {
             role = Erole.ROLE_ASSO;
             createUserToken.setRole(role);
-            utilisateur = saveUtilisateur(utilisateur, role);
-            createUserToken.setUtilisateur(utilisateur);
             userTokenRepository.save(createUserToken);
-            utilisateurRepository.save(utilisateur);
-
         }
         if (inviteRequest.getRole().equals("Formateur")) {
             role = Erole.ROLE_FORMATEUR;
             createUserToken.setRole(role);
-            utilisateur = saveUtilisateur(utilisateur, role);
-            createUserToken.setUtilisateur(utilisateur);
             userTokenRepository.save(createUserToken);
-            utilisateurRepository.save(utilisateur);
         }
-        emailService.sendCreateUserTokenEmail(createUserToken.getToken(), utilisateur);
+        emailService.sendCreateUserTokenEmail(createUserToken.getToken(),inviteRequest.getEmail());
         MessageApi messageApi = new MessageApi(200, "Email envoyé");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
@@ -137,51 +133,38 @@ public class AuthController {
     public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) {
 
         checkToken(token);
-        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findByEmail(userTokenRepository.findByToken(token).getUtilisateur().getEmail());
 
-        if (utilisateurOptional.isPresent()) {
-            if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
-                return ResponseEntity
-                        .badRequest()
-                        .body(new MessageResponse("Error: Username is already taken!"));
-            }
-            // Create new user's account
-
-            Utilisateur utilisateur = utilisateurOptional.get();
-            utilisateur.setNomUtilisateur(signUpRequest.getNomUtilisateur());
-            utilisateur.setPassword(encoder.encode(signUpRequest.getPassword()));
-
-
-
-            Association association = signUpRequest.getAssociation();
-            Formateur formateur = signUpRequest.getFormateur();
-
-            boolean requestValid = false;
-
-            if (utilisateur.getRoles().stream().findFirst().get().getNom().equals(Erole.ROLE_ASSO)) {
-                    association.setUtilisateur(utilisateur);
-                    associationRepository.save(association);
-                    requestValid = true;
-            }
-
-            if (utilisateur.getRoles().stream().findFirst().get().getNom().equals(Erole.ROLE_FORMATEUR)) {
-                    formateur.setUtilisateur(utilisateur);
-                    formateurRepository.save(formateur);
-                    requestValid = true;
-            }
-            if (!requestValid) {
-                throw new RuntimeException("Erreur : requête invalide");
-
-            }
-            emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), role);
-            CreateUserToken createUserToken = userTokenRepository.findByToken(token);
-            createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
-            userTokenRepository.save(createUserToken);
-            return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
+        if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is already taken!"));
         }
-        throw new BadCredentialsException("Mauvaises informations saisies");
 
+        // Create new user's account
+        Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), userTokenRepository.findByToken(token).getEmail(), encoder.encode(signUpRequest.getPassword()));
+        Erole role = userTokenRepository.findByToken(token).getRole();
+        Association association = signUpRequest.getAssociation();
+        Formateur formateur = signUpRequest.getFormateur();
 
+        if (role==Erole.ROLE_ASSO) {
+                utilisateur = saveUtilisateur(utilisateur, role);
+                association.setUtilisateur(utilisateur);
+                associationRepository.save(association);
+        }
+        else if (role==Erole.ROLE_FORMATEUR) {
+                utilisateur = saveUtilisateur(utilisateur, role);
+                formateur.setUtilisateur(utilisateur);
+                formateurRepository.save(formateur);
+        }
+        else{
+            throw new RuntimeException("Erreur : requête invalide");
+        }
+
+        emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), utilisateur.getRoles().stream().findFirst().get().getNom());
+        CreateUserToken createUserToken = userTokenRepository.findByToken(token);
+        createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
+        userTokenRepository.save(createUserToken);
+        return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
     }
 
 
