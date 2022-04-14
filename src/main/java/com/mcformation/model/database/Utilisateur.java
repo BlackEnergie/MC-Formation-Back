@@ -46,6 +46,9 @@ public class Utilisateur {
         this.password = password;
         this.email = email;
     }
+    public Utilisateur(){
+        
+    }
 
 
     public Long getId() {

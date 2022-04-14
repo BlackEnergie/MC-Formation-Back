@@ -135,24 +135,27 @@ public class AuthController {
 
         // Create new user's account
         Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), userTokenRepository.findByToken(token).getEmail(), encoder.encode(signUpRequest.getPassword()));
-        Erole role = userTokenRepository.findByToken(token).getRole();
-
+        Erole erole = userTokenRepository.findByToken(token).getRole();
+        Role role = new Role(erole);
         Association association = signUpRequest.getAssociation();
         Formateur formateur = signUpRequest.getFormateur();
         MembreBureauNational membreBureauNational = signUpRequest.getMembreBureauNational();
 
-        if (role == Erole.ROLE_ASSO && association != null) {
-            utilisateur = saveUtilisateur(utilisateur, role);
+        if (erole == Erole.ROLE_ASSO && association != null) {
+            utilisateur.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, erole);
             association.setUtilisateur(utilisateur);
             associationRepository.save(association);
 
-        } else if (role == Erole.ROLE_FORMATEUR && formateur != null) {
-            utilisateur = saveUtilisateur(utilisateur, role);
+        } else if (erole == Erole.ROLE_FORMATEUR && formateur != null) {
+            utilisateur.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, erole);
             formateur.setUtilisateur(utilisateur);
             formateurRepository.save(formateur);
 
-        } else if (role == Erole.ROLE_BN && membreBureauNational != null) {
-            utilisateur = saveUtilisateur(utilisateur, role);
+        } else if (erole == Erole.ROLE_BN && membreBureauNational != null) {
+            utilisateur.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, erole);
             membreBureauNational.setUtilisateur(utilisateur);
             membreBureauNationalRepository.save(membreBureauNational);
         } else {
