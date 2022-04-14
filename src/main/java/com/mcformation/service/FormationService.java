@@ -6,6 +6,7 @@ import com.mcformation.model.api.AssociationApi;
 import com.mcformation.model.api.FormationApi;
 import com.mcformation.model.database.Association;
 import com.mcformation.model.database.Demande;
+import com.mcformation.model.database.Domaine;
 import com.mcformation.repository.AssociationRepository;
 import com.mcformation.repository.DemandeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,9 @@ public class FormationService {
     @Autowired
     private DemandeRepository demandeRepository;
 
-    public List<FormationApi> getFormationsAccueil(int offset,int limit,String statut) {
+    public List<FormationApi> getFormationsAccueil(int offset,int limit,String statut,List<String> domaines) {
         List<FormationApi> formationApiList = new ArrayList<>();
-        List<Demande> demandeList =demandeRepository.findFormations(offset, limit,statut);
+        List<Demande> demandeList =demandeRepository.findFormations(offset, limit,statut,domaines);
         for (Demande demande : demandeList) {
             FormationApi formationApi = DemandeMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
             Association association = associationRepository.findByIdDemande(demande.getId());

@@ -3,6 +3,7 @@ package com.mcformation.controller;
 import java.util.List;
 
 import com.mcformation.model.api.FormationApi;
+import com.mcformation.model.database.Domaine;
 import com.mcformation.service.FormationService;
 
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,8 @@ public class FormationController {
 
     @GetMapping("/formations")
     public ResponseEntity<List<FormationApi>> getAllFormations(@RequestParam int offset,
-    @RequestParam int limit,@RequestParam String statut){
-        List<FormationApi> formations=formationService.getFormationsAccueil(offset,limit,statut);
+    @RequestParam int limit,@RequestParam String statut,@RequestParam List<String> domaines){
+        List<FormationApi> formations=formationService.getFormationsAccueil(offset,limit,statut,domaines);
         return new ResponseEntity<>(formations, HttpStatus.OK);
     }
 

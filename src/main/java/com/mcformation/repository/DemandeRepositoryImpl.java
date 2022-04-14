@@ -17,6 +17,7 @@ import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
 import com.mcformation.model.database.Demande;
+import com.mcformation.model.database.Domaine;
 import com.mcformation.model.database.Formation;
 import com.mcformation.model.utils.StatutDemande;
 
@@ -28,11 +29,12 @@ class DemandeRepositoryImpl implements DemandeRepositoryCustom {
     EntityManager em;
 
     @Override
-    public List<Demande> findFormations(int offset, int limit,String statut) {
+    public List<Demande> findFormations(int offset, int limit,String statut,List<String> domainesFiltres) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Demande> cq = cb.createQuery(Demande.class);
         Root<Demande> root = cq.from(Demande.class);
         Join<Demande, Formation> formation = root.join("formation",JoinType.LEFT);
+        Join<Demande, Domaine> domaines = root.join("domaines",JoinType.LEFT);
         Predicate predicateStatut=null;
         Path<Object> statutDemande=root.get("statut");
         switch(statut){
@@ -51,6 +53,11 @@ class DemandeRepositoryImpl implements DemandeRepositoryCustom {
         }
         if(predicateStatut!=null){
             cq.where(predicateStatut);
+        }
+        Path<Object> domainesDemande=domaines.get("code");
+        for(String domaineCode:domainesFiltres){
+            Predicate predicateDomaines = cb.equal(domainesDemande,domaineCode);
+            cq.where(predicateDomaines);
         }
         TypedQuery<Demande> query = em.createQuery(cq).setMaxResults(limit).setFirstResult(offset);
         return query.getResultList();
