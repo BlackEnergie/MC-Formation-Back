@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,8 +24,11 @@ public class EmailService {
     private final String SIGNUP_INVITE_URL = "/api/auth/signup/invite";
 
 
+
     @Autowired
     private JavaMailSender emailSender;
+
+
 
     public void sendNewUserNotification(String email, String username, Role role) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -57,5 +63,9 @@ public class EmailService {
         message.setText(text);
         emailSender.send(message);
     }
+
+
+
+
 
 }

@@ -11,6 +11,7 @@ import com.mcformation.security.jwt.JwtUtils;
 import com.mcformation.service.UtilisateurService;
 import com.mcformation.service.auth.UserDetailsImpl;
 import com.mcformation.service.email.EmailService;
+import com.mcformation.service.email.EmailServiceTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.List;
@@ -61,6 +63,9 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private EmailServiceTemplate emailServiceTemplate;
+
     ////////////////////////
     //       LOGIN        //
     ////////////////////////
@@ -85,7 +90,7 @@ public class AuthController {
     ////////////////////////
 
     @PostMapping("/signup/invite")
-    public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) {
+    public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) throws MessagingException {
 
         CreateUserToken createUserToken = new CreateUserToken();
         createUserToken.setToken(UUID.randomUUID().toString());
@@ -97,7 +102,7 @@ public class AuthController {
         Erole role = inviteRequest.getRole();
         createUserToken.setRole(role);
         userTokenRepository.save(createUserToken);
-        emailService.sendCreateUserTokenEmail(createUserToken.getToken(), inviteRequest.getEmail());
+        emailServiceTemplate.envoieMailCreationCompte(createUserToken.getEmail(), createUserToken.getToken(), createUserToken.getRole());
         MessageApi messageApi = new MessageApi(200, "Email envoyé");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
@@ -123,7 +128,7 @@ public class AuthController {
 
 
     @PostMapping("/signupEmail")
-    public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) {
+    public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) throws MessagingException {
 
         checkToken(token);
 
@@ -162,7 +167,7 @@ public class AuthController {
             throw new RuntimeException("Erreur : requête invalide");
         }
 
-        emailService.confirmCreateUserEmail(utilisateur.getEmail());
+        emailServiceTemplate.confirmationCreationCompte(utilisateur.getEmail());
         CreateUserToken createUserToken = userTokenRepository.findByToken(token);
         createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
         userTokenRepository.save(createUserToken);
@@ -171,7 +176,7 @@ public class AuthController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws MessagingException {
         if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
             return ResponseEntity
                     .badRequest()
@@ -222,6 +227,7 @@ public class AuthController {
 
         }
         emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), utilisateur.getRole());
+
         return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
     }
 
@@ -231,16 +237,17 @@ public class AuthController {
         return utilisateurRepository.save(utilisateur);
     }
 
+
     ////////////////////////
     //   RESET PASSWORD   //
     ////////////////////////
 
     @PostMapping("/resetPassword")
-    public ResponseEntity<MessageApi> resetPassword(@RequestParam("email") String userEmail) {
+    public ResponseEntity<MessageApi> resetPassword(@RequestParam("email") String userEmail) throws MessagingException {
         Utilisateur utilisateur = utilisateurService.findUtilisateurByEmail(userEmail);
         String token = UUID.randomUUID().toString();
         utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
-        emailService.sendResetTokenEmail(token, utilisateur);
+        emailServiceTemplate.envoieResetPassowrd(token, utilisateur);
         MessageApi messageApi = new MessageApi(200, "Email envoyé");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
