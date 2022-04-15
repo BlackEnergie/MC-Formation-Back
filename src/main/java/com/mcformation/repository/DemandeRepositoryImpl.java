@@ -1,5 +1,10 @@
 package com.mcformation.repository;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -7,17 +12,20 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
 import com.mcformation.model.database.Demande;
 import com.mcformation.model.database.Domaine;
+import com.mcformation.model.database.Formateur;
 import com.mcformation.model.database.Formation;
 import com.mcformation.model.utils.StatutDemande;
 
@@ -29,7 +37,7 @@ class DemandeRepositoryImpl implements DemandeRepositoryCustom {
     EntityManager em;
 
     @Override
-    public List<Demande> findFormations(int offset, int limit,String statut,List<String> domainesFiltres) {
+    public List<Demande> findFormations(int offset, int limit,String statut,List<String> domainesFiltres,String cadre,String dateDebut,String dateFin) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Demande> cq = cb.createQuery(Demande.class);
         Root<Demande> root = cq.from(Demande.class);
@@ -50,15 +58,37 @@ class DemandeRepositoryImpl implements DemandeRepositoryCustom {
             case "PASSEE":
                 predicateStatut= cb.equal(statutDemande,StatutDemande.PASSEE);
                 break;
+            default:
+                predicateStatut= cb.isNotNull(statutDemande);
         }
-        if(predicateStatut!=null){
-            cq.where(predicateStatut);
+        In<String>predicateDomaines=null;
+        if(!domainesFiltres.isEmpty()){
+            predicateDomaines = cb.in(domaines.get("code"));
+            for (String domaineCode:domainesFiltres) {
+                predicateDomaines.value(domaineCode);
+            }
         }
-        Path<Object> domainesDemande=domaines.get("code");
-        for(String domaineCode:domainesFiltres){
-            Predicate predicateDomaines = cb.equal(domainesDemande,domaineCode);
-            cq.where(predicateDomaines);
+        Expression<Date> dateFormation= formation.get("date");
+        Date date;
+        Date dateF;
+        Predicate predicateDate=null;
+        if(dateDebut.length()==0 && dateFin.length()==0){
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd");
+            LocalDate localDate = LocalDate.now();
+           dateDebut = "2022-01-01";
+           dateFin = dtf.format(localDate);
         }
+        try {
+            date = new SimpleDateFormat("yyyy-MM-dd").parse(dateDebut);
+            dateF = new SimpleDateFormat("yyyy-MM-dd").parse(dateFin);
+            predicateDate= cb.between(dateFormation, date, dateF);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }  
+        Expression<String> cadreFormation= formation.get("cadre");
+        Predicate predicateCadre = cb.like(cadreFormation, cadre+"%");
+        cq.where(predicateStatut,predicateDate,predicateDomaines,predicateCadre);
         TypedQuery<Demande> query = em.createQuery(cq).setMaxResults(limit).setFirstResult(offset);
         return query.getResultList();
     }

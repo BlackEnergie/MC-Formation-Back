@@ -11,11 +11,6 @@ public class Formation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "demande_id")
-    private Demande demande;
-
     private Date date;
     private Float duree;
     private String nom;
@@ -115,13 +110,5 @@ public class Formation {
 
     public void setFormateurs(List<Formateur> formateurs) {
         this.formateurs = formateurs;
-    }
-
-    public Demande getDemande() {
-        return demande;
-    }
-
-    public void setDemande(Demande demande) {
-        this.demande = demande;
     }
 }

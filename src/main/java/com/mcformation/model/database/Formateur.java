@@ -17,7 +17,16 @@ public class Formateur {
     private Date dateCreation;
     private String nom;
     private String prenom;
+    private String nomComplet;
 
+    public Formateur(String nom, String prenom){
+        this.nom=nom;
+        this.prenom=prenom;
+        this.nomComplet = nom+" "+prenom;
+    }
+    public Formateur(){
+        
+    }
     @OneToOne
     @MapsId
     @JoinColumn(name = "utilisateur_id")
@@ -77,5 +86,13 @@ public class Formateur {
 
     public void setDomaines(List<Domaine> domaines) {
         this.domaines = domaines;
+    }
+
+    public String getNomComplet(){
+        return nomComplet;
+    }
+
+    public void setNomComplet(String nomComplet) {
+        this.nomComplet= nomComplet;
     }
 }

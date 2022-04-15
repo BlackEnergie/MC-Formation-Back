@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +25,9 @@ public class FormationService {
     @Autowired
     private DemandeRepository demandeRepository;
 
-    public List<FormationApi> getFormationsAccueil(int offset,int limit,String statut,List<String> domaines) {
+    public List<FormationApi> getFormationsAccueil(int offset,int limit,String statut,List<String> domaines,String cadre,String dateDebut,String dateFin) {
         List<FormationApi> formationApiList = new ArrayList<>();
-        List<Demande> demandeList =demandeRepository.findFormations(offset, limit,statut,domaines);
+        List<Demande> demandeList =demandeRepository.findFormations(offset, limit,statut,domaines,cadre,dateDebut,dateFin);
         for (Demande demande : demandeList) {
             FormationApi formationApi = DemandeMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
             Association association = associationRepository.findByIdDemande(demande.getId());

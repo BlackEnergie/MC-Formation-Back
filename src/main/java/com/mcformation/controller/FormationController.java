@@ -1,5 +1,6 @@
 package com.mcformation.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import com.mcformation.model.api.FormationApi;
@@ -24,8 +25,8 @@ public class FormationController {
 
     @GetMapping("/formations")
     public ResponseEntity<List<FormationApi>> getAllFormations(@RequestParam int offset,
-    @RequestParam int limit,@RequestParam String statut,@RequestParam List<String> domaines){
-        List<FormationApi> formations=formationService.getFormationsAccueil(offset,limit,statut,domaines);
+    @RequestParam int limit,@RequestParam String statut,@RequestParam List<String> domaines,@RequestParam String cadre,@RequestParam String datedebut,@RequestParam String datefin){
+        List<FormationApi> formations=formationService.getFormationsAccueil(offset,limit,statut,domaines,cadre,datedebut,datefin);
         return new ResponseEntity<>(formations, HttpStatus.OK);
     }
 
