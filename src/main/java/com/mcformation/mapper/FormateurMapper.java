@@ -1,13 +1,11 @@
 package com.mcformation.mapper;
 
-import java.util.List;
-
-
-import com.mcformation.model.api.auth.FormateurApi;
+import com.mcformation.model.api.FormateurApi;
 import com.mcformation.model.database.Formateur;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 @Mapper()
 public interface FormateurMapper {

@@ -5,7 +5,7 @@ import java.util.List;
 import com.mcformation.mapper.DomaineMapper;
 import com.mcformation.mapper.FormateurMapper;
 import com.mcformation.model.api.DomaineApi;
-import com.mcformation.model.api.auth.FormateurApi;
+import com.mcformation.model.api.FormateurApi;
 import com.mcformation.model.database.Domaine;
 import com.mcformation.model.database.Formateur;
 import com.mcformation.repository.DomaineRepository;

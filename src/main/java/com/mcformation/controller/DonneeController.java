@@ -1,7 +1,7 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.DomaineApi;
-import com.mcformation.model.api.auth.FormateurApi;
+import com.mcformation.model.api.FormateurApi;
 import com.mcformation.service.DonneesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
