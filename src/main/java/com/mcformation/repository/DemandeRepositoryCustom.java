@@ -8,6 +8,6 @@ import com.mcformation.model.database.Domaine;
 
 public interface DemandeRepositoryCustom {
     
-    List<Demande> findFormations(int offset,int limit,String statut,List<String> domaines,String cadre,String dateDebut,String dateFin);
+    List<Demande> findFormations(int offset,int limit,String statut);
     
 }

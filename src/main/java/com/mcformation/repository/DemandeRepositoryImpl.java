@@ -37,12 +37,11 @@ class DemandeRepositoryImpl implements DemandeRepositoryCustom {
     EntityManager em;
 
     @Override
-    public List<Demande> findFormations(int offset, int limit,String statut,List<String> domainesFiltres,String cadre,String dateDebut,String dateFin) {
+    public List<Demande> findFormations(int offset, int limit,String statut) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Demande> cq = cb.createQuery(Demande.class);
         Root<Demande> root = cq.from(Demande.class);
         Join<Demande, Formation> formation = root.join("formation",JoinType.LEFT);
-        Join<Demande, Domaine> domaines = root.join("domaines",JoinType.LEFT);
         Predicate predicateStatut=null;
         Path<Object> statutDemande=root.get("statut");
         switch(statut){
@@ -61,14 +60,7 @@ class DemandeRepositoryImpl implements DemandeRepositoryCustom {
             default:
                 predicateStatut= cb.isNotNull(statutDemande);
         }
-        In<String>predicateDomaines=null;
-        if(!domainesFiltres.isEmpty()){
-            predicateDomaines = cb.in(domaines.get("code"));
-            for (String domaineCode:domainesFiltres) {
-                predicateDomaines.value(domaineCode);
-            }
-        }
-        Expression<Date> dateFormation= formation.get("date");
+        /* Expression<Date> dateFormation= formation.get("date");
         Date date;
         Date dateF;
         Predicate predicateDate=null;
@@ -87,8 +79,19 @@ class DemandeRepositoryImpl implements DemandeRepositoryCustom {
             e.printStackTrace();
         }  
         Expression<String> cadreFormation= formation.get("cadre");
-        Predicate predicateCadre = cb.like(cadreFormation, cadre+"%");
-        cq.where(predicateStatut,predicateDate,predicateDomaines,predicateCadre);
+        Predicate predicateCadre = cb.like(cadreFormation, cadre+"%"); */
+      /*   In<String>predicateDomaines=null;
+        if(!domainesFiltres.isEmpty()){
+            predicateDomaines = cb.in(domaines.get("code"));
+            for (String domaineCode:domainesFiltres) {
+                predicateDomaines.value(domaineCode);
+            }
+          
+        }else{
+            Predicate predicateDomainesNotNull = cb.isNotNull(domaines.get("code"));
+            cq.where(predicateStatut,predicateDate,predicateDomainesNotNull,predicateCadre);
+        } */
+        cq.where(predicateStatut);
         TypedQuery<Demande> query = em.createQuery(cq).setMaxResults(limit).setFirstResult(offset);
         return query.getResultList();
     }

@@ -19,13 +19,9 @@ public class Formateur {
     private String prenom;
     private String nomComplet;
 
-    public Formateur(String nom, String prenom){
-        this.nom=nom;
-        this.prenom=prenom;
-        this.nomComplet = nom+" "+prenom;
-    }
-    public Formateur(){
-        
+    @PrePersist
+    public void setup(){
+        this.nomComplet = this.nom+" "+this.prenom;
     }
     @OneToOne
     @MapsId
