@@ -39,8 +39,8 @@ public class FormationController {
         FormationApi formationApi=formationService.getFormation(id);
         return new ResponseEntity<>(formationApi, HttpStatus.OK);
     }
-    @PutMapping("/formation/{id}")
-    public ResponseEntity<MessageApi> getFormation(@PathVariable Long id,@RequestBody FormationApi formationApi){
+    @PutMapping("/formation")
+    public ResponseEntity<MessageApi> getFormation(@RequestBody FormationApi formationApi){
         MessageApi messageApi=formationService.putModification(formationApi);
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
