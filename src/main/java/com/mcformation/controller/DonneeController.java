@@ -26,6 +26,8 @@ public class DonneeController {
         List<DomaineApi> domaines=donneesService.getAllDomaines();
         return new ResponseEntity<>(domaines, HttpStatus.OK);
     }
+
+    @GetMapping("/formateurs")
     public ResponseEntity<List<FormateurApi>> getAllFormateurs() {
         List<FormateurApi> formateurs= donneesService.getAllFormateurs();
         return new ResponseEntity<>(formateurs, HttpStatus.OK);
