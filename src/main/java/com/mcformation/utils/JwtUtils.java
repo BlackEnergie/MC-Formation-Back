@@ -1,6 +1,5 @@
 package com.mcformation.utils;
 
-import com.mcformation.model.utils.Erole;
 import com.mcformation.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
