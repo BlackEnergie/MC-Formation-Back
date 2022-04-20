@@ -78,7 +78,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Optional<Utilisateur> utilisateur = utilisateurRepository.findByNomUtilisateur(loginRequest.getNomUtilisateur());
-        String role = utilisateur.isPresent()? utilisateur.get().getRole().toString() : "";
+        String role = utilisateur.isPresent()? utilisateur.get().getRole().getNom().toString() : "";
         String jwt = jwtUtils.generateJwtToken(authentication, role);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
