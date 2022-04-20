@@ -12,6 +12,8 @@ import com.mcformation.service.UtilisateurService;
 import com.mcformation.service.auth.UserDetailsImpl;
 import com.mcformation.service.email.EmailService;
 import com.mcformation.service.email.EmailServiceTemplate;
+import com.mcformation.utils.EmailUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -99,11 +101,15 @@ public class AuthController {
 
         CreateUserToken createUserToken = new CreateUserToken();
         createUserToken.setToken(UUID.randomUUID().toString());
-        if (utilisateurRepository.existsByEmail(inviteRequest.getEmail())) {
+        String email = inviteRequest.getEmail();
+        if (!EmailUtils.validationEmail(email)) {
+            throw new UnsupportedOperationException("Adresse email invalide");
+        }
+        if (utilisateurRepository.existsByEmail(email)) {
             MessageApi messageApi = new MessageApi(400, "Email existant");
             return new ResponseEntity<>(messageApi, HttpStatus.BAD_REQUEST);
         }
-        createUserToken.setEmail(inviteRequest.getEmail());
+        createUserToken.setEmail(email);
         Erole role = inviteRequest.getRole();
         createUserToken.setRole(role);
         userTokenRepository.save(createUserToken);
@@ -137,14 +143,20 @@ public class AuthController {
 
         checkToken(token);
 
-        if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
+        if (Boolean.TRUE.equals(utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur()))) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+                    .body(new MessageResponse("Le nom d'utilisateur est déjà pris"));
+        }
+        String email = userTokenRepository.findByToken(token).getEmail();
+        if (Boolean.TRUE.equals(utilisateurRepository.existsByEmail(email))) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Il existe déjà un utilisateur avec cette adresse email"));
         }
 
         // Create new user's account
-        Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), userTokenRepository.findByToken(token).getEmail(), encoder.encode(signUpRequest.getPassword()));
+        Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), email, encoder.encode(signUpRequest.getPassword()));
         Erole erole = userTokenRepository.findByToken(token).getRole();
         Role role = new Role(erole);
         Association association = signUpRequest.getAssociation();

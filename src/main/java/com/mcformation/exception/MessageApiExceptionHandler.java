@@ -1,9 +1,12 @@
 package com.mcformation.exception;
 
+import javax.mail.SendFailedException;
+
 import com.mcformation.model.api.MessageApi;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,8 +49,6 @@ public class MessageApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<MessageApi> handleUnsupportedOperationException(UnsupportedOperationException ex) {
         return createResponseEntityMessageApi(ex, HttpStatus.BAD_REQUEST);
     }
-
-
 
     private ResponseEntity<MessageApi> createResponseEntityMessageApi(Exception ex, HttpStatus httpStatus) {
         MessageApi messageApi = new MessageApi();
