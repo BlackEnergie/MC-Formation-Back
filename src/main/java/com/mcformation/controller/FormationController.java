@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/formation")
 public class FormationController {
 
-    @GetMapping("/get")
+    @GetMapping("/get") //Role Asso, Formateur et BN-VP
     public String getFormation() {
         return "";
     }

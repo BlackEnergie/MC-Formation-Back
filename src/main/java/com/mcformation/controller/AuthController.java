@@ -15,6 +15,7 @@ import com.mcformation.service.email.EmailServiceTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -90,6 +91,7 @@ public class AuthController {
     ////////////////////////
 
     @PostMapping("/signup/invite")
+    @PreAuthorize("hasRole('ROLE_BN')")
     public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) throws MessagingException {
 
         CreateUserToken createUserToken = new CreateUserToken();
@@ -116,7 +118,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/emailToken/checkToken")
+    @PostMapping("/signup/checkToken")
     public ResponseEntity<MessageApi> checkEmailToken(@RequestParam("token") String token) {
 
         checkToken(token);
@@ -127,7 +129,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/signupEmail")
+    @PostMapping("/signup/create")
     public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) throws MessagingException {
 
         checkToken(token);
@@ -175,7 +177,8 @@ public class AuthController {
     }
 
 
-    @PostMapping("/signup")
+    @PostMapping("/signup/admin")
+    //@PreAuthorize("hasRole('ROLE_BN')")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws MessagingException {
         if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
             return ResponseEntity
@@ -242,7 +245,7 @@ public class AuthController {
     //   RESET PASSWORD   //
     ////////////////////////
 
-    @PostMapping("/resetPassword")
+    @PostMapping("/resetPassword/invite")
     public ResponseEntity<MessageApi> resetPassword(@RequestParam("email") String userEmail) throws MessagingException {
         Utilisateur utilisateur = utilisateurService.findUtilisateurByEmail(userEmail);
         String token = UUID.randomUUID().toString();
@@ -262,7 +265,7 @@ public class AuthController {
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
-    @PostMapping("/resetPassword/savePassword")
+    @PostMapping("/resetPassword/save")
     public ResponseEntity<MessageApi> savePassword(@RequestBody PasswordApi passwordApi) {
         String result = utilisateurService.validatePasswordResetToken(passwordApi.getToken());
         if (result != null) {
