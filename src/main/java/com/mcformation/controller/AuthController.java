@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/auth")
@@ -196,7 +195,7 @@ public class AuthController {
 
     @PostMapping("/signup/admin")
     //@PreAuthorize("hasRole('ROLE_BN')")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws MessagingException {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
             return ResponseEntity
                     .badRequest()

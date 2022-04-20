@@ -1,6 +1,5 @@
 package com.mcformation.service;
 
-
 import com.mcformation.mapper.FormationApiMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
@@ -89,11 +88,9 @@ public class FormationService {
                 } else {
                     throw new UnsupportedOperationException("Le formateur ajouté à la formation n'est pas trouvé");
                 }
-
             }
-            if (demandeToSave.getStatut() == StatutDemande.A_VENIR || demandeToSave.getStatut() == StatutDemande.PASSEE) {
-                throw new UnsupportedOperationException("La formation doit contenir au moins un formateur ");
-            }
+        } else if (demandeToSave.getStatut() == StatutDemande.A_VENIR || demandeToSave.getStatut() == StatutDemande.PASSEE) {
+            throw new UnsupportedOperationException("La formation doit contenir au moins un formateur ");
         }
 
         if (demandeToSave.getStatut() == StatutDemande.PASSEE) {
