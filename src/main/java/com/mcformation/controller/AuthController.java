@@ -1,67 +1,87 @@
 package com.mcformation.controller;
 
-import com.mcformation.model.utils.Erole;
+import com.mcformation.model.api.MessageApi;
+import com.mcformation.model.api.auth.*;
 import com.mcformation.model.database.*;
-import com.mcformation.repository.AssociationRepository;
-import com.mcformation.repository.FormateurRepository;
-import com.mcformation.repository.MembreBureauNationalRepository;
-import com.mcformation.repository.RoleRepository;
-import com.mcformation.repository.UtilisateurRepository;
+import com.mcformation.model.database.auth.CreateUserToken;
+import com.mcformation.model.database.auth.PasswordResetToken;
+import com.mcformation.model.utils.Erole;
+import com.mcformation.repository.*;
+import com.mcformation.service.UtilisateurService;
+import com.mcformation.service.auth.UserDetailsImpl;
+import com.mcformation.service.email.EmailService;
+import com.mcformation.service.email.EmailServiceTemplate;
+import com.mcformation.utils.EmailUtils;
 import com.mcformation.utils.JwtUtils;
-import com.mcformation.model.api.auth.LoginRequest;
-import com.mcformation.model.api.auth.SignupRequest;
-import com.mcformation.model.api.auth.JwtResponse;
-import com.mcformation.model.api.auth.MessageResponse;
-import com.mcformation.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.util.HashSet;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     @Autowired
-    UtilisateurRepository utilisateurRepository;
+    private PasswordEncoder encoder;
     @Autowired
-    RoleRepository roleRepository;
+    private UtilisateurService utilisateurService;
+
     @Autowired
-    PasswordEncoder encoder;
+    private UtilisateurRepository utilisateurRepository;
     @Autowired
-    JwtUtils jwtUtils;
+    private RoleRepository roleRepository;
     @Autowired
-    AssociationRepository associationRepository;
+    private AssociationRepository associationRepository;
     @Autowired
-    FormateurRepository formateurRepository;
+    private FormateurRepository formateurRepository;
     @Autowired
-    MembreBureauNationalRepository membreBureauNationalRepository;
+    private MembreBureauNationalRepository membreBureauNationalRepository;
+    @Autowired
+    private PasswordTokenRepository passwordTokenRepository;
+    @Autowired
+    private UserTokenRepository userTokenRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private EmailServiceTemplate emailServiceTemplate;
+
+    ////////////////////////
+    //       LOGIN        //
+    ////////////////////////
 
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
-
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Optional<Utilisateur> utilisateur = utilisateurRepository.findByNomUtilisateur(loginRequest.getNomUtilisateur());
-        String role = utilisateur.isPresent()? utilisateur.get().getRoles().stream().findFirst().get().getNom().toString() : "";
+        String role = utilisateur.isPresent() ? utilisateur.get().getRole().getNom().toString() : "";
+
         String jwt = jwtUtils.generateJwtToken(authentication, role);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -69,16 +89,114 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getNomUtilisateur(),
-                userDetails.getEmail(),
-                roles));
+        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getNomUtilisateur(), userDetails.getEmail(), roles));
+    }
+
+    ////////////////////////
+    //      REGISTER      //
+    ////////////////////////
+
+    @PostMapping("/signup/invite")
+    @PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) throws MessagingException {
+
+        CreateUserToken createUserToken = new CreateUserToken();
+        createUserToken.setToken(UUID.randomUUID().toString());
+        String email = inviteRequest.getEmail();
+        if (!EmailUtils.validationEmail(email)) {
+            throw new UnsupportedOperationException("Adresse email invalide");
+        }
+        if (utilisateurRepository.existsByEmail(email)) {
+            MessageApi messageApi = new MessageApi(400, "Email existant");
+            return new ResponseEntity<>(messageApi, HttpStatus.BAD_REQUEST);
+        }
+        createUserToken.setEmail(email);
+        Erole role = inviteRequest.getRole();
+        createUserToken.setRole(role);
+        userTokenRepository.save(createUserToken);
+        emailServiceTemplate.envoieMailCreationCompte(createUserToken.getEmail(), createUserToken.getToken(), createUserToken.getRole());
+        MessageApi messageApi = new MessageApi(200, "Email envoyé");
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public void checkToken(String token) {
+
+        String result = utilisateurService.validateEmailToken(token);
+        if (result != null) {
+            throw new BadCredentialsException(result);
+        }
+    }
+
+    @PostMapping("/signup/checkToken")
+    public ResponseEntity<MessageApi> checkEmailToken(@RequestParam("token") String token) {
+
+        checkToken(token);
+        Erole role = userTokenRepository.findByToken(token).getRole();
+
+        MessageApi messageApi = new MessageApi(200, role.name());
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/signup/create")
+    public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) throws MessagingException {
+
+        checkToken(token);
+
+        if (Boolean.TRUE.equals(utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur()))) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Le nom d'utilisateur est déjà pris"));
+        }
+        String email = userTokenRepository.findByToken(token).getEmail();
+        if (Boolean.TRUE.equals(utilisateurRepository.existsByEmail(email))) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Il existe déjà un utilisateur avec cette adresse email"));
+        }
+
+        // Create new user's account
+        Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), email, encoder.encode(signUpRequest.getPassword()));
+        Erole erole = userTokenRepository.findByToken(token).getRole();
+        Role role = new Role();
+        role.setNom(erole);
+        Association association = signUpRequest.getAssociation();
+        Formateur formateur = signUpRequest.getFormateur();
+        MembreBureauNational membreBureauNational = signUpRequest.getMembreBureauNational();
+
+        if (erole == Erole.ROLE_ASSO && association != null) {
+            utilisateur.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, erole);
+            association.setUtilisateur(utilisateur);
+            associationRepository.save(association);
+
+        } else if (erole == Erole.ROLE_FORMATEUR && formateur != null) {
+            utilisateur.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, erole);
+            formateur.setUtilisateur(utilisateur);
+            formateurRepository.save(formateur);
+
+        } else if (erole == Erole.ROLE_BN && membreBureauNational != null) {
+            utilisateur.setRole(role);
+            utilisateur = saveUtilisateur(utilisateur, erole);
+            membreBureauNational.setUtilisateur(utilisateur);
+            membreBureauNationalRepository.save(membreBureauNational);
+        } else {
+            throw new RuntimeException("Erreur : requête invalide");
+        }
+
+        emailServiceTemplate.confirmationCreationCompte(utilisateur.getEmail());
+        CreateUserToken createUserToken = userTokenRepository.findByToken(token);
+        createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
+        userTokenRepository.save(createUserToken);
+        return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
+    }
+
+
+    @PostMapping("/signup/admin")
+    //@PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws MessagingException {
         if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
             return ResponseEntity
                     .badRequest()
@@ -86,9 +204,7 @@ public class AuthController {
         }
         // Create new user's account
         Utilisateur utilisateur = new Utilisateur(signUpRequest.getNomUtilisateur(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
-
-
-        Set<Role> roles = new HashSet<>();
+        Erole role = null;
         signUpRequest.setRole(null);
 
         Association association = signUpRequest.getAssociation();
@@ -97,10 +213,10 @@ public class AuthController {
 
         boolean requestValid = false;
 
-
         if (association != null) {
             if (membreBureauNational == null && formateur == null) {
-                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_ASSO);
+                role = Erole.ROLE_ASSO;
+                utilisateur = saveUtilisateur(utilisateur, role);
                 association.setUtilisateur(utilisateur);
                 associationRepository.save(association);
                 requestValid = true;
@@ -109,8 +225,8 @@ public class AuthController {
 
         if (membreBureauNational != null) {
             if (association == null && formateur == null) {
-
-                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_BN);
+                role = Erole.ROLE_BN;
+                utilisateur = saveUtilisateur(utilisateur, role);
                 membreBureauNational.setUtilisateur(utilisateur);
                 membreBureauNationalRepository.save(membreBureauNational);
                 requestValid = true;
@@ -119,7 +235,8 @@ public class AuthController {
 
         if (formateur != null) {
             if (association == null && membreBureauNational == null) {
-                utilisateur = saveUtilisateur(utilisateur, Erole.ROLE_FORMATEUR);
+                role = Erole.ROLE_FORMATEUR;
+                utilisateur = saveUtilisateur(utilisateur, role);
                 formateur.setUtilisateur(utilisateur);
                 formateurRepository.save(formateur);
                 requestValid = true;
@@ -129,16 +246,59 @@ public class AuthController {
             throw new RuntimeException("Erreur : requête invalide");
 
         }
+        emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), utilisateur.getRole());
 
-        return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès!"));
+        return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
     }
 
     private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
         Role role = roleRepository.findByNom(erole).orElseThrow(() -> new RuntimeException("Erreur: Le role n'existe pas"));
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-        utilisateur.setRoles(roles);
+        utilisateur.setRole(role);
         return utilisateurRepository.save(utilisateur);
+    }
+
+
+    ////////////////////////
+    //   RESET PASSWORD   //
+    ////////////////////////
+
+    @PostMapping("/resetPassword/invite")
+    public ResponseEntity<MessageApi> resetPassword(@RequestParam("email") String userEmail) throws MessagingException {
+        Utilisateur utilisateur = utilisateurService.findUtilisateurByEmail(userEmail);
+        String token = UUID.randomUUID().toString();
+        utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
+        emailServiceTemplate.envoieResetPassowrd(token, utilisateur);
+        MessageApi messageApi = new MessageApi(200, "Email envoyé");
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+    @PostMapping("/resetPassword/checkToken")
+    public ResponseEntity<MessageApi> checkPasswordTokenValid(@RequestParam("token") String token) {
+        String result = utilisateurService.validatePasswordResetToken(token);
+        if (result != null) {
+            throw new BadCredentialsException(result);
+        }
+        MessageApi messageApi = new MessageApi(200, "Token valide");
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+    @PostMapping("/resetPassword/save")
+    public ResponseEntity<MessageApi> savePassword(@RequestBody PasswordApi passwordApi) {
+        String result = utilisateurService.validatePasswordResetToken(passwordApi.getToken());
+        if (result != null) {
+            throw new BadCredentialsException(result);
+        }
+        PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(passwordApi.getToken());
+        Utilisateur utilisateur = passwordResetToken.getUtilisateur();
+        if (utilisateur != null) {
+            utilisateurService.changeUserPassword(utilisateur, passwordApi.getNewPassword());
+        } else {
+            throw new BadCredentialsException("Pas d'utilisateur associé");
+        }
+        passwordResetToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
+        passwordTokenRepository.save(passwordResetToken);
+        MessageApi messageApi = new MessageApi(200, "Mot de passe modifié avec succès");
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
 }

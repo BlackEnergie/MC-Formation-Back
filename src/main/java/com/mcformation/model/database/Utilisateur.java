@@ -1,5 +1,8 @@
 package com.mcformation.model.database;
 
+import com.mcformation.model.database.auth.CreateUserToken;
+import com.mcformation.model.database.auth.PasswordResetToken;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,14 +14,17 @@ public class Utilisateur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String nomUtilisateur;
 
     @Column(unique = true)
     private String email;
+
     private String password;
 
-    @ManyToMany
-    private Set<Role> roles;
+    @ManyToOne
+    // TODO: passer en ManyToOne
+    private Role roles;
 
     @OneToOne(mappedBy = "utilisateur")
     @PrimaryKeyJoinColumn
@@ -32,15 +38,18 @@ public class Utilisateur {
     @PrimaryKeyJoinColumn
     private MembreBureauNational membreBureauNational;
 
+    @OneToOne(mappedBy = "utilisateur")
+    private PasswordResetToken passwordResetToken;
+
     public Utilisateur(String nomUtilisateur, String email, String password) {
         this.nomUtilisateur = nomUtilisateur;
         this.password = password;
         this.email = email;
     }
-
-    public Utilisateur() {
-        this.roles = new HashSet<>();
+    public Utilisateur(){
+        
     }
+
 
     public Long getId() {
         return id;
@@ -74,11 +83,11 @@ public class Utilisateur {
         this.password = password;
     }
 
-    public Set<Role> getRoles() {
+    public Role getRole() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRole(Role roles) {
         this.roles = roles;
     }
 
@@ -105,4 +114,13 @@ public class Utilisateur {
     public void setMembreBureauNational(MembreBureauNational membreBureauNational) {
         this.membreBureauNational = membreBureauNational;
     }
+
+    public PasswordResetToken getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public void setPasswordResetToken(PasswordResetToken passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
+
 }

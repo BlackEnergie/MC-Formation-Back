@@ -1,4 +1,4 @@
-package com.mcformation.service;
+package com.mcformation.service.auth;
 
 import com.mcformation.model.database.Utilisateur;
 import com.mcformation.repository.UtilisateurRepository;

@@ -1,6 +1,7 @@
 package com.mcformation.utils;
 
-import com.mcformation.service.UserDetailsImpl;
+
+import com.mcformation.service.auth.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import java.util.Date;
 public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-
 
     private String jwtSecret = "mcformation";
 

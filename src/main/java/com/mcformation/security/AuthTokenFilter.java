@@ -1,6 +1,6 @@
 package com.mcformation.security;
 
-import com.mcformation.service.UserDetailsServiceImpl;
+import com.mcformation.service.auth.UserDetailsServiceImpl;
 import com.mcformation.utils.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

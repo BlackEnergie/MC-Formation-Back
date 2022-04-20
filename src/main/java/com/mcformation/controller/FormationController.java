@@ -14,7 +14,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class FormationController {
-
+    
     @Autowired
     FormationService formationService;
 
@@ -37,5 +37,4 @@ public class FormationController {
         MessageApi messageApi = formationService.putModification(formationApi);
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
-
 }

@@ -29,9 +29,7 @@ public class SignupRequest {
     private String password;
 
     private Association association;
-
     private MembreBureauNational membreBureauNational;
-
     private Formateur formateur;
 
     public String getNomUtilisateur() {
