@@ -23,7 +23,6 @@ public class Utilisateur {
     private String password;
 
     @ManyToOne
-    // TODO: passer en ManyToOne
     private Role roles;
 
     @OneToOne(mappedBy = "utilisateur")
