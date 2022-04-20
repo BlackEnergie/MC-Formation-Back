@@ -15,8 +15,8 @@ import javax.mail.MessagingException;
 public class EmailServiceTemplate {
 
     private final String EMAIL = "mc.formation.web@gmail.com";
-    private final String BASE_URL = "http://localhost:8080";
-    private final String SIGNUP_INVITE_URL = "/api/auth/signup/invite";
+    private final String BASE_URL = "http://localhost:3000";
+    private final String SIGNUP_INVITE_URL = "/inscription/";
     private final String CHANGE_PASSWORD_URL = "/api/auth/changePassword";
     private final String PREFIX_SUJET = "[MC-Formation-Web] | ";
 
@@ -32,7 +32,7 @@ public class EmailServiceTemplate {
 
     public String envoieMailCreationCompte(String email, String token, Erole role) throws MessagingException {
         Context context = new Context();
-        String url = BASE_URL + SIGNUP_INVITE_URL + "?token=" + token;
+        String url = BASE_URL + SIGNUP_INVITE_URL + token;
         context.setVariable("url", url);
         context.setVariable("role", role);
         String sujet = PREFIX_SUJET + "Inscription à Mc Formation ";
