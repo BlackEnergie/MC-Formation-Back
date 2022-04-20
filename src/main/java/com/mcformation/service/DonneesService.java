@@ -1,7 +1,5 @@
 package com.mcformation.service;
 
-import java.util.List;
-
 import com.mcformation.mapper.DomaineMapper;
 import com.mcformation.mapper.FormateurMapper;
 import com.mcformation.model.api.DomaineApi;
@@ -12,6 +10,8 @@ import com.mcformation.repository.DomaineRepository;
 import com.mcformation.repository.FormateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class DonneesService {

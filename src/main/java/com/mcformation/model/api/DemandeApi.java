@@ -15,7 +15,7 @@ public class DemandeApi {
     @NotEmpty(message = "Veuillez renseigner au moins un domaine de formation.")
     private List<DomaineApi> domaines;
     private Date dateDemande;
-    private AssociationApi association;
+    private String nomUtilisateur;
 
     public String getSujet() {
         return sujet;
@@ -48,13 +48,13 @@ public class DemandeApi {
     public void setDateDemande(Date dateDemande){
         this.dateDemande = dateDemande;
     }
-    
-    public AssociationApi getAssociation() {
-        return association;
+
+
+    public String getNomUtilisateur() {
+        return nomUtilisateur;
     }
 
-    public void setAssociation(AssociationApi association) {
-        this.association = association;
+    public void setNomUtilisateur(String nomUtilisateur) {
+        this.nomUtilisateur = nomUtilisateur;
     }
-    
 }
