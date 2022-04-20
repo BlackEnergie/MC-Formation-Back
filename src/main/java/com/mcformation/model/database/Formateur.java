@@ -1,5 +1,7 @@
 package com.mcformation.model.database;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.List;
@@ -11,10 +13,16 @@ public class Formateur {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @CreationTimestamp
     private Date dateCreation;
     private String nom;
     private String prenom;
+    private String nomComplet;
 
+    @PrePersist
+    public void setup(){
+        this.nomComplet = this.nom+" "+this.prenom;
+    }
     @OneToOne
     @MapsId
     @JoinColumn(name = "utilisateur_id")
@@ -27,11 +35,6 @@ public class Formateur {
             inverseJoinColumns = @JoinColumn(name = "domaine_id")
     )
     private List<Domaine> domaines;
-
-    @PrePersist
-    protected void onCreate() {
-        dateCreation = new Date(System.currentTimeMillis());
-    }
 
     public Long getId() {
         return id;
@@ -79,5 +82,13 @@ public class Formateur {
 
     public void setDomaines(List<Domaine> domaines) {
         this.domaines = domaines;
+    }
+
+    public String getNomComplet(){
+        return nomComplet;
+    }
+
+    public void setNomComplet(String nomComplet) {
+        this.nomComplet= nomComplet;
     }
 }

@@ -7,6 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
+
 @Mapper(uses = {DomaineMapper.class})
 public interface DemandeMapper {
 
@@ -19,5 +20,6 @@ public interface DemandeMapper {
     Demande demandeApiToDemandeDao(DemandeApi source);
 
     List<Demande> demandeApiListToDemandeDaoList(List<DemandeApi> source);
+
 
 }

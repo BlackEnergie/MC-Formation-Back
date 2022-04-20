@@ -2,6 +2,7 @@ package com.mcformation.model.database;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.List;
 
 @Entity
 public class Formation {
@@ -9,6 +10,7 @@ public class Formation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private Date date;
     private Float duree;
     private String nom;
@@ -19,9 +21,8 @@ public class Formation {
     private String materiels;
     private String cadre;
 
-    @OneToOne
-    @JoinColumn(name = "demande_id", referencedColumnName = "id")
-    private Demande demande;
+    @ManyToMany
+    private List<Formateur> formateurs;
 
     public Long getId() {
         return id;
@@ -103,11 +104,11 @@ public class Formation {
         this.cadre = cadre;
     }
 
-    public Demande getDemande() {
-        return demande;
+    public List<Formateur> getFormateurs() {
+        return formateurs;
     }
 
-    public void setDemande(Demande demande) {
-        this.demande = demande;
+    public void setFormateurs(List<Formateur> formateurs) {
+        this.formateurs = formateurs;
     }
 }
