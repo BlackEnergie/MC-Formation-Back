@@ -6,6 +6,7 @@ import com.mcformation.service.FormationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class FormationController {
     }
 
     @PutMapping("/formation")
+    @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
     public ResponseEntity<MessageApi> getFormation(@RequestBody FormationApi formationApi) {
         MessageApi messageApi = formationService.putModification(formationApi);
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
