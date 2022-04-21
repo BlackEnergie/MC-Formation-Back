@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.mcformation.model.api.FormationApi;
-import com.mcformation.model.api.PartieApi;
 import com.mcformation.model.database.Demande;
 import com.mcformation.model.database.Formation;
 
