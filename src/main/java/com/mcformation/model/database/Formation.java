@@ -19,6 +19,7 @@ public class Formation {
     private String audience;
     private String parties;
     private String materiels;
+    private String objectifs;
     private String cadre;
 
     @ManyToMany
@@ -94,6 +95,14 @@ public class Formation {
 
     public void setMateriels(String materiels) {
         this.materiels = materiels;
+    }
+
+    public String getObjectifs() {
+        return objectifs;
+    }
+
+    public void setObjectifs(String objectifs) {
+        this.objectifs = objectifs;
     }
 
     public String getCadre() {

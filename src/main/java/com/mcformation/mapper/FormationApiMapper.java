@@ -34,6 +34,7 @@ public interface FormationApiMapper{
     @Mapping(source = "source.formation.audience", target = "audience")
     @Mapping(source = "source.formation.parties", target = "parties")
     @Mapping(source = "source.formation.materiels", target = "materiels",qualifiedByName = "stringMaterielToList")
+    @Mapping(source = "source.formation.objectifs", target = "objectifs",qualifiedByName= "stringObjectifsToList")
     @Mapping(source = "source.formation.cadre", target = "cadre")
     @Mapping(source = "source.formation.formateurs", target = "formateurs")
     FormationApi demandeDaoToFormationApiDetail(Demande source);
@@ -58,6 +59,7 @@ public interface FormationApiMapper{
     @Mapping(target = "audience", ignore = true)
     @Mapping(target = "parties", ignore = true)
     @Mapping(target = "materiels", ignore = true)
+    @Mapping(target = "objectifs", ignore = true)
     FormationApi demandeDaoToFormationApiAccueil(Demande source);
 
     @IterableMapping(qualifiedByName = "demandeDaoToFormationApiAccueil")
@@ -66,6 +68,7 @@ public interface FormationApiMapper{
     Demande formationApiToDemandeDao(FormationApi source);
     
     @Mapping(source="source.materiels",target="materiels",qualifiedByName = "listMaterielToString")
+    @Mapping(source="source.objectifs",target="objectifs",qualifiedByName = "listObjectifsToString")
     Formation formationApiToFormationDao(FormationApi source);
 
     @Named("listMaterielToString")
@@ -82,6 +85,23 @@ public interface FormationApiMapper{
         List<String> res = new ArrayList<>();
         if (materiels != null) {
             res = new ArrayList<>(Arrays.asList(materiels.split(";")));
+        }
+        return res;
+    }
+    @Named("listObjectifsToString")
+    default String listObjectifsToString(List<String> objectifs){
+        String res = null;
+        if (objectifs != null && !objectifs.isEmpty()) {
+            res = String.join(";",objectifs);
+        }
+        return res;
+    }
+
+    @Named("stringObjectifsToList")
+    default List<String> stringObjectifsToList(String objectifs){
+        List<String> res = new ArrayList<>();
+        if (objectifs != null) {
+            res = new ArrayList<>(Arrays.asList(objectifs.split(";")));
         }
         return res;
     }

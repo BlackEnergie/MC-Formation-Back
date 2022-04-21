@@ -18,6 +18,7 @@ public class FormationApi {
     private String audience;
     private String parties;
     private List<String> materiels;
+    private List<String> objectifs;
     private String cadre;
     private List<FormateurApi> formateurs;
 
@@ -99,6 +100,14 @@ public class FormationApi {
 
     public void setMateriels(List<String> materiels) {
         this.materiels = materiels;
+    }
+
+    public List<String> getObjectifs() {
+        return objectifs;
+    }
+
+    public void setObjectifs(List<String> objectifs) {
+        this.objectifs = objectifs;
     }
 
     public String getCadre() {
