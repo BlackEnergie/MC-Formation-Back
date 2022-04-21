@@ -69,13 +69,21 @@ public interface FormationApiMapper{
     Formation formationApiToFormationDao(FormationApi source);
 
     @Named("listMaterielToString")
-    public default String listMaterielToString(List<String> materiels){
-        return String.join(";",materiels);
+    default String listMaterielToString(List<String> materiels){
+        String res = null;
+        if (materiels != null && !materiels.isEmpty()) {
+            res = String.join(";",materiels);
+        }
+        return res;
     }
 
     @Named("stringMaterielToList")
-    public default List<String> stringMaterielToList(String materiels){
-        return new ArrayList<>(Arrays.asList(materiels.split(";")));
+    default List<String> stringMaterielToList(String materiels){
+        List<String> res = new ArrayList<>();
+        if (materiels != null) {
+            res = new ArrayList<>(Arrays.asList(materiels.split(";")));
+        }
+        return res;
     }
 
 }
