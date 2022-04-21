@@ -17,7 +17,7 @@ public class FormationApi {
     private String prerequis;
     private String audience;
     private String parties;
-    private String materiels;
+    private List<String> materiels;
     private String cadre;
     private List<FormateurApi> formateurs;
 
@@ -93,11 +93,11 @@ public class FormationApi {
         this.parties = parties;
     }
 
-    public String getMateriels() {
+    public List<String> getMateriels() {
         return materiels;
     }
 
-    public void setMateriels(String materiels) {
+    public void setMateriels(List<String> materiels) {
         this.materiels = materiels;
     }
 

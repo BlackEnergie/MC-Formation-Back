@@ -1,8 +1,11 @@
 package com.mcformation.mapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.mcformation.model.api.FormationApi;
+import com.mcformation.model.api.PartieApi;
 import com.mcformation.model.database.Demande;
 import com.mcformation.model.database.Formation;
 
@@ -31,7 +34,7 @@ public interface FormationApiMapper{
     @Mapping(source = "source.formation.prerequis", target = "prerequis")
     @Mapping(source = "source.formation.audience", target = "audience")
     @Mapping(source = "source.formation.parties", target = "parties")
-    @Mapping(source = "source.formation.materiels", target = "materiels")
+    @Mapping(source = "source.formation.materiels", target = "materiels",qualifiedByName = "stringMaterielToList")
     @Mapping(source = "source.formation.cadre", target = "cadre")
     @Mapping(source = "source.formation.formateurs", target = "formateurs")
     FormationApi demandeDaoToFormationApiDetail(Demande source);
@@ -63,5 +66,17 @@ public interface FormationApiMapper{
 
     Demande formationApiToDemandeDao(FormationApi source);
     
+    @Mapping(source="source.materiels",target="materiels",qualifiedByName = "listMaterielToString")
     Formation formationApiToFormationDao(FormationApi source);
+
+    @Named("listMaterielToString")
+    public default String listMaterielToString(List<String> materiels){
+        return String.join(";",materiels);
+    }
+
+    @Named("stringMaterielToList")
+    public default List<String> stringMaterielToList(String materiels){
+        return new ArrayList<>(Arrays.asList(materiels.split(";")));
+    }
+
 }
