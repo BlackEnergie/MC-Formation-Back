@@ -185,7 +185,7 @@ public class AuthController {
             throw new RuntimeException("Erreur : requête invalide");
         }
 
-        emailServiceTemplate.confirmationCreationCompte(utilisateur.getEmail());
+        emailServiceTemplate.confirmationCreationCompte(utilisateur.getEmail(), utilisateur.getNomUtilisateur());
         CreateUserToken createUserToken = userTokenRepository.findByToken(token);
         createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
         userTokenRepository.save(createUserToken);

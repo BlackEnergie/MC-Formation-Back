@@ -44,10 +44,11 @@ public class EmailServiceTemplate {
         return "Sent";
     }
 
-    public void confirmationCreationCompte(String email) throws MessagingException {
+    public void confirmationCreationCompte(String email, String nomUtilisateur) throws MessagingException {
         String sujet = PREFIX_SUJET + "Confirmation d'inscription à Mc Formation";
-        String message = "Votre compte a bien été crée";
+        String message = "Votre compte a bien été créé, votre nom d'utilisateur est :";
         Context context = createContext("", "", message);
+        context.setVariable("nomUtilisateur", nomUtilisateur);
         String process = templateEngine.process("email/templateConfirmation", context);
         envoieEmail(email, sujet, process);
     }
