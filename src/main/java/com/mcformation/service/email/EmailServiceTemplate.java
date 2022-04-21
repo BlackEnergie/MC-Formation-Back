@@ -39,7 +39,7 @@ public class EmailServiceTemplate {
         String url = BASE_URL + SIGNUP_INVITE_URL + token;
         Context context = createContext(url, role.toString(), "");
         String sujet = PREFIX_SUJET + "Inscription à Mc Formation ";
-        String process = templateEngine.process("templateInscriptionMail", context);
+        String process = templateEngine.process("email/templateInscriptionMail", context);
         envoieEmail(email, sujet, process);
         return "Sent";
     }
@@ -48,7 +48,7 @@ public class EmailServiceTemplate {
         String sujet = PREFIX_SUJET + "Confirmation d'inscription à Mc Formation";
         String message = "Votre compte a bien été crée";
         Context context = createContext("", "", message);
-        String process = templateEngine.process("templateConfirmation", context);
+        String process = templateEngine.process("email/templateConfirmation", context);
         envoieEmail(email, sujet, process);
     }
 
@@ -57,7 +57,7 @@ public class EmailServiceTemplate {
         String sujet = PREFIX_SUJET + "Changement de mot de votre passe";
         String message = "Réinitialisez votre mot de passe";
         Context context = createContext(url,"", message);
-        String process = templateEngine.process("templateMailPassword", context);
+        String process = templateEngine.process("email/templateMailPassword", context);
         envoieEmail(utilisateur.getEmail(), sujet, process);
     }
 
