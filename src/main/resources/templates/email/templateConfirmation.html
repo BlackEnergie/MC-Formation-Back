@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<table style="width: 100%;" border="0" width="100%" cellspacing="0" cellpadding="0">
+  <tbody>
+  <tr style="background-color: #2b309b;">
+    <td style="width: 100%;" align="center"><img style="display: block;" th:src="${imgMiageConnection}" alt="" width="200" height="200" /></td>
+  </tr>
+  <tr>
+    <td style="width: 100%;">
+      <table style="padding: 30px;" width="100%" cellspacing="0" cellpadding="5">
+        <tbody>
+        <tr>
+          <td>
+            <h2>Bonjour  </h2>
+            <p th:text="${message} + ${nomUtilisateur}"></p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="width: 100%;">
+      <table style="color: #303030; font-family: 'Helvetica Neue', sans-serif; font-size: 15px; height: 204px; width: 680px;">
+        <tbody>
+        <tr style="height: 204px;">
+          <td style="height: 204px; width: 200px;"><img th:src="${imgMiageConnection}" width="200" height="200" /></td>
+          <td style="border-left: 3px solid #2b309b; padding-left: 20px; height: 204px; width: 370px;">
+            <h1 style="font-family: 'Helvetica Neue',serif; font-size: 23px; color: #2b309b; margin: 1px;">P&ocirc;le Formation MIAGE Connection</h1>
+            <h3 style="margin: 1px; font-family: 'Helvetica Neue',serif; font-size: 15px;">F&eacute;d&eacute;ration nationale des &eacute;tudiants et dipl&ocirc;m&eacute;s de MIAGE</h3>
+            <a style="color: #1155cc;" href="https://www.linkedin.com/company/miage-connection/"><img th:src="${imgLinkedin}" target="_blank" rel="noopener"><img/></a>
+            &nbsp;<a style="color: #1155cc;" href="https://twitter.com/miageconnection?lang=fr"><img th:src="${imgTwitter}" target="_blank" rel="noopener"><img/></a>
+            &nbsp;<a style="color: #1155cc;" href="https://www.facebook.com/miageconnection/"><img th:src="${imgFacebook}" target="_blank" rel="noopener"><img/></a>
+            &nbsp;<a style="color: #1155cc;" href="https://www.miage.net/"><img th:src="${imgWebsite}" target="_blank" rel="noopener"><img/></a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+
+
+
+</body>
+</html>

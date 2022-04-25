@@ -1,0 +1,118 @@
+data:
+  roles:
+    -
+      id: 1
+      nom: ROLE_ASSO
+    -
+      id: 2
+      nom: ROLE_FORMATEUR
+    -
+      id: 3
+      nom: ROLE_BN
+
+  domaines:
+    -
+      id: 1
+      code: 1
+      libelle: Administration associatif
+      description: Comment gérer votre association administrativement.
+    -
+      id: 2
+      code: 2
+      libelle: Affaires académiques
+      description: Relations entre votre association et son environnement universitaire et fédératif.
+    -
+      id: 3
+      code: 3
+      libelle: Association d'alumni
+      description: Gestion d'une association d'anciens élèves.
+    -
+      id: 4
+      code: 4
+      libelle: Audit - Qualité
+      description: Apprendre ou approfondir les notions de qualité et d'audit dans différents contextes.
+    -
+      id: 5
+      code: 5
+      libelle: Communication personnel
+      description: Prise de parole, présentation oral, "vendre" son association".
+    -
+      id: 6
+      code: 6
+      libelle: Communication Réseaux Sociaux
+      description: Réseaux sociaux et outils de communication.
+    -
+      id: 7
+      code: 7
+      libelle: Développement personnel
+      description: Développer des compétences personnelles.
+    -
+      id: 8
+      code: 8
+      libelle: Développement WEB
+      description: Apprend à gérer la toile tel SpiderMan.
+    -
+      id: 9
+      code: 9
+      libelle: Environnement MC et son administration
+      description: Connaître la fédération MIAGE Connection.
+    -
+      id: 10
+      code: 10
+      libelle: Élus et représentation étudiante
+      description: Le rôle d'élu dans le cadre universitaire.
+    -
+      id: 11
+      code: 11
+      libelle: Événements
+      description: Gestion et organisation d'événements.
+    -
+      id: 12
+      code: 12
+      libelle: Junior-Entreprise & CNJE
+      description: Les Junior-Entreprises et leurs réseaux.
+    -
+      id: 13
+      code: 13
+      libelle: Management & relations
+      description: Gestion d'équipes dans l'association.
+    -
+      id: 14
+      code: 14
+      libelle: Outils pratiques
+      description: Tips and tools.
+    -
+      id: 15
+      code: 15
+      libelle: Partenariat & relations entreprises
+      description: Créer des relations avec les entreprises et les faire fructifier.
+    -
+      id: 16
+      code: 16
+      libelle: Trésorerie BDE & JE
+      description: Gestion de la trésorerie sauf pour les vieux.
+    -
+      id: 17
+      code: 17
+      libelle: Entrepreneuriat
+      description: Pour ceux qui veulent prendre des risques.
+    -
+      id: 18
+      code: 18
+      libelle: Qualité de vie au travail (QVT)
+      description: Gérer sa qualité de vie au travail (Hadicap...).
+    -
+      id: 19
+      code: 19
+      libelle: Défense du diplôme
+      description: Parce qu'être chauvin parfois c'est bien.
+    -
+      id: 20
+      code: 20
+      libelle: Vie étudiante
+      description: Si t'en a encore une, comment la gérer.
+    -
+      id: 21
+      code: 21
+      libelle: Professionnel
+      description: Technique, technologique...
