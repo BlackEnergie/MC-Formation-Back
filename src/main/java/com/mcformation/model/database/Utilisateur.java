@@ -1,11 +1,8 @@
 package com.mcformation.model.database;
 
-import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 public class Utilisateur {
@@ -45,8 +42,9 @@ public class Utilisateur {
         this.password = password;
         this.email = email;
     }
-    public Utilisateur(){
-        
+
+    public Utilisateur() {
+
     }
 
 
