@@ -47,9 +47,6 @@ jobs:
     - name : chech status sql
       run: sudo service mysql status
       
-    - name: Setup MySQL
-      run: mysql -u root 
-      
     - name: Verify MySQL connection from host
     
       run: |
