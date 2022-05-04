@@ -44,5 +44,6 @@ jobs:
         
         
     - name: Build with Maven
-      run: sudo service mysql status
+      run: sudo service mysql start
+        sudo service mysql status
           mvn install 
