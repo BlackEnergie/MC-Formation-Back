@@ -39,7 +39,7 @@ jobs:
       run: sudo service mysql status
       
     - name: Setup MySQL
-      run: mysql -u root -p root 
+      run: mysql -u root -p
       
     - name: Setup Mcformation 
       run: CREATE DATABASE mc_formation
