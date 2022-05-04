@@ -53,5 +53,5 @@ jobs:
         mysql --host 127.0.0.1 --port 32574 -uroot -ppassword -e "CREATE DATABASE mc_formation"
       
 
-    #- name: Build with Maven
-      #run: mvn install 
+    - name: Build with Maven
+      run: mvn install 
