@@ -16,9 +16,10 @@ public interface UtilisateurMapper {
     UtilisateurMapper INSTANCE = Mappers.getMapper(UtilisateurMapper.class);
 
     @Named("associationDaoToAssociationApiDetail")
+    @Mapping(source = "source.utilisateur.email", target = "email")
     AssociationApi associationDaoToAssociationApiDetail(Association source);
 
-    @IterableMapping(qualifiedByName = "associationDaoToAssociationApiAccueil")
+    @IterableMapping(qualifiedByName = "associationDaoToAssociationApiDetail")
     List<AssociationApi> associationDaoListToAssociationApiListDetail(List<Association> source);
 
     @Named("associationDaoToAssociationApiAccueil")
@@ -27,12 +28,12 @@ public interface UtilisateurMapper {
     @Mapping(target = "email", ignore = true)
     AssociationApi associationDaoToAssociationApiAccueil(Association source);
 
-    @IterableMapping(qualifiedByName = "associationDaoToAssociationApiDetail")
+    @IterableMapping(qualifiedByName = "associationDaoToAssociationApiAccueil")
     List<AssociationApi> associationDaoListToAssociationApiListAccueil(List<Association> source);
 
+    @Mapping(source = "email", target = "utilisateur.email")
     Association associationApiToAssociationDao(AssociationApi source);
 
     List<Association> associationApiListToAssociationDaoList(List<AssociationApi> source);
-
 
 }

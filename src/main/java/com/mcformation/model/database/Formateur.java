@@ -1,7 +1,5 @@
 package com.mcformation.model.database;
 
-import org.hibernate.annotations.CreationTimestamp;
-
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.List;
@@ -13,7 +11,6 @@ public class Formateur {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @CreationTimestamp
     private Date dateCreation;
     private String nom;
     private String prenom;

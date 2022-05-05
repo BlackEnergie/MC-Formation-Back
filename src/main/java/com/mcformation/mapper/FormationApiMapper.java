@@ -33,8 +33,8 @@ public interface FormationApiMapper{
     @Mapping(source = "source.formation.prerequis", target = "prerequis")
     @Mapping(source = "source.formation.audience", target = "audience")
     @Mapping(source = "source.formation.parties", target = "parties")
-    @Mapping(source = "source.formation.materiels", target = "materiels",qualifiedByName = "stringMaterielToList")
-    @Mapping(source = "source.formation.objectifs", target = "objectifs",qualifiedByName= "stringObjectifsToList")
+    @Mapping(source = "source.formation.materiels", target = "materiels",qualifiedByName = "stringToListString")
+    @Mapping(source = "source.formation.objectifs", target = "objectifs",qualifiedByName= "stringToListString")
     @Mapping(source = "source.formation.cadre", target = "cadre")
     @Mapping(source = "source.formation.formateurs", target = "formateurs")
     FormationApi demandeDaoToFormationApiDetail(Demande source);
@@ -65,43 +65,44 @@ public interface FormationApiMapper{
     @IterableMapping(qualifiedByName = "demandeDaoToFormationApiAccueil")
     List<FormationApi> demandeDaoListToFormationApiListAccueil(List<Demande> source);
 
+    @Mapping(source = "source.id", target = "id")
+    @Mapping(source = "source.sujet", target = "sujet")
+    @Mapping(source = "source.dateDemande", target = "dateDemande")
+    @Mapping(source = "source.detail", target = "detail")
+    @Mapping(source = "source.statut", target = "statut")
+    @Mapping(source = "source.domaines", target = "domaines")
+    @Mapping(source = "source.id", target = "formation.id")
+    @Mapping(source = "source.date", target = "formation.date")
+    @Mapping(source = "source.duree", target = "formation.duree")
+    @Mapping(source = "source.nom", target = "formation.nom")
+    @Mapping(source = "source.type", target = "formation.type")
+    @Mapping(source = "source.prerequis", target = "formation.prerequis")
+    @Mapping(source = "source.audience", target = "formation.audience")
+    @Mapping(source = "source.parties", target = "formation.parties")
+    @Mapping(source = "source.materiels", target = "formation.materiels",qualifiedByName = "listStringToString")
+    @Mapping(source = "source.objectifs", target = "formation.objectifs",qualifiedByName= "listStringToString")
+    @Mapping(source = "source.cadre", target = "formation.cadre")
+    @Mapping(source = "source.formateurs", target = "formation.formateurs")
     Demande formationApiToDemandeDao(FormationApi source);
     
-    @Mapping(source="source.materiels",target="materiels",qualifiedByName = "listMaterielToString")
-    @Mapping(source="source.objectifs",target="objectifs",qualifiedByName = "listObjectifsToString")
+    @Mapping(source="source.materiels",target="materiels",qualifiedByName = "listStringToString")
+    @Mapping(source="source.objectifs",target="objectifs",qualifiedByName = "listStringToString")
     Formation formationApiToFormationDao(FormationApi source);
 
-    @Named("listMaterielToString")
-    default String listMaterielToString(List<String> materiels){
+    @Named("listStringToString")
+    default String listStringToString(List<String> stringList){
         String res = null;
-        if (materiels != null && !materiels.isEmpty()) {
-            res = String.join(";",materiels);
+        if (stringList != null && !stringList.isEmpty()) {
+            res = String.join(";",stringList);
         }
         return res;
     }
 
-    @Named("stringMaterielToList")
-    default List<String> stringMaterielToList(String materiels){
+    @Named("stringToListString")
+    default List<String> stringToListString(String string){
         List<String> res = new ArrayList<>();
-        if (materiels != null) {
-            res = new ArrayList<>(Arrays.asList(materiels.split(";")));
-        }
-        return res;
-    }
-    @Named("listObjectifsToString")
-    default String listObjectifsToString(List<String> objectifs){
-        String res = null;
-        if (objectifs != null && !objectifs.isEmpty()) {
-            res = String.join(";",objectifs);
-        }
-        return res;
-    }
-
-    @Named("stringObjectifsToList")
-    default List<String> stringObjectifsToList(String objectifs){
-        List<String> res = new ArrayList<>();
-        if (objectifs != null) {
-            res = new ArrayList<>(Arrays.asList(objectifs.split(";")));
+        if (string != null) {
+            res = new ArrayList<>(Arrays.asList(string.split(";")));
         }
         return res;
     }
