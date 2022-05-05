@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, feature/*]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ main, dev, feature/*]
 
 jobs:
   build:
@@ -44,7 +44,7 @@ jobs:
     - name : start sql
       run: sudo service mysql start
       
-    - name : chech status sql
+    - name : check status sql
       run: sudo service mysql status
       
     - name: Verify MySQL connection from host
@@ -53,5 +53,5 @@ jobs:
         mysql --host 127.0.0.1 --port 3306 -uroot -proot -e "CREATE DATABASE mc_formation"
       
 
-    - name: Build with Maven
+    - name: Install & Test with Maven
       run: mvn install 
