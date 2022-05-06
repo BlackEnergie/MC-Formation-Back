@@ -50,9 +50,12 @@ public class UtilisateurService {
 
     public String validatePasswordResetToken(String token) {
         final PasswordResetToken passToken = passwordTokenRepository.findByToken(token);
+
+
         return !isTokenFound(passToken) ? "Token invalide"
                 : isTokenExpired(passToken) ? "Token expiré"
-                : null;
+                : !isTokenExpired(passToken) ? "Token valide"
+                :null;
     }
 
     private boolean isTokenFound(PasswordResetToken passToken) {

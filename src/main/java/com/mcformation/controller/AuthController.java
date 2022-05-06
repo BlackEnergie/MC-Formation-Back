@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.sql.Array;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -263,18 +265,32 @@ public class AuthController {
 
     @PostMapping("/resetPassword/invite")
     public ResponseEntity<MessageApi> resetPassword(@RequestParam("email") String userEmail) throws MessagingException {
+
         Utilisateur utilisateur = utilisateurService.findUtilisateurByEmail(userEmail);
-        String token = UUID.randomUUID().toString();
-        utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
-        emailServiceTemplate.envoieResetPassowrd(token, utilisateur);
-        MessageApi messageApi = new MessageApi(200, "Email envoyé");
+        ArrayList<PasswordResetToken> passwordResetToken = (ArrayList<PasswordResetToken>) passwordTokenRepository.findAllByUtilisateur_Id(utilisateur.getId());
+        ArrayList<String> result = new ArrayList<>();
+        for (PasswordResetToken listToken: passwordResetToken) {
+            result.add(utilisateurService.validatePasswordResetToken(listToken.getToken()));
+        }
+
+        //System.out.println(passwordResetToken);
+        //System.out.println(result);
+
+        if(!result.contains("Token valide")){
+            String token = UUID.randomUUID().toString();
+            utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
+            emailServiceTemplate.envoieResetPassowrd(token, utilisateur);
+        }else{
+            throw  new BadCredentialsException("Une demande de réinitialisation de mot de passe à déjà été envoyé");
+        };
+        MessageApi messageApi = new MessageApi(200, "email envoyé");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
     @PostMapping("/resetPassword/checkToken")
     public ResponseEntity<MessageApi> checkPasswordTokenValid(@RequestParam("token") String token) {
         String result = utilisateurService.validatePasswordResetToken(token);
-        if (result != null) {
+        if (result != "Token valide") {
             throw new BadCredentialsException(result);
         }
         MessageApi messageApi = new MessageApi(200, "Token valide");
@@ -284,11 +300,11 @@ public class AuthController {
     @PostMapping("/resetPassword/save")
     public ResponseEntity<MessageApi> savePassword(@RequestBody PasswordApi passwordApi) {
         String result = utilisateurService.validatePasswordResetToken(passwordApi.getToken());
-        if (result != null) {
+        if (result != "Token valide") {
             throw new BadCredentialsException(result);
         }
         PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(passwordApi.getToken());
-        Utilisateur utilisateur = passwordResetToken.getUtilisateur();
+        Utilisateur utilisateur = (Utilisateur) passwordResetToken.getUtilisateur();
         if (utilisateur != null) {
             utilisateurService.changeUserPassword(utilisateur, passwordApi.getNewPassword());
         } else {
