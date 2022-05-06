@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven
+name: Java CI
 
 on:
   push:
@@ -11,20 +11,9 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-        - 32574:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
-          
     - uses: actions/checkout@v3  
     - name: Set up JDK 11
       uses: actions/setup-java@v3
@@ -39,19 +28,35 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2 
-        
-        
-    - name : start sql
-      run: sudo service mysql start
-      
-    - name : check status sql
-      run: sudo service mysql status
-      
-    - name: Verify MySQL connection from host
-    
-      run: |
-        mysql --host 127.0.0.1 --port 3306 -uroot -proot -e "CREATE DATABASE mc_formation"
-      
 
-    - name: Install & Test with Maven
-      run: mvn install 
+    - name: Package
+      run: mvn package -DskipTests 
+
+
+  test:
+    needs: build
+    runs-on : ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+        - 32574:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+      - name : start sql
+        run: sudo service mysql start
+      
+      - name : check status sql
+        run: sudo service mysql status
+      
+      - name: Verify MySQL connection from host
+    
+        run: |
+          mysql --host 127.0.0.1 --port 3306 -uroot -proot -e "CREATE DATABASE mc_formation"
+          
+      - name: test
+        run: mvn test
