@@ -41,11 +41,11 @@ public class DemandeApi {
         this.domaines = domaines;
     }
 
-    public Date getDateDemande(){
+    public Date getDateDemande() {
         return dateDemande;
     }
-    
-    public void setDateDemande(Date dateDemande){
+
+    public void setDateDemande(Date dateDemande) {
         this.dateDemande = dateDemande;
     }
 
