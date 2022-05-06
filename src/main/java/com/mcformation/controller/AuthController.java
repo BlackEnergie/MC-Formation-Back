@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.sql.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -269,20 +268,23 @@ public class AuthController {
         Utilisateur utilisateur = utilisateurService.findUtilisateurByEmail(userEmail);
         ArrayList<PasswordResetToken> passwordResetToken = (ArrayList<PasswordResetToken>) passwordTokenRepository.findAllByUtilisateur_Id(utilisateur.getId());
         ArrayList<String> result = new ArrayList<>();
-        for (PasswordResetToken listToken: passwordResetToken) {
+
+        for (PasswordResetToken listToken : passwordResetToken) {
             result.add(utilisateurService.validatePasswordResetToken(listToken.getToken()));
+
         }
 
-        //System.out.println(passwordResetToken);
-        //System.out.println(result);
-
-        if(!result.contains("Token valide")){
+        if (!result.contains("Token valide")) {
             String token = UUID.randomUUID().toString();
             utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
             emailServiceTemplate.envoieResetPassowrd(token, utilisateur);
-        }else{
-            throw  new BadCredentialsException("Une demande de réinitialisation de mot de passe à déjà été envoyé");
-        };
+        } else {
+            String resendToken = passwordResetToken.get(result.indexOf("Token valide")).getToken();
+            emailServiceTemplate.envoieResetPassowrd(resendToken, utilisateur);
+            throw new BadCredentialsException("Une demande de réinitialisation de mot de passe à déjà été envoyé");
+
+        }
+        ;
         MessageApi messageApi = new MessageApi(200, "email envoyé");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
