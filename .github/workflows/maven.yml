@@ -10,32 +10,8 @@ on:
     branches: [ main, dev, feature/*]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3  
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-            java-version: '11'
-            distribution: 'temurin'
-            cache: maven
-
-    - name: Cache the Maven packages to speed up build
-      uses: actions/cache@v1
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2 
-
-    - name: Package
-      run: mvn package -DskipTests 
-
-
-  test:
-    needs: build
-    runs-on : ubuntu-latest
     
     services:
       mysql:
@@ -47,16 +23,34 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     
     steps:
-      - name : start sql
-        run: sudo service mysql start
+    - uses: actions/checkout@v3  
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+    - name: Cache the Maven packages to speed up build
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2 
+
+    - name: Package
+      run: mvn package -DskipTests 
+
+    - name : start sql
+      run: sudo service mysql start
       
-      - name : check status sql
-        run: sudo service mysql status
+    - name : check status sql
+      run: sudo service mysql status
       
-      - name: Verify MySQL connection from host
+    - name: Verify MySQL connection from host
     
-        run: |
-          mysql --host 127.0.0.1 --port 3306 -uroot -proot -e "CREATE DATABASE mc_formation"
+      run: |
+        mysql --host 127.0.0.1 --port 3306 -uroot -proot -e "CREATE DATABASE mc_formation"
           
-      - name: test
-        run: mvn test
+    - name: test
+      run: mvn install
