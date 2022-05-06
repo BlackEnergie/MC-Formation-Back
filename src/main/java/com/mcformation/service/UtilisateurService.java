@@ -28,7 +28,7 @@ public class UtilisateurService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Utilisateur findUtilisateurByEmail(String email) {
+    public Utilisateur findUtilisateurByEmail(String email){
         Utilisateur utilisateur;
         Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findByEmail(email);
         if (utilisateurOptional.isPresent()) {

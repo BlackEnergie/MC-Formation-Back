@@ -273,7 +273,6 @@ public class AuthController {
             result.add(utilisateurService.validatePasswordResetToken(listToken.getToken()));
 
         }
-
         if (!result.contains("Token valide")) {
             String token = UUID.randomUUID().toString();
             utilisateurService.createPasswordResetTokenForUtilisateur(utilisateur, token);
@@ -281,11 +280,9 @@ public class AuthController {
         } else {
             String resendToken = passwordResetToken.get(result.indexOf("Token valide")).getToken();
             emailServiceTemplate.envoieResetPassowrd(resendToken, utilisateur);
-            throw new BadCredentialsException("Une demande de réinitialisation de mot de passe à déjà été envoyé");
-
         }
         ;
-        MessageApi messageApi = new MessageApi(200, "email envoyé");
+        MessageApi messageApi = new MessageApi(200, "Votre demande a été prise en compte, vous allez recevoir un email si votre compte existe.");
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
