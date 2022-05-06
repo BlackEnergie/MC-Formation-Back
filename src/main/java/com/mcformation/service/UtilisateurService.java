@@ -28,7 +28,7 @@ public class UtilisateurService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Utilisateur findUtilisateurByEmail(String email) {
+    public Utilisateur findUtilisateurByEmail(String email){
         Utilisateur utilisateur;
         Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findByEmail(email);
         if (utilisateurOptional.isPresent()) {
@@ -50,9 +50,12 @@ public class UtilisateurService {
 
     public String validatePasswordResetToken(String token) {
         final PasswordResetToken passToken = passwordTokenRepository.findByToken(token);
+
+
         return !isTokenFound(passToken) ? "Token invalide"
                 : isTokenExpired(passToken) ? "Token expiré"
-                : null;
+                : !isTokenExpired(passToken) ? "Token valide"
+                :null;
     }
 
     private boolean isTokenFound(PasswordResetToken passToken) {
