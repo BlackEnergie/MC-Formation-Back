@@ -59,4 +59,4 @@ jobs:
           mysql --host 127.0.0.1 --port 3306 -uroot -proot -e "CREATE DATABASE mc_formation"
           
       - name: test
-        run: mvn test
+        run: mvn install
