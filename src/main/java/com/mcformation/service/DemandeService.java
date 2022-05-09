@@ -52,7 +52,7 @@ public class DemandeService {
                 throw new UnsupportedOperationException("Cet utilisateur ne peut pas créer de demande de formation.");
             }
         } else {
-            throw new UnsupportedOperationException("Cet email ne correspond à aucun utilisateur.");
+            throw new UnsupportedOperationException("Utilisateur inconnu.");
         }
         messageApi.setMessage(String.format("Votre demande de formation \"%s\" a bien été enregistrée.", demandeCree.getSujet()));
         messageApi.setCode(201);

@@ -1,8 +1,10 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.auth.LoginRequest;
+import com.mcformation.repository.*;
 import com.mcformation.utils.JsonUtils;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class DonneeControllerTest {
 
     @Autowired
+    private UtilisateurRepository utilisateurRepository;
+
+    @Autowired
+    private AssociationRepository associationRepository;
+
+    @Autowired
+    private FormateurRepository formateurRepository;
+
+    @Autowired
+    private MembreBureauNationalRepository membreBureauNationalRepository;
+
+    @Autowired
     private WebApplicationContext webApplicationContext;
 
     @Autowired
@@ -45,7 +59,17 @@ class DonneeControllerTest {
         this.mvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
     }
 
+
+    @AfterEach
+    public void cleanDatabase() {
+        associationRepository.deleteAll();
+        formateurRepository.deleteAll();
+        membreBureauNationalRepository.deleteAll();
+        utilisateurRepository.deleteAll();
+    }
+
     @Test
+    @Sql("classpath:test/data-user-test.sql")
     public void getAllDomaines() throws Exception {
         String accessToken = getLoginAccessToken("bn", password);
         this.mvc.perform(

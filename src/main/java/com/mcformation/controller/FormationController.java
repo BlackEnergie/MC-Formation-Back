@@ -26,7 +26,14 @@ public class FormationController {
     }
 
     @GetMapping("/formation/{id}")
+    @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
     public ResponseEntity<FormationApi> getFormation(@PathVariable Long id) {
+        FormationApi formationApi = formationService.getFormation(id);
+        return new ResponseEntity<>(formationApi, HttpStatus.OK);
+    }
+
+    @GetMapping("/formation/details/{id}")
+    public ResponseEntity<FormationApi> getFormationLimit(@PathVariable Long id) {
         FormationApi formationApi = formationService.getFormation(id);
         return new ResponseEntity<>(formationApi, HttpStatus.OK);
     }

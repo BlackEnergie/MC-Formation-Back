@@ -34,7 +34,7 @@ public class UtilisateurService {
         if (utilisateurOptional.isPresent()) {
             utilisateur = utilisateurOptional.get();
         } else {
-            throw new UsernameNotFoundException("Utilisateur non trouvé");
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
         }
         return utilisateur;
     }

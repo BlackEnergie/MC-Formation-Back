@@ -1,7 +1,12 @@
 package com.mcformation.controller;
 
+import com.mcformation.model.api.AssociationApi;
 import com.mcformation.model.api.auth.LoginRequest;
+import com.mcformation.model.api.auth.PasswordApi;
 import com.mcformation.model.api.auth.SignupInviteRequest;
+import com.mcformation.model.api.auth.SignupRequest;
+import com.mcformation.model.database.Association;
+import com.mcformation.model.utils.College;
 import com.mcformation.model.utils.Erole;
 import com.mcformation.repository.*;
 import com.mcformation.utils.JsonUtils;
@@ -55,6 +60,9 @@ class AuthControllerTest {
     private UserTokenRepository userTokenRepository;
 
     @Autowired
+    private PasswordTokenRepository passwordTokenRepository;
+
+    @Autowired
     private WebApplicationContext webApplicationContext;
 
     @Autowired
@@ -73,6 +81,7 @@ class AuthControllerTest {
         formateurRepository.deleteAll();
         membreBureauNationalRepository.deleteAll();
         userTokenRepository.deleteAll();
+        passwordTokenRepository.deleteAll();
         utilisateurRepository.deleteAll();
     }
 
@@ -274,22 +283,118 @@ class AuthControllerTest {
 
     @Test
     void creationUtilisateur() {
+
     }
 
     @Test
-    void registerUser() {
+    @Sql("classpath:test/data-user-test.sql")
+    void registerUserAdmin_Asso() throws Exception{
+        String accessToken = getLoginAccessToken("bn", password);
+        Association association = new Association();
+        association.setAcronyme("JMC");
+        association.setCollege(College.A);
+        association.setNomComplet("Junior MC");
+        association.setVille("Bordeaux");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail("asso2@miage.net");
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("asso2");
+        signupRequest.setAssociation(association);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/admin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
     }
 
     @Test
-    void resetPassword() {
+    @Sql("classpath:test/data-user-test.sql")
+    void resetPasswordInvite_Success() throws Exception {
+        String email = "asso@miage.net";
+        this.mvc.perform(
+                        post("/auth/resetPassword/invite?email=" + email)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+    @Test
+    @Sql("classpath:test/data-user-test.sql")
+    void resetPasswordInvite_Error() throws Exception {
+        String email = "asso@miage.ne";
+        this.mvc.perform(
+                        post("/auth/resetPassword/invite?email=" + email)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().is4xxClientError()
+                );
+    }
+    @Test
+    @Sql({"classpath:test/data-user-test.sql","classpath:test/data-password-invite.sql"})
+    void checkPasswordToken_Success() throws Exception {
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+        this.mvc.perform(
+                        post("/auth/resetPassword/checkToken?token=" + token)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+    @Test
+    @Sql({"classpath:test/data-user-test.sql","classpath:test/data-password-invite.sql"})
+    void checkPasswordToken_Error() throws Exception {
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ8";
+        this.mvc.perform(
+                        post("/auth/resetPassword/checkToken?token=" + token)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().is4xxClientError()
+                );
     }
 
     @Test
-    void checkPasswordTokenValid() {
+    @Sql({"classpath:test/data-user-test.sql","classpath:test/data-password-invite.sql"})
+    void savePassword_Success() throws Exception{
+        PasswordApi passwordApi = new PasswordApi();
+        passwordApi.setNewPassword("testchangementpassword");
+        passwordApi.setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
+        String request = JsonUtils.objectToJson(passwordApi);
+        this.mvc.perform(
+                        post("/auth/resetPassword/save")
+                                .content(request)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
     }
 
     @Test
-    void savePassword() {
+    @Sql({"classpath:test/data-user-test.sql","classpath:test/data-password-invite.sql"})
+    void savePassword_Error() throws Exception{
+        PasswordApi passwordApi = new PasswordApi();
+        passwordApi.setNewPassword("testchangementpassword");
+        passwordApi.setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ8");
+        String request = JsonUtils.objectToJson(passwordApi);
+        this.mvc.perform(
+                        post("/auth/resetPassword/save")
+                                .content(request)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().is4xxClientError()
+                );
+
     }
 
     private String getLoginAccessToken(String nomUtilisateur, String password) throws Exception {
