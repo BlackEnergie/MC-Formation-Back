@@ -33,8 +33,9 @@ public class FormationController {
 
     @PutMapping("/formation")
     @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
-    public ResponseEntity<MessageApi> getFormation(@RequestBody FormationApi formationApi) {
+    public ResponseEntity<MessageApi> putFormation(@RequestBody FormationApi formationApi) {
         MessageApi messageApi = formationService.putModification(formationApi);
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
+
 }
