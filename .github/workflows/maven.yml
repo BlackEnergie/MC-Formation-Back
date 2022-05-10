@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI
+name: MC-Formation CI
 
 on:
   push:
@@ -12,15 +12,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-        - 32574:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     
     steps:
     - uses: actions/checkout@v3  
@@ -39,18 +30,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2 
 
     - name: Package
-      run: mvn package -DskipTests 
-
-    - name : start sql
-      run: sudo service mysql start
-      
-    - name : check status sql
-      run: sudo service mysql status
-      
-    - name: Verify MySQL connection from host
-    
-      run: |
-        mysql --host 127.0.0.1 --port 3306 -uroot -proot -e "CREATE DATABASE mc_formation"
+      run: mvn install -DskipTests 
           
-    - name: test
-      run: mvn install
+    - name: Test
+      run: mvn test
