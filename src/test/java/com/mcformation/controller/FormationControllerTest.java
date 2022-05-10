@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -67,11 +66,11 @@ class FormationControllerTest {
 
     @AfterEach
     public void cleanDatabase() {
-        demandeRepository.deleteAll();
-        formationRepository.deleteAll();
         associationRepository.deleteAll();
+        formationRepository.deleteAll();
         formateurRepository.deleteAll();
         membreBureauNationalRepository.deleteAll();
+        demandeRepository.deleteAll();
         utilisateurRepository.deleteAll();
     }
 
@@ -89,7 +88,6 @@ class FormationControllerTest {
                         get("/formation/" + id)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -104,7 +102,6 @@ class FormationControllerTest {
                         get("/formation/" + id)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -119,9 +116,8 @@ class FormationControllerTest {
                         get("/formation/" + id)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
-                        status().isUnauthorized()
+                        status().isForbidden()
                 );
     }
 
@@ -134,7 +130,6 @@ class FormationControllerTest {
                         get("/formation/details/" + id)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );

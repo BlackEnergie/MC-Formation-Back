@@ -36,7 +36,6 @@ import javax.servlet.ServletContext;
 import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -106,7 +105,6 @@ class AuthControllerTest {
                         post("/auth/signin")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         MockMvcResultMatchers.jsonPath("$.accessToken").exists()
@@ -124,7 +122,6 @@ class AuthControllerTest {
                         post("/auth/signin")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         MockMvcResultMatchers.jsonPath("$.accessToken").exists()
@@ -142,7 +139,6 @@ class AuthControllerTest {
                         post("/auth/signin")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk(),
                         MockMvcResultMatchers.jsonPath("$.accessToken").exists()
@@ -160,7 +156,6 @@ class AuthControllerTest {
                         post("/auth/signin")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -177,7 +172,6 @@ class AuthControllerTest {
                         post("/auth/signin")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -191,7 +185,6 @@ class AuthControllerTest {
                         post("/auth/signin")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isBadRequest()
                 );
@@ -211,7 +204,6 @@ class AuthControllerTest {
                                 .content(request)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -231,7 +223,6 @@ class AuthControllerTest {
                                 .content(request)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -251,7 +242,6 @@ class AuthControllerTest {
                                 .content(request)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -264,7 +254,6 @@ class AuthControllerTest {
         this.mvc.perform(
                         post("/auth/signup/checkToken?token=" + token)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -277,7 +266,6 @@ class AuthControllerTest {
         this.mvc.perform(
                         post("/auth/signup/checkToken?token=" + token)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -302,7 +290,6 @@ class AuthControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(request)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -325,7 +312,6 @@ class AuthControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(request)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -347,7 +333,6 @@ class AuthControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(request)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -369,7 +354,6 @@ class AuthControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(request)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -391,7 +375,6 @@ class AuthControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(request)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -418,7 +401,6 @@ class AuthControllerTest {
                                 .content(request)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -443,7 +425,6 @@ class AuthControllerTest {
                                 .content(request)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -467,7 +448,6 @@ class AuthControllerTest {
                                 .content(request)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -491,7 +471,6 @@ class AuthControllerTest {
                                 .content(request)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -504,7 +483,6 @@ class AuthControllerTest {
         this.mvc.perform(
                         post("/auth/resetPassword/invite?email=" + email)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -517,7 +495,6 @@ class AuthControllerTest {
         this.mvc.perform(
                         post("/auth/resetPassword/invite?email=" + email)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -530,7 +507,6 @@ class AuthControllerTest {
         this.mvc.perform(
                         post("/auth/resetPassword/checkToken?token=" + token)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -543,7 +519,6 @@ class AuthControllerTest {
         this.mvc.perform(
                         post("/auth/resetPassword/checkToken?token=" + token)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );
@@ -560,7 +535,6 @@ class AuthControllerTest {
                         post("/auth/resetPassword/save")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().isOk()
                 );
@@ -577,7 +551,6 @@ class AuthControllerTest {
                         post("/auth/resetPassword/save")
                                 .content(request)
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpectAll(
                         status().is4xxClientError()
                 );

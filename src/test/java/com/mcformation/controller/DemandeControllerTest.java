@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -48,6 +47,9 @@ class DemandeControllerTest {
 
     @Autowired
     private FormateurRepository formateurRepository;
+
+    @Autowired
+    private FormationRepository formationRepository;
 
     @Autowired
     private MembreBureauNationalRepository membreBureauNationalRepository;
@@ -70,6 +72,7 @@ class DemandeControllerTest {
         associationRepository.deleteAll();
         formateurRepository.deleteAll();
         membreBureauNationalRepository.deleteAll();
+        formationRepository.deleteAll();
         demandeRepository.deleteAll();
         utilisateurRepository.deleteAll();
     }
@@ -90,8 +93,12 @@ class DemandeControllerTest {
         demandeApi.setDomaines(listDomaines);
         demandeApi.setNomUtilisateur("asso");
         String request = JsonUtils.objectToJson(demandeApi);
-        this.mvc.perform(post("/demande/creer").contentType(MediaType.APPLICATION_JSON).content(request).header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).characterEncoding(StandardCharsets.UTF_8)).andDo(print()).andExpectAll(status().isCreated());
-
+        this.mvc.perform(post("/demande/creer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(request)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(status().isCreated());
     }
 
     private String getLoginAccessToken(String nomUtilisateur, String password) throws Exception {
@@ -99,7 +106,10 @@ class DemandeControllerTest {
         loginRequest.setNomUtilisateur(nomUtilisateur);
         loginRequest.setPassword(password);
         String request = JsonUtils.objectToJson(loginRequest);
-        MvcResult result = this.mvc.perform(post("/auth/signin").content(request).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        MvcResult result = this.mvc.perform(post("/auth/signin")
+                .content(request)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
         JSONObject json = new JSONObject(result.getResponse().getContentAsString());
         return json.getString("accessToken");
     }
