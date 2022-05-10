@@ -1,11 +1,12 @@
 package com.mcformation.controller;
 
-import com.mcformation.model.api.AssociationApi;
 import com.mcformation.model.api.auth.LoginRequest;
 import com.mcformation.model.api.auth.PasswordApi;
 import com.mcformation.model.api.auth.SignupInviteRequest;
 import com.mcformation.model.api.auth.SignupRequest;
 import com.mcformation.model.database.Association;
+import com.mcformation.model.database.Formateur;
+import com.mcformation.model.database.MembreBureauNational;
 import com.mcformation.model.utils.College;
 import com.mcformation.model.utils.Erole;
 import com.mcformation.repository.*;
@@ -82,6 +83,7 @@ class AuthControllerTest {
         membreBureauNationalRepository.deleteAll();
         userTokenRepository.deleteAll();
         passwordTokenRepository.deleteAll();
+        userTokenRepository.deleteAll();
         utilisateurRepository.deleteAll();
     }
 
@@ -282,13 +284,122 @@ class AuthControllerTest {
     }
 
     @Test
-    void creationUtilisateur() {
+    @Sql("classpath:test/data-user-invite.sql")
+    void creationUtilisateurAsso_Success() throws Exception{
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+        Association association = new Association();
+        association.setAcronyme("JMC");
+        association.setCollege(College.A);
+        association.setNomComplet("Junior MC");
+        association.setVille("Bordeaux");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("test1");
+        signupRequest.setAssociation(association);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/create?token="+token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
 
+    @Test
+    @Sql("classpath:test/data-user-invite.sql")
+    void creationUtilisateurFormateur_Success() throws Exception{
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ10";
+        Formateur formateur = new Formateur();
+        formateur.setNom("testNom");
+        formateur.setPrenom("testPrenom");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("test2");
+        signupRequest.setFormateur(formateur);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/create?token="+token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+
+    @Test
+    @Sql("classpath:test/data-user-invite.sql")
+    void creationUtilisateurBN_Success() throws Exception{
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ11";
+        MembreBureauNational membreBureauNational = new MembreBureauNational();
+        membreBureauNational.setPoste("testPoste");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("test3");
+        signupRequest.setMembreBureauNational(membreBureauNational);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/create?token="+token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+
+    @Test
+    @Sql("classpath:test/data-user-invite.sql")
+    void creationUtilisateurBN_TokenInvalid() throws Exception{
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ";
+        MembreBureauNational membreBureauNational = new MembreBureauNational();
+        membreBureauNational.setPoste("testPoste");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("test3");
+        signupRequest.setMembreBureauNational(membreBureauNational);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/create?token="+token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().is4xxClientError()
+                );
+    }
+
+    @Test
+    @Sql("classpath:test/data-user-invite.sql")
+    void creationUtilisateurBN_Invalid() throws Exception{
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
+        MembreBureauNational membreBureauNational = new MembreBureauNational();
+        membreBureauNational.setPoste("testPoste");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("test3");
+        signupRequest.setMembreBureauNational(membreBureauNational);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/create?token="+token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().is4xxClientError()
+                );
     }
 
     @Test
     @Sql("classpath:test/data-user-test.sql")
-    void registerUserAdmin_Asso() throws Exception{
+    void registerUserAdmin_Asso_Success() throws Exception{
         String accessToken = getLoginAccessToken("bn", password);
         Association association = new Association();
         association.setAcronyme("JMC");
@@ -315,6 +426,79 @@ class AuthControllerTest {
 
     @Test
     @Sql("classpath:test/data-user-test.sql")
+    void registerUserAdmin_Formateur_Success() throws Exception{
+        String accessToken = getLoginAccessToken("bn", password);
+        Formateur formateur = new Formateur();
+        formateur.setNom("");
+        formateur.setPrenom("");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail("forma2@miage.net");
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("forma2");
+        signupRequest.setFormateur(formateur);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/admin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+
+    @Test
+    @Sql("classpath:test/data-user-test.sql")
+    void registerUserAdmin_BN_Success() throws Exception{
+        String accessToken = getLoginAccessToken("bn", password);
+        MembreBureauNational membreBureauNational = new MembreBureauNational();
+        membreBureauNational.setPoste("posteTest");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail("bn2@miage.net");
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("bn2");
+        signupRequest.setMembreBureauNational(membreBureauNational);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/admin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+
+    @Test
+    @Sql("classpath:test/data-user-test.sql")
+    void registerUserAdmin_BN_UserAlreadyExists() throws Exception{
+        String accessToken = getLoginAccessToken("bn", password);
+        MembreBureauNational membreBureauNational = new MembreBureauNational();
+        membreBureauNational.setPoste("VP Formations");
+        SignupRequest signupRequest = new SignupRequest();
+        signupRequest.setEmail("bn@miage.net");
+        signupRequest.setPassword(password);
+        signupRequest.setNomUtilisateur("bn");
+        signupRequest.setMembreBureauNational(membreBureauNational);
+        String request = JsonUtils.objectToJson(signupRequest);
+        this.mvc.perform(
+                        post("/auth/signup/admin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andDo(print())
+                .andExpectAll(
+                        status().is4xxClientError()
+                );
+    }
+
+    @Test
+    @Sql("classpath:test/data-user-test.sql")
     void resetPasswordInvite_Success() throws Exception {
         String email = "asso@miage.net";
         this.mvc.perform(
@@ -325,6 +509,7 @@ class AuthControllerTest {
                         status().isOk()
                 );
     }
+
     @Test
     @Sql("classpath:test/data-user-test.sql")
     void resetPasswordInvite_Error() throws Exception {
@@ -337,6 +522,7 @@ class AuthControllerTest {
                         status().is4xxClientError()
                 );
     }
+
     @Test
     @Sql({"classpath:test/data-user-test.sql","classpath:test/data-password-invite.sql"})
     void checkPasswordToken_Success() throws Exception {
@@ -349,6 +535,7 @@ class AuthControllerTest {
                         status().isOk()
                 );
     }
+
     @Test
     @Sql({"classpath:test/data-user-test.sql","classpath:test/data-password-invite.sql"})
     void checkPasswordToken_Error() throws Exception {
