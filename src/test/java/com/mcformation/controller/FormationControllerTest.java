@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -83,7 +82,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormation_BN() throws Exception {
         String accessToken = getLoginAccessToken("bn", password);
         String id = "1";
@@ -97,7 +96,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormation_Formateur() throws Exception {
         String accessToken = getLoginAccessToken("formateur", password);
         String id = "1";
@@ -111,7 +110,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormation_Asso() throws Exception {
         String accessToken = getLoginAccessToken("asso", password);
         String id = "1";
@@ -125,7 +124,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormationLimit_Asso() throws Exception {
         String accessToken = getLoginAccessToken("asso", password);
         String id = "1";
@@ -143,7 +142,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void postAffectationFormation_Affecter_Success() throws Exception {
         String nomUtilisateur = "formateur";
         String accessToken = getLoginAccessToken(nomUtilisateur, password);
@@ -152,20 +151,20 @@ class FormationControllerTest {
         affectationFormationApi.setNomUtilisateur(nomUtilisateur);
         String request = JsonUtils.objectToJson(affectationFormationApi);
         this.mvc.perform(
-                post("/formation/affectation")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(request)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                        .characterEncoding(StandardCharsets.UTF_8))
+                        post("/formation/affectation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
                 .andExpectAll(
                         status().isOk(),
-                        result ->  Assertions.assertTrue(result.getResponse().getContentAsString().contains("affectÃ©"))
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("affectÃ©"))
 
                 );
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void postAffectationFormation_Desaffecter_Success() throws Exception {
         String nomUtilisateur = "formateur";
         String accessToken = getLoginAccessToken(nomUtilisateur, password);
@@ -186,7 +185,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void postAffectationFormation_Failure_FormationInconnue() throws Exception {
         String nomUtilisateur = "formateur";
         String accessToken = getLoginAccessToken(nomUtilisateur, password);
@@ -207,13 +206,13 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void postAffectationFormation_Failure_UtilisateurInconnu() throws Exception {
         String nomUtilisateur = "formateur";
         String accessToken = getLoginAccessToken(nomUtilisateur, password);
         AffectationFormationApi affectationFormationApi = new AffectationFormationApi();
         affectationFormationApi.setIdFormation(3L);
-        affectationFormationApi.setNomUtilisateur(nomUtilisateur+"123");
+        affectationFormationApi.setNomUtilisateur(nomUtilisateur + "123");
         String request = JsonUtils.objectToJson(affectationFormationApi);
         this.mvc.perform(
                         post("/formation/affectation")
@@ -228,7 +227,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void postAffectationFormation_Failure_StatutIncorrect() throws Exception {
         String nomUtilisateur = "formateur";
         String accessToken = getLoginAccessToken(nomUtilisateur, password);
@@ -249,7 +248,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void postAffectationFormation_Failure_UtilisateurNonFormateur() throws Exception {
         String nomUtilisateur = "formateur";
         String accessToken = getLoginAccessToken(nomUtilisateur, password);
@@ -278,7 +277,6 @@ class FormationControllerTest {
         JSONObject json = new JSONObject(result.getResponse().getContentAsString());
         return json.getString("accessToken");
     }
-
 
 
 }
