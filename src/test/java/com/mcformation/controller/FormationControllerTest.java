@@ -127,7 +127,7 @@ class FormationControllerTest {
         String accessToken = getLoginAccessToken("asso", password);
         String id = "1";
         this.mvc.perform(
-                        get("/formation/details/" + id)
+                        get("/formation/modal/" + id)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpectAll(
