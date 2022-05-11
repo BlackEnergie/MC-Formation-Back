@@ -24,7 +24,7 @@ public class Association {
     @Enumerated(EnumType.STRING)
     private College college;
 
-    @OneToMany(targetEntity = Demande.class)
+    @OneToMany(targetEntity = Demande.class, cascade = CascadeType.ALL)
     private List<Demande> demandes;
 
     public Long getId() {

@@ -183,7 +183,7 @@ public class AuthController {
             membreBureauNational.setUtilisateur(utilisateur);
             membreBureauNationalRepository.save(membreBureauNational);
         } else {
-            throw new RuntimeException("Erreur : requête invalide");
+            throw new UnsupportedOperationException("Requête invalide");
         }
 
         emailServiceTemplate.confirmationCreationCompte(utilisateur.getEmail(), utilisateur.getNomUtilisateur());
@@ -195,8 +195,8 @@ public class AuthController {
 
 
     @PostMapping("/signup/admin")
-    //@PreAuthorize("hasRole('ROLE_BN')")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    @PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<?> registerUserAdmin(@Valid @RequestBody SignupRequest signUpRequest) {
         if (utilisateurRepository.existsByNomUtilisateur(signUpRequest.getNomUtilisateur())) {
             return ResponseEntity
                     .badRequest()
@@ -243,7 +243,7 @@ public class AuthController {
             }
         }
         if (!requestValid) {
-            throw new RuntimeException("Erreur : requête invalide");
+            throw new UnsupportedOperationException("Requête invalide");
 
         }
         emailService.sendNewUserNotification(utilisateur.getEmail(), utilisateur.getNomUtilisateur(), utilisateur.getRole());
@@ -252,7 +252,7 @@ public class AuthController {
     }
 
     private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
-        Role role = roleRepository.findByNom(erole).orElseThrow(() -> new RuntimeException("Erreur: Le role n'existe pas"));
+        Role role = roleRepository.findByNom(erole).orElseThrow(() -> new UnsupportedOperationException("Le role n'existe pas"));
         utilisateur.setRole(role);
         return utilisateurRepository.save(utilisateur);
     }
