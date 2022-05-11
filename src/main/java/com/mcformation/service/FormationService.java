@@ -34,9 +34,9 @@ public class FormationService {
     @Autowired
     private DemandeService demandeService;
 
-    public List<FormationApi> getFormationsAccueil(int offset, int limit, String statut) {
+    public List<FormationApi> getFormationsAccueil() {
         List<FormationApi> formationApiList = new ArrayList<>();
-        List<Demande> demandeList = demandeRepository.findFormations(offset, limit, statut);
+        List<Demande> demandeList = (List<Demande>) demandeRepository.findAll();
         for (Demande demande : demandeList) {
             FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
             Association association = associationRepository.findByDemandes(demande);
