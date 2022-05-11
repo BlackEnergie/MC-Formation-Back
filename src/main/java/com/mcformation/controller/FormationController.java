@@ -47,6 +47,7 @@ public class FormationController {
     }
 
     @PostMapping("/formation/affectation")
+    @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
     public ResponseEntity<MessageApi> postAffectationFormation(@RequestBody AffectationFormationApi affectationFormationApi) {
         MessageApi messageApi = formationService.affecterFormateurFormation(affectationFormationApi.getNomUtilisateur(), affectationFormationApi.getIdFormation());
         return new ResponseEntity<>(messageApi, HttpStatus.OK);

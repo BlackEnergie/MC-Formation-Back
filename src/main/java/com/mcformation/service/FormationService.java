@@ -133,7 +133,7 @@ public class FormationService {
 
         Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findByNomUtilisateur(nomUtilisateur);
         if (!utilisateurOptional.isPresent()) {
-            throw new UnsupportedOperationException("Utilisateur inconnu.");
+            throw new UnsupportedOperationException("Utilisateur inconnu");
         }
 
         Formation formation = formationOptional.get();
@@ -151,7 +151,7 @@ public class FormationService {
         }
 
         if (utilisateur.getRole().getNom() != Erole.ROLE_FORMATEUR) {
-            throw new UnsupportedOperationException("Vous ne pouvez pas vous affecter aux formations.");
+            throw new UnsupportedOperationException("Vous ne pouvez pas affecter cet utilisateur à une formation.");
         }
 
         Optional<Formateur> formateurOptional = formateurRepository.findByUtilisateurId(utilisateur.getId());
