@@ -1,10 +1,12 @@
 package com.mcformation.controller;
 
+import com.mcformation.model.api.AffectationFormationApi;
 import com.mcformation.model.api.auth.LoginRequest;
 import com.mcformation.repository.*;
 import com.mcformation.utils.JsonUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -80,7 +82,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormation_BN() throws Exception {
         String accessToken = getLoginAccessToken("bn", password);
         String id = "1";
@@ -94,7 +96,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormation_Formateur() throws Exception {
         String accessToken = getLoginAccessToken("formateur", password);
         String id = "1";
@@ -108,7 +110,7 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormation_Asso() throws Exception {
         String accessToken = getLoginAccessToken("asso", password);
         String id = "1";
@@ -122,12 +124,12 @@ class FormationControllerTest {
     }
 
     @Test
-    @Sql({"classpath:test/data-user-test.sql" ,"classpath:test/data-formation-test.sql"})
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
     void getFormationLimit_Asso() throws Exception {
         String accessToken = getLoginAccessToken("asso", password);
         String id = "1";
         this.mvc.perform(
-                        get("/formation/details/" + id)
+                        get("/formation/modal/" + id)
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                                 .characterEncoding(StandardCharsets.UTF_8))
                 .andExpectAll(
@@ -139,6 +141,133 @@ class FormationControllerTest {
     void putFormation() {
     }
 
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAffectationFormation_Affecter_Success() throws Exception {
+        String nomUtilisateur = "formateur";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        AffectationFormationApi affectationFormationApi = new AffectationFormationApi();
+        affectationFormationApi.setIdFormation(2L);
+        affectationFormationApi.setNomUtilisateur(nomUtilisateur);
+        String request = JsonUtils.objectToJson(affectationFormationApi);
+        this.mvc.perform(
+                        post("/formation/affectation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("affectÃ©"))
+
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAffectationFormation_Desaffecter_Success() throws Exception {
+        String nomUtilisateur = "formateur";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        AffectationFormationApi affectationFormationApi = new AffectationFormationApi();
+        affectationFormationApi.setIdFormation(3L);
+        affectationFormationApi.setNomUtilisateur(nomUtilisateur);
+        String request = JsonUtils.objectToJson(affectationFormationApi);
+        this.mvc.perform(
+                        post("/formation/affectation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("retirÃ©"))
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAffectationFormation_Failure_FormationInconnue() throws Exception {
+        String nomUtilisateur = "formateur";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        AffectationFormationApi affectationFormationApi = new AffectationFormationApi();
+        affectationFormationApi.setIdFormation(4L);
+        affectationFormationApi.setNomUtilisateur(nomUtilisateur);
+        String request = JsonUtils.objectToJson(affectationFormationApi);
+        this.mvc.perform(
+                        post("/formation/affectation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Formation inconnue"))
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAffectationFormation_Failure_UtilisateurInconnu() throws Exception {
+        String nomUtilisateur = "formateur";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        AffectationFormationApi affectationFormationApi = new AffectationFormationApi();
+        affectationFormationApi.setIdFormation(3L);
+        affectationFormationApi.setNomUtilisateur(nomUtilisateur + "123");
+        String request = JsonUtils.objectToJson(affectationFormationApi);
+        this.mvc.perform(
+                        post("/formation/affectation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Utilisateur inconnu"))
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAffectationFormation_Failure_StatutIncorrect() throws Exception {
+        String nomUtilisateur = "formateur";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        AffectationFormationApi affectationFormationApi = new AffectationFormationApi();
+        affectationFormationApi.setIdFormation(1L);
+        affectationFormationApi.setNomUtilisateur(nomUtilisateur);
+        String request = JsonUtils.objectToJson(affectationFormationApi);
+        this.mvc.perform(
+                        post("/formation/affectation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("attribuer"))
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAffectationFormation_Failure_UtilisateurNonFormateur() throws Exception {
+        String nomUtilisateur = "formateur";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        AffectationFormationApi affectationFormationApi = new AffectationFormationApi();
+        affectationFormationApi.setIdFormation(3L);
+        affectationFormationApi.setNomUtilisateur("asso");
+        String request = JsonUtils.objectToJson(affectationFormationApi);
+        this.mvc.perform(
+                        post("/formation/affectation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("pas affecter cet utilisateur"))
+                );
+    }
+
     private String getLoginAccessToken(String nomUtilisateur, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setNomUtilisateur(nomUtilisateur);
@@ -148,4 +277,6 @@ class FormationControllerTest {
         JSONObject json = new JSONObject(result.getResponse().getContentAsString());
         return json.getString("accessToken");
     }
+
+
 }

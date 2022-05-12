@@ -4,14 +4,17 @@ import com.mcformation.mapper.FormationApiMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
 import com.mcformation.model.database.*;
+import com.mcformation.model.utils.Erole;
 import com.mcformation.model.utils.StatutDemande;
-import com.mcformation.repository.AssociationRepository;
-import com.mcformation.repository.DemandeRepository;
-import com.mcformation.repository.FormateurRepository;
-import com.mcformation.repository.FormationRepository;
+import com.mcformation.repository.*;
+import com.mcformation.utils.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,8 +34,13 @@ public class FormationService {
     private FormationRepository formationRepository;
     @Autowired
     private FormateurRepository formateurRepository;
+
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
     @Autowired
     private DemandeService demandeService;
+
+    Logger logger = LoggerFactory.getLogger(FormationService.class);
 
     public List<FormationApi> getFormationsAccueil(int offset, int limit, String statut) {
         List<FormationApi> formationApiList = new ArrayList<>();
@@ -116,5 +124,63 @@ public class FormationService {
         return messageApi;
     }
 
+    public MessageApi affecterFormateurFormation(String nomUtilisateur, Long idFormation) {
+        MessageApi messageApi = new MessageApi();
+
+        Optional<Formation> formationOptional = formationRepository.findById(idFormation);
+        if (!formationOptional.isPresent()) {
+            throw new UnsupportedOperationException("Formation inconnue");
+        }
+
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findByNomUtilisateur(nomUtilisateur);
+        if (!utilisateurOptional.isPresent()) {
+            throw new UnsupportedOperationException("Utilisateur inconnu");
+        }
+
+        Formation formation = formationOptional.get();
+        Utilisateur utilisateur = utilisateurOptional.get();
+
+        Optional<Demande> demandeOptional = demandeRepository.findById(formation.getId());
+        if (!demandeOptional.isPresent()) {
+            logger.error("Erreur lors de la récupération de la demande à partir de l'id de formation : id="+ formation.getId());
+            throw new UnsupportedOperationException("Erreur lors de l'affectation");
+        }
+
+        Demande demande = demandeOptional.get();
+        if (demande.getStatut() != StatutDemande.A_ATTRIBUER) {
+            throw new UnsupportedOperationException("Impossible de modifier les formateurs d'une formation avec un statut différent de 'à attribuer'.");
+        }
+
+        if (utilisateur.getRole().getNom() != Erole.ROLE_FORMATEUR) {
+            throw new UnsupportedOperationException("Vous ne pouvez pas affecter cet utilisateur à une formation.");
+        }
+
+        Optional<Formateur> formateurOptional = formateurRepository.findByUtilisateurId(utilisateur.getId());
+        if (!formateurOptional.isPresent()) {
+            logger.error("L'utilisateur possède le rôle formateur mais il n'y a aucune correspondance dans la table formateur. nomUtilisateur=" + utilisateur.getNomUtilisateur());
+            throw new RuntimeException("Erreur lors de l'affectation.");
+        }
+
+        Formateur formateur = formateurOptional.get();
+        boolean formateurAffecte = formation.getFormateurs().contains(formateur);
+        List<Formateur> formateurList = formation.getFormateurs();
+
+        if (formateurAffecte) {
+            formateurList.remove(formateur);
+            messageApi.setMessage("Le formateur " + formateur.getNomComplet() + " a été retiré de la formation.");
+        } else {
+            formateurList.add(formateur);
+            messageApi.setMessage("Le formateur " + formateur.getNomComplet() + " a été affecté à la formation.");
+        }
+        formation = formationRepository.save(formation);
+        Demande demandeBdd = demandeRepository.findByFormationId(formation.getId());
+        FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demandeBdd);
+        Association association = associationRepository.findByDemandes(demande);
+        AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(association);
+        formationApi.setAssociation(associationApi);
+        messageApi.setData(formationApi);
+        messageApi.setCode(HttpStatus.OK.value());
+        return messageApi;
+    }
 
 }
