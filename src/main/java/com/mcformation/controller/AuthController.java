@@ -80,14 +80,13 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Optional<Utilisateur> utilisateur = utilisateurRepository.findByNomUtilisateur(loginRequest.getNomUtilisateur());
-        String role = utilisateur.isPresent() ? utilisateur.get().getRole().getNom().toString() : "";
-
-        String jwt = jwtUtils.generateJwtToken(authentication, role);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
+
+        String jwt = jwtUtils.generateJwtToken(authentication, roles.get(0), userDetails.getId());
 
         return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getNomUtilisateur(), userDetails.getEmail(), roles));
     }
