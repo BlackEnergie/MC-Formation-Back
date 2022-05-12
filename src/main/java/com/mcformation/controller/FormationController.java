@@ -1,5 +1,6 @@
 package com.mcformation.controller;
 
+import com.mcformation.model.api.AffectationFormationApi;
 import com.mcformation.model.api.FormationApi;
 import com.mcformation.model.api.MessageApi;
 import com.mcformation.service.FormationService;
@@ -25,15 +26,30 @@ public class FormationController {
     }
 
     @GetMapping("/formation/{id}")
+    @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
     public ResponseEntity<FormationApi> getFormation(@PathVariable Long id) {
+        FormationApi formationApi = formationService.getFormation(id);
+        return new ResponseEntity<>(formationApi, HttpStatus.OK);
+    }
+
+    @GetMapping("/formation/modal/{id}")
+    public ResponseEntity<FormationApi> getFormationLimit(@PathVariable Long id) {
         FormationApi formationApi = formationService.getFormation(id);
         return new ResponseEntity<>(formationApi, HttpStatus.OK);
     }
 
     @PutMapping("/formation")
     @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
-    public ResponseEntity<MessageApi> getFormation(@RequestBody FormationApi formationApi) {
+    public ResponseEntity<MessageApi> putFormation(@RequestBody FormationApi formationApi) {
         MessageApi messageApi = formationService.putModification(formationApi);
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
+
+    @PostMapping("/formation/affectation")
+    @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
+    public ResponseEntity<MessageApi> postAffectationFormation(@RequestBody AffectationFormationApi affectationFormationApi) {
+        MessageApi messageApi = formationService.affecterFormateurFormation(affectationFormationApi.getNomUtilisateur(), affectationFormationApi.getIdFormation());
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
 }

@@ -15,6 +15,8 @@ public class Demande {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String sujet;
+
+    @Column(length = 511)
     private String detail;
 
     @Enumerated(EnumType.STRING)

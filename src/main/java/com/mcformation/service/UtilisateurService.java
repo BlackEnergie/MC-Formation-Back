@@ -7,7 +7,6 @@ import com.mcformation.repository.PasswordTokenRepository;
 import com.mcformation.repository.UserTokenRepository;
 import com.mcformation.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,7 @@ public class UtilisateurService {
         if (utilisateurOptional.isPresent()) {
             utilisateur = utilisateurOptional.get();
         } else {
-            throw new UsernameNotFoundException("Utilisateur non trouvé");
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
         }
         return utilisateur;
     }

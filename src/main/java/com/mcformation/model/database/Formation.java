@@ -17,6 +17,8 @@ public class Formation {
     private String type;
     private String prerequis;
     private String audience;
+
+    @Column(length = 8191)
     private String parties;
     private String materiels;
     private String objectifs;

@@ -2,14 +2,10 @@ package com.mcformation.service.email;
 
 import com.mcformation.model.database.Role;
 import com.mcformation.model.database.Utilisateur;
-import com.mcformation.model.utils.Erole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,8 +29,8 @@ public class EmailService {
     public void sendNewUserNotification(String email, String username, Role role) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Date date = new Date();
-        StringBuilder subject = new StringBuilder("Nouvel utilisateur ").append(role).append(" créé : '").append(username).append("' ");
-        StringBuilder message = new StringBuilder("Nouvel utilisateur créé le ").append(formatter.format(date)).append(" : '").append(username).append("' ").append("avec email : '").append(email).append("', role : ").append(role);
+        StringBuilder subject = new StringBuilder("Nouvel utilisateur ").append(role.getNom().toString()).append(" créé : '").append(username).append("' ");
+        StringBuilder message = new StringBuilder("Nouvel utilisateur créé le ").append(formatter.format(date)).append(" : '").append(username).append("' ").append("avec email : '").append(email).append("', role : ").append(role.getNom().toString());
         sendSimpleMessage("mc.formation.web@gmail.com", subject.toString(), message.toString());
     }
 
