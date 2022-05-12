@@ -20,9 +20,8 @@ public class FormationController {
     FormationService formationService;
 
     @GetMapping("/formations")
-    public ResponseEntity<List<FormationApi>> getAllFormations(@RequestParam int offset,
-                                                               @RequestParam int limit, @RequestParam String statut) {
-        List<FormationApi> formations = formationService.getFormationsAccueil(offset, limit, statut);
+    public ResponseEntity<List<FormationApi>> getAllFormations() {
+        List<FormationApi> formations = formationService.getFormationsAccueil();
         return new ResponseEntity<>(formations, HttpStatus.OK);
     }
 
