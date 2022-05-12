@@ -7,6 +7,7 @@ import com.mcformation.model.database.*;
 import com.mcformation.model.utils.Erole;
 import com.mcformation.model.utils.StatutDemande;
 import com.mcformation.repository.*;
+import com.mcformation.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,10 +172,15 @@ public class FormationService {
             formateurList.add(formateur);
             messageApi.setMessage("Le formateur " + formateur.getNomComplet() + " a été affecté à la formation.");
         }
-        formationRepository.save(formation);
+        formation = formationRepository.save(formation);
+        Demande demandeBdd = demandeRepository.findByFormationId(formation.getId());
+        FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demandeBdd);
+        Association association = associationRepository.findByDemandes(demande);
+        AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(association);
+        formationApi.setAssociation(associationApi);
+        messageApi.setData(formationApi);
         messageApi.setCode(HttpStatus.OK.value());
         return messageApi;
     }
-
 
 }
