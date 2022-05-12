@@ -30,6 +30,8 @@ public class FormationApi {
     private StatutDemande statut;
     private AssociationApi association;
 
+    private List<AssociationApi> associationsFavorables;
+
     public Long getId() {
         return id;
     }
@@ -172,5 +174,13 @@ public class FormationApi {
 
     public void setStatut(StatutDemande statut) {
         this.statut = statut;
+    }
+
+    public List<AssociationApi> getAssociationsFavorables() {
+        return associationsFavorables;
+    }
+
+    public void setAssociationsFavorables(List<AssociationApi> associationsFavorables) {
+        this.associationsFavorables = associationsFavorables;
     }
 }
