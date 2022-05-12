@@ -163,8 +163,8 @@ class FormationApiMapperTest {
                         Objects.equals(demande.getFormation().getDate(), formationApi.getDate()) &&
                         Objects.equals(demande.getFormation().getCadre(), formationApi.getCadre()) &&
                         Objects.equals(demande.getFormation().getNom(), formationApi.getNom()) &&
+                        Objects.equals(demande.getDetail(), formationApi.getDetail()) &&
                         Objects.equals(null, formationApi.getDateDemande()) &&
-                        Objects.equals(null, formationApi.getDetail()) &&
                         Objects.equals(null, formationApi.getAudience()) &&
                         Objects.equals(null, formationApi.getDuree()) &&
                         Objects.equals(null, formationApi.getType()) &&
