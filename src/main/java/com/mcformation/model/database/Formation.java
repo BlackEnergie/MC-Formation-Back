@@ -6,11 +6,9 @@ import java.util.List;
 
 @Entity
 public class Formation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private Date date;
     private Float duree;
     private String nom;
