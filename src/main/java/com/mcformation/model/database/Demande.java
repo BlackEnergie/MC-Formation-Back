@@ -10,7 +10,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 public class Demande {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

@@ -30,7 +30,6 @@ public class DemandeService {
 
     @Transactional(rollbackFor = UnsupportedOperationException.class)
     public MessageApi create(DemandeApi demandeApi) {
-
         MessageApi messageApi = new MessageApi();
         Demande demandeDao = DemandeMapper.INSTANCE.demandeApiToDemandeDao(demandeApi);
         List<Domaine> domaineDaoList = this.getDomainesByCode(demandeApi.getDomaines());

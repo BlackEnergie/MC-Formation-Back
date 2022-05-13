@@ -127,8 +127,8 @@ public class FormationService {
     public MessageApi affecterFormateurFormation(String nomUtilisateur, Long idFormation) {
         MessageApi messageApi = new MessageApi();
 
-        Optional<Formation> formationOptional = formationRepository.findById(idFormation);
-        if (!formationOptional.isPresent()) {
+        Optional<Demande> demandeOptional = demandeRepository.findById(idFormation);
+        if (!demandeOptional.isPresent()) {
             throw new UnsupportedOperationException("Formation inconnue");
         }
 
@@ -137,16 +137,10 @@ public class FormationService {
             throw new UnsupportedOperationException("Utilisateur inconnu");
         }
 
-        Formation formation = formationOptional.get();
+        Demande demande = demandeOptional.get();
+        Formation formation = demande.getFormation();
         Utilisateur utilisateur = utilisateurOptional.get();
 
-        Optional<Demande> demandeOptional = demandeRepository.findById(formation.getId());
-        if (!demandeOptional.isPresent()) {
-            logger.error("Erreur lors de la récupération de la demande à partir de l'id de formation : id="+ formation.getId());
-            throw new UnsupportedOperationException("Erreur lors de l'affectation");
-        }
-
-        Demande demande = demandeOptional.get();
         if (demande.getStatut() != StatutDemande.A_ATTRIBUER) {
             throw new UnsupportedOperationException("Impossible de modifier les formateurs d'une formation avec un statut différent de 'à attribuer'.");
         }
