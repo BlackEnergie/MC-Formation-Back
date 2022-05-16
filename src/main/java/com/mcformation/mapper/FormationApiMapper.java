@@ -53,6 +53,7 @@ public interface FormationApiMapper{
     @Mapping(source = "source.detail", target = "detail")
     @Mapping(source = "source.formation.date",target = "date")
     @Mapping(source = "source.formation.formateurs", target = "formateurs")
+    @Mapping(source = "source.associationsFavorables", target = "associationsFavorables")
     @Mapping(target = "dateDemande", ignore = true)
     @Mapping(target = "duree", ignore = true)
     @Mapping(target = "type", ignore = true)
@@ -61,7 +62,7 @@ public interface FormationApiMapper{
     @Mapping(target = "parties", ignore = true)
     @Mapping(target = "materiels", ignore = true)
     @Mapping(target = "objectifs", ignore = true)
-    @Mapping(target = "associationsFavorables", ignore = true)
+
     FormationApi demandeDaoToFormationApiAccueil(Demande source);
 
     @IterableMapping(qualifiedByName = "demandeDaoToFormationApiAccueil")

@@ -42,9 +42,9 @@ public class FormationService {
 
     Logger logger = LoggerFactory.getLogger(FormationService.class);
 
-    public List<FormationApi> getFormationsAccueil(int offset, int limit, String statut) {
+    public List<FormationApi> getFormationsAccueil() {
         List<FormationApi> formationApiList = new ArrayList<>();
-        List<Demande> demandeList = demandeRepository.findFormations(offset, limit, statut);
+        List<Demande> demandeList = (List<Demande>) demandeRepository.findAll();
         for (Demande demande : demandeList) {
             FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
             Association association = associationRepository.findByDemandes(demande);
@@ -181,6 +181,48 @@ public class FormationService {
         messageApi.setData(formationApi);
         messageApi.setCode(HttpStatus.OK.value());
         return messageApi;
+    }
+
+    public MessageApi interesserFormation(Long idUtilisateur, Long idFormation) {
+        MessageApi messageApi = new MessageApi();
+
+        Optional<Demande> demandeOptional = demandeRepository.findById(idFormation);
+        if (!demandeOptional.isPresent()) {
+            logger.error("Erreur lors de la récupération de la demande");
+            throw new UnsupportedOperationException("Une erreur est survenue");
+        }
+        Demande demande = demandeOptional.get();
+
+        Optional<Association> associationOptional = associationRepository.findByUtilisateurId(idUtilisateur);
+        if (!associationOptional.isPresent()) {
+            logger.error("Erreur lors de la récupération de l'association");
+            throw new UnsupportedOperationException("Une erreur est survenue");
+        }
+        Association association = associationOptional.get();
+        List<Association> listAssociationsFavorables = demande.getAssociationsFavorables();
+        boolean associationsFavorables = listAssociationsFavorables.contains(associationOptional.get());
+
+        if(association.getDemandes().contains(demande)){
+            logger.error("L'association a creer la demande, elle ne peut pas être interessé par sa demande");
+            throw new UnsupportedOperationException("Une erreur est survenue");
+        }
+        if (associationsFavorables) {
+            listAssociationsFavorables.remove(association);
+            messageApi.setMessage("Vous n'êtes plus intéressé par la formation");
+        } else {
+            listAssociationsFavorables.add(association);
+            messageApi.setMessage("Vous êtes intéressé par la formation");
+        }
+        demande.setAssociationsFavorables(listAssociationsFavorables);
+        demandeRepository.save(demande);
+        FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
+        Association associationDemandeuse = associationRepository.findByDemandes(demande);
+        AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(associationDemandeuse);
+        formationApi.setAssociation(associationApi);
+        messageApi.setData(formationApi);
+        messageApi.setCode(HttpStatus.OK.value());
+        return messageApi;
+
     }
 
 }

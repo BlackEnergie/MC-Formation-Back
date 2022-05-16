@@ -1,5 +1,6 @@
 package com.mcformation.controller;
 
+import com.mcformation.model.api.AssociationFavorableFormationApi;
 import com.mcformation.model.api.AffectationFormationApi;
 import com.mcformation.model.api.FormationApi;
 import com.mcformation.model.api.MessageApi;
@@ -20,9 +21,8 @@ public class FormationController {
     FormationService formationService;
 
     @GetMapping("/formations")
-    public ResponseEntity<List<FormationApi>> getAllFormations(@RequestParam int offset,
-                                                               @RequestParam int limit, @RequestParam String statut) {
-        List<FormationApi> formations = formationService.getFormationsAccueil(offset, limit, statut);
+    public ResponseEntity<List<FormationApi>> getAllFormations() {
+        List<FormationApi> formations = formationService.getFormationsAccueil();
         return new ResponseEntity<>(formations, HttpStatus.OK);
     }
 
@@ -50,6 +50,13 @@ public class FormationController {
     @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
     public ResponseEntity<MessageApi> postAffectationFormation(@RequestBody AffectationFormationApi affectationFormationApi) {
         MessageApi messageApi = formationService.affecterFormateurFormation(affectationFormationApi.getNomUtilisateur(), affectationFormationApi.getIdFormation());
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+    @PostMapping("/formation/interesser")
+    @PreAuthorize("hasRole('ROLE_ASSO')")
+    public ResponseEntity<MessageApi> postAssociationFavorableFormation(@RequestBody AssociationFavorableFormationApi associationFavorableFormation) {
+        MessageApi messageApi = formationService.interesserFormation(associationFavorableFormation.getIdUtilisateur(), associationFavorableFormation.getIdFormation());
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
