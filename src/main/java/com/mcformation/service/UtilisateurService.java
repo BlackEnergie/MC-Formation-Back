@@ -1,8 +1,13 @@
 package com.mcformation.service;
 
+import com.mcformation.mapper.UtilisateurMapper;
+import com.mcformation.model.api.AssociationApi;
+import com.mcformation.model.api.UtilisateurApi;
+import com.mcformation.model.database.Association;
 import com.mcformation.model.database.Utilisateur;
 import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
+import com.mcformation.repository.AssociationRepository;
 import com.mcformation.repository.PasswordTokenRepository;
 import com.mcformation.repository.UserTokenRepository;
 import com.mcformation.repository.UtilisateurRepository;
@@ -22,6 +27,9 @@ public class UtilisateurService {
     private UtilisateurRepository utilisateurRepository;
 
     @Autowired
+    private AssociationRepository associationRepository;
+
+    @Autowired
     private UserTokenRepository userTokenRepository;
 
     @Autowired
@@ -36,6 +44,30 @@ public class UtilisateurService {
             throw new UnsupportedOperationException("Utilisateur non trouvé");
         }
         return utilisateur;
+    }
+
+    public UtilisateurApi findUtilisateurById(Long id){
+        Utilisateur utilisateur;
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
+        UtilisateurApi utilisateurApi = new UtilisateurApi();
+        if (utilisateurOptional.isPresent()) {
+            utilisateur = utilisateurOptional.get();
+            switch (utilisateur.getRole().getNom()){
+                case ROLE_ASSO:
+                    Optional<Association> associationOptional = associationRepository.findById(id);
+                    if (associationOptional.isPresent()) {
+                        AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiDetail(associationOptional.get());
+                        utilisateurApi.setNomUtilisateur(utilisateur.getNomUtilisateur());
+                        utilisateurApi.setEmail(utilisateur.getEmail());
+                        utilisateurApi.setAssociationApi(associationApi);
+
+                    }
+
+            }
+        } else {
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        return utilisateurApi;
     }
 
     //PASSWORD
