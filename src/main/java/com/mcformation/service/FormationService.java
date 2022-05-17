@@ -39,7 +39,7 @@ public class FormationService {
     private UtilisateurRepository utilisateurRepository;
     @Autowired
     private DemandeService demandeService;
-
+  
     Logger logger = LoggerFactory.getLogger(FormationService.class);
 
     public List<FormationApi> getFormationsAccueil() {
@@ -123,6 +123,7 @@ public class FormationService {
         messageApi.setCode(200);
         return messageApi;
     }
+
 
     public MessageApiDataFormationApi affecterFormateurFormation(Long idUtilisateur, Long idFormation) {
         MessageApiDataFormationApi messageApi = new MessageApiDataFormationApi();
