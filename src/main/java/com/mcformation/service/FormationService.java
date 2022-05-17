@@ -124,35 +124,24 @@ public class FormationService {
         return messageApi;
     }
 
-    public MessageApi affecterFormateurFormation(String nomUtilisateur, Long idFormation) {
-        MessageApi messageApi = new MessageApi();
+    public MessageApiDataFormationApi affecterFormateurFormation(Long idUtilisateur, Long idFormation) {
+        MessageApiDataFormationApi messageApi = new MessageApiDataFormationApi();
 
         Optional<Demande> demandeOptional = demandeRepository.findById(idFormation);
         if (!demandeOptional.isPresent()) {
-            throw new UnsupportedOperationException("Formation inconnue");
-        }
-
-        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findByNomUtilisateur(nomUtilisateur);
-        if (!utilisateurOptional.isPresent()) {
-            throw new UnsupportedOperationException("Utilisateur inconnu");
+            throw new UnsupportedOperationException("Formation inconnue.");
         }
 
         Demande demande = demandeOptional.get();
         Formation formation = demande.getFormation();
-        Utilisateur utilisateur = utilisateurOptional.get();
 
         if (demande.getStatut() != StatutDemande.A_ATTRIBUER) {
             throw new UnsupportedOperationException("Impossible de modifier les formateurs d'une formation avec un statut différent de 'à attribuer'.");
         }
 
-        if (utilisateur.getRole().getNom() != Erole.ROLE_FORMATEUR) {
-            throw new UnsupportedOperationException("Vous ne pouvez pas affecter cet utilisateur à une formation.");
-        }
-
-        Optional<Formateur> formateurOptional = formateurRepository.findByUtilisateurId(utilisateur.getId());
+        Optional<Formateur> formateurOptional = formateurRepository.findByUtilisateurId(idUtilisateur);
         if (!formateurOptional.isPresent()) {
-            logger.error("L'utilisateur possède le rôle formateur mais il n'y a aucune correspondance dans la table formateur. nomUtilisateur=" + utilisateur.getNomUtilisateur());
-            throw new RuntimeException("Erreur lors de l'affectation.");
+            throw new UnsupportedOperationException("Formateur inconnu.");
         }
 
         Formateur formateur = formateurOptional.get();
@@ -172,51 +161,48 @@ public class FormationService {
         Association association = associationRepository.findByDemandes(demande);
         AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(association);
         formationApi.setAssociation(associationApi);
-        messageApi.setData(formationApi);
+        messageApi.setFormation(formationApi);
         messageApi.setCode(HttpStatus.OK.value());
         return messageApi;
     }
 
-    public MessageApi interesserFormation(Long idUtilisateur, Long idFormation) {
-        MessageApi messageApi = new MessageApi();
+    public MessageApiDataFormationApi interesserFormation(Long idUtilisateur, Long idFormation) {
+        MessageApiDataFormationApi messageApi = new MessageApiDataFormationApi();
 
         Optional<Demande> demandeOptional = demandeRepository.findById(idFormation);
         if (!demandeOptional.isPresent()) {
-            logger.error("Erreur lors de la récupération de la demande");
-            throw new UnsupportedOperationException("Une erreur est survenue");
+            throw new UnsupportedOperationException("Formation inconnue.");
         }
         Demande demande = demandeOptional.get();
 
         Optional<Association> associationOptional = associationRepository.findByUtilisateurId(idUtilisateur);
         if (!associationOptional.isPresent()) {
-            logger.error("Erreur lors de la récupération de l'association");
-            throw new UnsupportedOperationException("Une erreur est survenue");
+            throw new UnsupportedOperationException("Association inconnue.");
         }
         Association association = associationOptional.get();
         List<Association> listAssociationsFavorables = demande.getAssociationsFavorables();
         boolean associationsFavorables = listAssociationsFavorables.contains(associationOptional.get());
 
         if(association.getDemandes().contains(demande)){
-            logger.error("L'association a creer la demande, elle ne peut pas être interessé par sa demande");
+            logger.error("L'association a créé la demande, elle ne peut pas être intéressée par sa demande.");
             throw new UnsupportedOperationException("Une erreur est survenue");
         }
         if (associationsFavorables) {
             listAssociationsFavorables.remove(association);
-            messageApi.setMessage("Vous n'êtes plus intéressé par la formation");
+            messageApi.setMessage("Vous n'êtes plus intéressé par cette formation.");
         } else {
             listAssociationsFavorables.add(association);
-            messageApi.setMessage("Vous êtes intéressé par la formation");
+            messageApi.setMessage("Vous êtes intéressé par cette formation.");
         }
         demande.setAssociationsFavorables(listAssociationsFavorables);
-        demandeRepository.save(demande);
+        demande = demandeRepository.save(demande);
         FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
         Association associationDemandeuse = associationRepository.findByDemandes(demande);
         AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(associationDemandeuse);
         formationApi.setAssociation(associationApi);
-        messageApi.setData(formationApi);
+        messageApi.setFormation(formationApi);
         messageApi.setCode(HttpStatus.OK.value());
         return messageApi;
-
     }
 
 }

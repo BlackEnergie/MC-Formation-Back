@@ -1,9 +1,6 @@
 package com.mcformation.controller;
 
-import com.mcformation.model.api.AssociationFavorableFormationApi;
-import com.mcformation.model.api.AffectationFormationApi;
-import com.mcformation.model.api.FormationApi;
-import com.mcformation.model.api.MessageApi;
+import com.mcformation.model.api.*;
 import com.mcformation.service.FormationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,15 +45,15 @@ public class FormationController {
 
     @PostMapping("/formation/affectation")
     @PreAuthorize("hasRole('ROLE_FORMATEUR') or hasRole('ROLE_BN')")
-    public ResponseEntity<MessageApi> postAffectationFormation(@RequestBody AffectationFormationApi affectationFormationApi) {
-        MessageApi messageApi = formationService.affecterFormateurFormation(affectationFormationApi.getNomUtilisateur(), affectationFormationApi.getIdFormation());
+    public ResponseEntity<MessageApiDataFormationApi> postAffectationFormation(@RequestBody UtilisateurIdFormationIdApi utilisateurIdFormationIdApi) {
+        MessageApiDataFormationApi messageApi = formationService.affecterFormateurFormation(utilisateurIdFormationIdApi.getIdUtilisateur(), utilisateurIdFormationIdApi.getIdFormation());
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
     @PostMapping("/formation/interesser")
     @PreAuthorize("hasRole('ROLE_ASSO')")
-    public ResponseEntity<MessageApi> postAssociationFavorableFormation(@RequestBody AssociationFavorableFormationApi associationFavorableFormation) {
-        MessageApi messageApi = formationService.interesserFormation(associationFavorableFormation.getIdUtilisateur(), associationFavorableFormation.getIdFormation());
+    public ResponseEntity<MessageApiDataFormationApi> postAssociationFavorableFormation(@RequestBody UtilisateurIdFormationIdApi utilisateurIdFormationIdApi) {
+        MessageApiDataFormationApi messageApi = formationService.interesserFormation(utilisateurIdFormationIdApi.getIdUtilisateur(), utilisateurIdFormationIdApi.getIdFormation());
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 

@@ -1,6 +1,6 @@
 package com.mcformation.model.api;
 
-public class AssociationFavorableFormationApi {
+public class UtilisateurIdFormationIdApi {
 
     private Long idUtilisateur ;
 
