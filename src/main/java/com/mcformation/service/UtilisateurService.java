@@ -1,16 +1,14 @@
 package com.mcformation.service;
 
 import com.mcformation.mapper.UtilisateurMapper;
-import com.mcformation.model.api.AssociationApi;
-import com.mcformation.model.api.UtilisateurApi;
+import com.mcformation.model.api.*;
 import com.mcformation.model.database.Association;
+import com.mcformation.model.database.Formateur;
+import com.mcformation.model.database.MembreBureauNational;
 import com.mcformation.model.database.Utilisateur;
 import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
-import com.mcformation.repository.AssociationRepository;
-import com.mcformation.repository.PasswordTokenRepository;
-import com.mcformation.repository.UserTokenRepository;
-import com.mcformation.repository.UtilisateurRepository;
+import com.mcformation.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +26,12 @@ public class UtilisateurService {
 
     @Autowired
     private AssociationRepository associationRepository;
+
+    @Autowired
+    private FormateurRepository formateurRepository;
+
+    @Autowired
+    private MembreBureauNationalRepository membreBureauNationalRepository;
 
     @Autowired
     private UserTokenRepository userTokenRepository;
@@ -52,17 +56,27 @@ public class UtilisateurService {
         UtilisateurApi utilisateurApi = new UtilisateurApi();
         if (utilisateurOptional.isPresent()) {
             utilisateur = utilisateurOptional.get();
+            utilisateurApi.setNomUtilisateur(utilisateur.getNomUtilisateur());
+            utilisateurApi.setEmail(utilisateur.getEmail());
             switch (utilisateur.getRole().getNom()){
                 case ROLE_ASSO:
                     Optional<Association> associationOptional = associationRepository.findById(id);
                     if (associationOptional.isPresent()) {
                         AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiDetail(associationOptional.get());
-                        utilisateurApi.setNomUtilisateur(utilisateur.getNomUtilisateur());
-                        utilisateurApi.setEmail(utilisateur.getEmail());
                         utilisateurApi.setAssociationApi(associationApi);
-
                     }
-
+                case ROLE_FORMATEUR:
+                    Optional<Formateur> formateurOptional = formateurRepository.findById(id);
+                    if (formateurOptional.isPresent()){
+                        FormateurApi formationApi = UtilisateurMapper.INSTANCE.formateurDaoToFormateurApiDetail(formateurOptional.get());
+                        utilisateurApi.setFormateurApi(formationApi);
+                    }
+                case ROLE_BN:
+                    Optional<MembreBureauNational> membreBureauNationalOptional = membreBureauNationalRepository.findById(id);
+                    if (membreBureauNationalOptional.isPresent()){
+                        MembreBureauNationalApi membreBureauNationalApi = UtilisateurMapper.INSTANCE.membreBureauNationalDaoTomembreBureauNationalApiDetail(membreBureauNationalOptional.get());
+                        utilisateurApi.setMembreBureauNationalApi(membreBureauNationalApi);
+                    }
             }
         } else {
             throw new UnsupportedOperationException("Utilisateur non trouvé");

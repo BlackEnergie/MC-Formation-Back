@@ -12,7 +12,7 @@ public class UtilisateurApi {
 
     private FormateurApi formateurApi;
 
-    private MembreBureauNational membreBureauNational;
+    private MembreBureauNationalApi membreBureauNationalApi;
 
     public AssociationApi getAssociationApi() {
         return associationApi;
@@ -46,11 +46,11 @@ public class UtilisateurApi {
         this.email = email;
     }
 
-    public MembreBureauNational getMembreBureauNational() {
-        return membreBureauNational;
+    public MembreBureauNationalApi getMembreBureauNationalApi() {
+        return membreBureauNationalApi;
     }
 
-    public void setMembreBureauNational(MembreBureauNational membreBureauNational) {
-        this.membreBureauNational = membreBureauNational;
+    public void setMembreBureauNationalApi(MembreBureauNationalApi membreBureauNationalApi) {
+        this.membreBureauNationalApi = membreBureauNationalApi;
     }
 }
