@@ -77,8 +77,40 @@ class FormationControllerTest {
     }
 
     @Test
-    void getAllFormations() {
-        // TODO: quand le back sera modifié
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void getAllFormationsBN() throws Exception {
+        String accessToken = getLoginAccessToken("bn", password);
+        this.mvc.perform(
+                        get("/formations")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void getAllFormationsAssociation() throws Exception {
+        String accessToken = getLoginAccessToken("asso", password);
+        this.mvc.perform(
+                        get("/formations")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void getAllFormationsFormateur() throws Exception {
+        String accessToken = getLoginAccessToken("formateur", password);
+        this.mvc.perform(
+                        get("/formations")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk()
+                );
     }
 
     @Test
@@ -140,6 +172,114 @@ class FormationControllerTest {
     @Test
     void putFormation() {
     }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAssociationInteresse_Success() throws Exception {
+        String nomUtilisateur = "assoa";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        UtilisateurIdFormationIdApi utilisateurIdFormationIdApi = new UtilisateurIdFormationIdApi();
+        utilisateurIdFormationIdApi.setIdFormation(1L);
+        utilisateurIdFormationIdApi.setIdUtilisateur(4L);
+        String request = JsonUtils.objectToJson(utilisateurIdFormationIdApi);
+        this.mvc.perform(
+                        post("/formation/interesser")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Ãªtes intÃ©ressÃ©"))
+
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAssociationDesinteresse_Success() throws Exception {
+        String nomUtilisateur = "asso";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        UtilisateurIdFormationIdApi utilisateurIdFormationIdApi = new UtilisateurIdFormationIdApi();
+        utilisateurIdFormationIdApi.setIdFormation(3L);
+        utilisateurIdFormationIdApi.setIdUtilisateur(2L);
+        String request = JsonUtils.objectToJson(utilisateurIdFormationIdApi);
+        this.mvc.perform(
+                        post("/formation/interesser")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("plus intÃ©ressÃ©"))
+
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAssociationInteresse_Failure_FormationInconnue() throws Exception {
+        String nomUtilisateur = "assoa";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        UtilisateurIdFormationIdApi utilisateurIdFormationIdApi = new UtilisateurIdFormationIdApi();
+        utilisateurIdFormationIdApi.setIdFormation(5L);
+        utilisateurIdFormationIdApi.setIdUtilisateur(4L);
+        String request = JsonUtils.objectToJson(utilisateurIdFormationIdApi);
+        this.mvc.perform(
+                        post("/formation/interesser")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Formation inconnue"))
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAssociationInteresse_Failure_AssoInconnu() throws Exception {
+        String nomUtilisateur = "assoa";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        UtilisateurIdFormationIdApi utilisateurIdFormationIdApi = new UtilisateurIdFormationIdApi();
+        utilisateurIdFormationIdApi.setIdFormation(1L);
+        utilisateurIdFormationIdApi.setIdUtilisateur(6L);
+        String request = JsonUtils.objectToJson(utilisateurIdFormationIdApi);
+        this.mvc.perform(
+                        post("/formation/interesser")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Association inconnu"))
+                );
+    }
+
+    @Test
+    @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
+    void postAssociationInteresse_Failure_DemandeCreerParAsso() throws Exception {
+        String nomUtilisateur = "asso";
+        String accessToken = getLoginAccessToken(nomUtilisateur, password);
+        UtilisateurIdFormationIdApi utilisateurIdFormationIdApi = new UtilisateurIdFormationIdApi();
+        utilisateurIdFormationIdApi.setIdFormation(1L);
+        utilisateurIdFormationIdApi.setIdUtilisateur(2L);
+        String request = JsonUtils.objectToJson(utilisateurIdFormationIdApi);
+        this.mvc.perform(
+                        post("/formation/interesser")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(request)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Une erreur est survenue"))
+                );
+    }
+
 
     @Test
     @Sql({"classpath:test/data-user-test.sql", "classpath:test/data-formation-test.sql"})
