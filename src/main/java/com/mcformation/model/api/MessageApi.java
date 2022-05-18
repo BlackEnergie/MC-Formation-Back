@@ -14,7 +14,6 @@ public class MessageApi {
 
     private int code;
     private String message;
-    private String data;
 
     public int getCode() {
         return code;
@@ -29,16 +28,5 @@ public class MessageApi {
         this.message = message;
     }
 
-    public String getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        if (!(data instanceof String)) {
-            this.data = JsonUtils.objectToJson(data);
-        } else {
-            this.data = (String) data;
-        }
-    }
 
 }

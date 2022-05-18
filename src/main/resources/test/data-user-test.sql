@@ -6,3 +6,6 @@ INSERT INTO association (utilisateur_id, acronyme, college, nom_complet, ville) 
 
 INSERT INTO utilisateur (id, email, nom_utilisateur, password, roles_id) VALUES (3, 'formateur@miage.net', 'formateur', '$2a$10$05KqhujXhGC9dz8.PUqu7.fzfVhpoDF1dPNG5WwpiL8dnqgqNT8ba', 2);
 INSERT INTO formateur (utilisateur_id, date_creation, nom, nom_complet, prenom) VALUES (3, NOW(), 'Dupont', 'Dupont Jean', 'Jean');
+
+INSERT INTO utilisateur (id, email, nom_utilisateur, password, roles_id) VALUES (4, 'asso1@miage.net', 'assoa', '$2a$10$05KqhujXhGC9dz8.PUqu7.fzfVhpoDF1dPNG5WwpiL8dnqgqNT8ba', 1);
+INSERT INTO association (utilisateur_id, acronyme, college, nom_complet, ville) VALUES (4, 'ASSO', 'B', 'Asso Bordeaux', 'Bordeaux');

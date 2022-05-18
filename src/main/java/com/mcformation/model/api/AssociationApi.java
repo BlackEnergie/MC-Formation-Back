@@ -12,7 +12,6 @@ public class AssociationApi {
     private String acronyme;
     private String nomComplet;
 
-
     public String getVille() {
         return ville;
     }

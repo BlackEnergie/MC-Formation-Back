@@ -16,7 +16,7 @@ public class FormationApi {
     private String type;
     private String prerequis;
     private String audience;
-    private String parties;
+    private List<PartieApi> parties;
     private List<String> materiels;
     private List<String> objectifs;
     private String cadre;
@@ -29,6 +29,8 @@ public class FormationApi {
     private Date dateDemande;
     private StatutDemande statut;
     private AssociationApi association;
+
+    private List<AssociationApi> associationsFavorables;
 
     public Long getId() {
         return id;
@@ -86,11 +88,11 @@ public class FormationApi {
         this.audience = audience;
     }
 
-    public String getParties() {
+    public List<PartieApi> getParties() {
         return parties;
     }
 
-    public void setParties(String parties) {
+    public void setParties(List<PartieApi> parties) {
         this.parties = parties;
     }
 
@@ -172,5 +174,13 @@ public class FormationApi {
 
     public void setStatut(StatutDemande statut) {
         this.statut = statut;
+    }
+
+    public List<AssociationApi> getAssociationsFavorables() {
+        return associationsFavorables;
+    }
+
+    public void setAssociationsFavorables(List<AssociationApi> associationsFavorables) {
+        this.associationsFavorables = associationsFavorables;
     }
 }
