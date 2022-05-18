@@ -121,6 +121,20 @@ public class UtilisateurService {
         }
         return  utilisateurDemandeApi;
     }
+
+    public FormateurApi findFormateurInformationsByToken(String authorization) {
+        Long id = getIdUtilisateurFromAuthorization(authorization);
+        FormateurApi formateurApi = new FormateurApi();
+        Optional<Formateur> formateur = formateurRepository.findById(id);
+        if(formateur.isPresent()) {
+            formateurApi.setPrenom(formateur.get().getPrenom());
+            formateurApi.setNom(formateur.get().getNom());
+        }
+        else{
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        return  formateurApi;
+    }
     //PASSWORD
 
     public void createPasswordResetTokenForUtilisateur(Utilisateur utilisateur, String token) {

@@ -1,5 +1,6 @@
 package com.mcformation.controller;
 
+import com.mcformation.model.api.FormateurApi;
 import com.mcformation.model.api.UtilisateurApi;
 import com.mcformation.model.api.UtilisateurDemandeApi;
 import com.mcformation.service.UtilisateurService;
@@ -27,5 +28,10 @@ public class UserController {
     public ResponseEntity<UtilisateurDemandeApi> getUtilisateurDemande(@RequestHeader String Authorization){
         UtilisateurDemandeApi utilisateurDemandeApi = utilisateurService.findDemandesFavorablesByToken(Authorization);
         return new ResponseEntity<>(utilisateurDemandeApi,HttpStatus.OK);
+    }
+    @GetMapping("/formateur")
+    public ResponseEntity<FormateurApi> getFormateurInformation(@RequestHeader String Authorization){
+        FormateurApi formateurApi = utilisateurService.findFormateurInformationsByToken(Authorization);
+        return new ResponseEntity<>(formateurApi,HttpStatus.OK);
     }
 }
