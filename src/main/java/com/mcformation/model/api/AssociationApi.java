@@ -1,6 +1,9 @@
 package com.mcformation.model.api;
 
+import com.mcformation.model.database.Demande;
 import com.mcformation.model.utils.College;
+
+import java.util.List;
 
 public class AssociationApi {
     private String email;

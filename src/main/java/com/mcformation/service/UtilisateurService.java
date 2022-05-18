@@ -9,11 +9,13 @@ import com.mcformation.model.database.Utilisateur;
 import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 import com.mcformation.repository.*;
+import com.mcformation.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,10 +33,16 @@ public class UtilisateurService {
     private FormateurRepository formateurRepository;
 
     @Autowired
+    private DemandeRepository demandeRepository;
+
+    @Autowired
     private MembreBureauNationalRepository membreBureauNationalRepository;
 
     @Autowired
     private UserTokenRepository userTokenRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -84,6 +92,21 @@ public class UtilisateurService {
         return utilisateurApi;
     }
 
+    public UtilisateurDemandeApi findDemandesFavorablesByToken(String authorization) {
+        String token = authorization.substring(7, authorization.length());
+        Long idUtilisateur =jwtUtils.getIdFromJwtToken(token);
+        UtilisateurDemandeApi utilisateurDemandeApi = new UtilisateurDemandeApi();
+        Optional<Association> association = associationRepository.findById(idUtilisateur);
+        if(association.isPresent()) {
+            List<Long> demandesFavorables = demandeRepository.getListDemandeInteressé(idUtilisateur);
+            utilisateurDemandeApi.setAcronyme(association.get().getAcronyme());
+            utilisateurDemandeApi.setDemandesFavorables(demandesFavorables);
+        }
+        else{
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        return  utilisateurDemandeApi;
+    }
     //PASSWORD
 
     public void createPasswordResetTokenForUtilisateur(Utilisateur utilisateur, String token) {
