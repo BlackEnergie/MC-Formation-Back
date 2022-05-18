@@ -17,14 +17,14 @@ public class UserController {
     @Autowired
     UtilisateurService utilisateurService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UtilisateurApi> getUtilisateur(@PathVariable Long id) {
-        UtilisateurApi utilisateurApi = utilisateurService.findUtilisateurById(id);
+    @GetMapping("")
+    public ResponseEntity<UtilisateurApi> getUtilisateur(@RequestHeader String Authorization) {
+        UtilisateurApi utilisateurApi = utilisateurService.findUtilisateurByToken(Authorization);
         return new ResponseEntity<>(utilisateurApi, HttpStatus.OK);
     }
 
     @GetMapping("/demandesFavorables")
-    public ResponseEntity<UtilisateurDemandeApi> getUtilisateurDemande(@RequestHeader String Authorization ){
+    public ResponseEntity<UtilisateurDemandeApi> getUtilisateurDemande(@RequestHeader String Authorization){
         UtilisateurDemandeApi utilisateurDemandeApi = utilisateurService.findDemandesFavorablesByToken(Authorization);
         return new ResponseEntity<>(utilisateurDemandeApi,HttpStatus.OK);
     }

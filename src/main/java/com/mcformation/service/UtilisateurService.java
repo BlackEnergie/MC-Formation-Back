@@ -58,7 +58,8 @@ public class UtilisateurService {
         return utilisateur;
     }
 
-    public UtilisateurApi findUtilisateurById(Long id){
+    public UtilisateurApi findUtilisateurByToken(String authorization){
+        Long id =getIdUtilisateurFromAuthorization(authorization);
         Utilisateur utilisateur;
         Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
         UtilisateurApi utilisateurApi = new UtilisateurApi();
@@ -71,20 +72,34 @@ public class UtilisateurService {
                     Optional<Association> associationOptional = associationRepository.findById(id);
                     if (associationOptional.isPresent()) {
                         AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiDetail(associationOptional.get());
-                        utilisateurApi.setAssociationApi(associationApi);
+                        utilisateurApi.setAssociation(associationApi);
                     }
+                    else{
+                        throw new UnsupportedOperationException("Association non trouvée");
+                    }
+                    break;
                 case ROLE_FORMATEUR:
                     Optional<Formateur> formateurOptional = formateurRepository.findById(id);
                     if (formateurOptional.isPresent()){
                         FormateurApi formationApi = UtilisateurMapper.INSTANCE.formateurDaoToFormateurApiDetail(formateurOptional.get());
-                        utilisateurApi.setFormateurApi(formationApi);
+                        utilisateurApi.setFormateur(formationApi);
                     }
+                    else{
+                        throw new UnsupportedOperationException("Formateur non trouvé");
+                    }
+                    break;
                 case ROLE_BN:
                     Optional<MembreBureauNational> membreBureauNationalOptional = membreBureauNationalRepository.findById(id);
                     if (membreBureauNationalOptional.isPresent()){
                         MembreBureauNationalApi membreBureauNationalApi = UtilisateurMapper.INSTANCE.membreBureauNationalDaoTomembreBureauNationalApiDetail(membreBureauNationalOptional.get());
-                        utilisateurApi.setMembreBureauNationalApi(membreBureauNationalApi);
+                        utilisateurApi.setMembreBureauNational(membreBureauNationalApi);
                     }
+                    else{
+                        throw new UnsupportedOperationException("Bureau national non trouvé");
+                    }
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Role non trouvé");
             }
         } else {
             throw new UnsupportedOperationException("Utilisateur non trouvé");
@@ -93,12 +108,11 @@ public class UtilisateurService {
     }
 
     public UtilisateurDemandeApi findDemandesFavorablesByToken(String authorization) {
-        String token = authorization.substring(7, authorization.length());
-        Long idUtilisateur =jwtUtils.getIdFromJwtToken(token);
+        Long id = getIdUtilisateurFromAuthorization(authorization);
         UtilisateurDemandeApi utilisateurDemandeApi = new UtilisateurDemandeApi();
-        Optional<Association> association = associationRepository.findById(idUtilisateur);
+        Optional<Association> association = associationRepository.findById(id);
         if(association.isPresent()) {
-            List<Long> demandesFavorables = demandeRepository.getListDemandeInteressé(idUtilisateur);
+            List<Long> demandesFavorables = demandeRepository.getListDemandeInteressé(id);
             utilisateurDemandeApi.setAcronyme(association.get().getAcronyme());
             utilisateurDemandeApi.setDemandesFavorables(demandesFavorables);
         }
@@ -167,6 +181,9 @@ public class UtilisateurService {
         final Calendar cal = Calendar.getInstance();
         return passToken.getExpirationDate().before(cal.getTime());
     }
-
+    private Long getIdUtilisateurFromAuthorization(String authorization){
+        String token = authorization.substring(7, authorization.length());
+        return jwtUtils.getIdFromJwtToken(token);
+    }
 
 }

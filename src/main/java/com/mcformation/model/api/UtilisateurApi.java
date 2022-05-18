@@ -1,33 +1,31 @@
 package com.mcformation.model.api;
 
-import com.mcformation.model.database.MembreBureauNational;
-
 public class UtilisateurApi {
 
     private String nomUtilisateur;
 
     private String email;
 
-    private AssociationApi associationApi;
+    private AssociationApi association;
 
-    private FormateurApi formateurApi;
+    private FormateurApi formateur;
 
-    private MembreBureauNationalApi membreBureauNationalApi;
+    private MembreBureauNationalApi membreBureauNational;
 
-    public AssociationApi getAssociationApi() {
-        return associationApi;
+    public AssociationApi getAssociation() {
+        return association;
     }
 
-    public void setAssociationApi(AssociationApi associationApi) {
-        this.associationApi = associationApi;
+    public void setAssociation(AssociationApi association) {
+        this.association = association;
     }
 
-    public FormateurApi getFormateurApi() {
-        return formateurApi;
+    public FormateurApi getFormateur() {
+        return formateur;
     }
 
-    public void setFormateurApi(FormateurApi formateurApi) {
-        this.formateurApi = formateurApi;
+    public void setFormateur(FormateurApi formateur) {
+        this.formateur = formateur;
     }
 
     public String getNomUtilisateur() {
@@ -46,11 +44,11 @@ public class UtilisateurApi {
         this.email = email;
     }
 
-    public MembreBureauNationalApi getMembreBureauNationalApi() {
-        return membreBureauNationalApi;
+    public MembreBureauNationalApi getMembreBureauNational() {
+        return membreBureauNational;
     }
 
-    public void setMembreBureauNationalApi(MembreBureauNationalApi membreBureauNationalApi) {
-        this.membreBureauNationalApi = membreBureauNationalApi;
+    public void setMembreBureauNational(MembreBureauNationalApi membreBureauNational) {
+        this.membreBureauNational = membreBureauNational;
     }
 }
