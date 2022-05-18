@@ -1,6 +1,7 @@
 package com.mcformation.mapper;
 
 import com.mcformation.model.api.FormationApi;
+import com.mcformation.model.api.PartieApi;
 import com.mcformation.model.database.Demande;
 import com.mcformation.model.database.Formation;
 import com.mcformation.model.utils.StatutDemande;
@@ -19,6 +20,53 @@ class FormationApiMapperTest {
     Formation formation = new Formation();
     FormationApi formationApi = new FormationApi();
 
+    private String getPartiesString1et2() {
+        return "[{\"id\":1,\"plan\":\"plan1\",\"timing\":1,\"contenu\":\"contenu1\",\"methodologie\":\"methodologie1\"},{\"id\":2,\"plan\":\"plan2\",\"timing\":2,\"contenu\":\"contenu2\",\"methodologie\":\"methodologie2\"}]";
+    }
+
+    private String getPartiesString3et4() {
+        return "[{\"id\":3,\"plan\":\"plan3\",\"timing\":3,\"contenu\":\"contenu3\",\"methodologie\":\"methodologie3\"},{\"id\":4,\"plan\":\"plan4\",\"timing\":4,\"contenu\":\"contenu4\",\"methodologie\":\"methodologie4\"}]";
+    }
+
+    private List<PartieApi> getPartieList1et2() {
+        List<PartieApi> parties = new ArrayList<>();
+        PartieApi partie1 = new PartieApi();
+        partie1.setId(1L);
+        partie1.setContenu("contenu1");
+        partie1.setMethodologie("methodologie1");
+        partie1.setPlan("plan1");
+        partie1.setTiming(1L);
+        parties.add(partie1);
+        PartieApi partie2 = new PartieApi();
+        partie2.setId(2L);
+        partie2.setContenu("contenu2");
+        partie2.setMethodologie("methodologie2");
+        partie2.setPlan("plan2");
+        partie2.setTiming(2L);
+        parties.add(partie2);
+        return parties;
+    }
+
+    private List<PartieApi> getPartieList3et4() {
+        List<PartieApi> parties = new ArrayList<>();
+        PartieApi partie3 = new PartieApi();
+        partie3.setId(3L);
+        partie3.setContenu("contenu3");
+        partie3.setMethodologie("methodologie3");
+        partie3.setPlan("plan3");
+        partie3.setTiming(3L);
+        parties.add(partie3);
+        PartieApi partie4 = new PartieApi();
+        partie4.setId(4L);
+        partie4.setContenu("contenu4");
+        partie4.setMethodologie("methodologie4");
+        partie4.setPlan("plan4");
+        partie4.setTiming(4L);
+        parties.add(partie4);
+        return parties;
+
+    }
+
     private Formation getFormationRH() {
         formation.setId(1L);
         formation.setAudience("Tout le monde");
@@ -28,7 +76,7 @@ class FormationApiMapperTest {
         formation.setDuree(1.5F);
         formation.setPrerequis("être étudiant");
         formation.setMateriels("feutres;projecteur");
-        formation.setParties("les parties");
+        formation.setParties(getPartiesString1et2());
         formation.setObjectifs("définition RH;savoir recruter");
         formation.setNom("Comment devenir un bon RH ?");
         return formation;
@@ -42,7 +90,7 @@ class FormationApiMapperTest {
         formation.setType("Atelier");
         formation.setPrerequis("avoir des connaissances dans la compta");
         formation.setAudience("Les Trésoriers et les fans de l'évasion");
-        formation.setParties("les partieeeeeeeeees");
+        formation.setParties(getPartiesString3et4());
         formation.setMateriels("billets; carte bancaire;chèquier");
         formation.setObjectifs("Apprendre les bases de la comptabilité;maîtriser la stabilité de l'association");
         formation.setCadre("CDH Bordeaux 2023");
@@ -77,11 +125,14 @@ class FormationApiMapperTest {
         formationApi.setType("Formation api");
         formationApi.setDuree(1.9F);
         formationApi.setPrerequis("être étudiant api");
+
         List<String> materiels = new ArrayList<>();
         materiels.add("feutres api");
         materiels.add("projecteur api");
         formationApi.setMateriels(materiels);
-        formationApi.setParties("les parties api");
+
+        formationApi.setParties(getPartieList1et2());
+
         List<String> objectifs = new ArrayList<>();
         objectifs.add("définition RH api");
         objectifs.add("savoir recruter api");
@@ -103,7 +154,8 @@ class FormationApiMapperTest {
         formationApi.setType("Atelier Api");
         formationApi.setPrerequis("avoir des connaissances dans la compta Api");
         formationApi.setAudience("Les Trésoriers et les fans de l'évasion Api");
-        formationApi.setParties("les partieeeeeeeeees Api");
+
+        formationApi.setParties(getPartieList3et4());
 
         List<String> materiels = new ArrayList<>();
         materiels.add("billets api");
@@ -190,6 +242,24 @@ class FormationApiMapperTest {
         );
     }
 
+    private boolean comparePartieApiListValues(List<PartieApi> a, List<PartieApi> b) {
+        boolean res = true;
+        for (int i = 0 ; i < a.size() ; i++ ) {
+            res = res && comparePartieApiValues(a.get(i), b.get(i));
+        }
+        return res;
+    }
+
+    private boolean comparePartieApiValues(PartieApi a, PartieApi b) {
+        return (
+                Objects.equals(a.getId(), b.getId()) &&
+                        Objects.equals(a.getContenu(), b.getContenu()) &&
+                        Objects.equals(a.getMethodologie(), b.getMethodologie()) &&
+                        Objects.equals(a.getPlan(), b.getPlan()) &&
+                        Objects.equals(a.getTiming(), b.getTiming())
+        );
+    }
+
     @Test
     void demandeDaoToFormationApiDetail() {
         formationApi = mapper.demandeDaoToFormationApiDetail(getDemandeRH());
@@ -273,5 +343,20 @@ class FormationApiMapperTest {
         String testString = "1;2;3;4";
         List<String> ListString = mapper.stringToListString(testString);
         Assertions.assertTrue(compareObjectStringAndObjectList(testString,ListString));
+    }
+
+
+    @Test
+    void objectListPartieToJsonParties() {
+        List<PartieApi> parties = getPartieList1et2();
+        String json = mapper.objectListPartieToJsonParties(parties);
+        Assertions.assertEquals(json, getPartiesString1et2());
+    }
+
+    @Test
+    void jsonPartiesToObjectListPartie() {
+        String json = getPartiesString3et4();
+        List<PartieApi> parties = mapper.jsonPartiesToObjectListPartie(json);
+        Assertions.assertTrue(comparePartieApiListValues(parties, getPartieList3et4()));
     }
 }

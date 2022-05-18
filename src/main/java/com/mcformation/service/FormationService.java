@@ -75,12 +75,12 @@ public class FormationService {
         MessageApi messageApi = new MessageApi();
         Formation formationToSave = FormationApiMapper.INSTANCE.formationApiToFormationDao(formationApi);
         Demande demandeToSave = FormationApiMapper.INSTANCE.formationApiToDemandeDao(formationApi);
-        Optional<Formation> formation = formationRepository.findById(formationToSave.getId());
-        if (!formation.isPresent()) {
+        Optional<Demande> demandeOptional = demandeRepository.findById(formationToSave.getId());
+        if (!demandeOptional.isPresent()) {
             throw new UnsupportedOperationException("Formation non présente");
         }
-        Long idDemande = demandeRepository.getDemandeIdByFormationId(formation.get().getId());
-        demandeToSave.setId(idDemande);
+        Demande demande = demandeOptional.get();
+        demandeToSave.setId(demande.getId());
         List<DomaineApi> domaineApiList = formationApi.getDomaines();
         List<Domaine> domaines = demandeService.getDomainesByCode(domaineApiList);
         demandeToSave.setDomaines(domaines);
@@ -109,9 +109,8 @@ public class FormationService {
                 date = new SimpleDateFormat("yyyy-MM-dd").parse(localDate);
                 message = "La date de la formation n'est pas passée";
             } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
                 message = "Erreur de comparaison de la date";
+                logger.error(message, e);
             }
 
             if (date == null || formationToSave.getDate().after(date)) {

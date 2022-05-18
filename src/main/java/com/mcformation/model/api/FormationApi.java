@@ -16,7 +16,7 @@ public class FormationApi {
     private String type;
     private String prerequis;
     private String audience;
-    private String parties;
+    private List<PartieApi> parties;
     private List<String> materiels;
     private List<String> objectifs;
     private String cadre;
@@ -88,11 +88,11 @@ public class FormationApi {
         this.audience = audience;
     }
 
-    public String getParties() {
+    public List<PartieApi> getParties() {
         return parties;
     }
 
-    public void setParties(String parties) {
+    public void setParties(List<PartieApi> parties) {
         this.parties = parties;
     }
 
