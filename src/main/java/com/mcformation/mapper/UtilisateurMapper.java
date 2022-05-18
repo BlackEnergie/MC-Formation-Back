@@ -1,7 +1,11 @@
 package com.mcformation.mapper;
 
 import com.mcformation.model.api.AssociationApi;
+import com.mcformation.model.api.FormateurApi;
+import com.mcformation.model.api.MembreBureauNationalApi;
 import com.mcformation.model.database.Association;
+import com.mcformation.model.database.Formateur;
+import com.mcformation.model.database.MembreBureauNational;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,8 +20,11 @@ public interface UtilisateurMapper {
     UtilisateurMapper INSTANCE = Mappers.getMapper(UtilisateurMapper.class);
 
     @Named("associationDaoToAssociationApiDetail")
-    @Mapping(source = "source.utilisateur.email", target = "email")
     AssociationApi associationDaoToAssociationApiDetail(Association source);
+
+    FormateurApi formateurDaoToFormateurApiDetail(Formateur source);
+
+    MembreBureauNationalApi membreBureauNationalDaoTomembreBureauNationalApiDetail(MembreBureauNational source);
 
     @IterableMapping(qualifiedByName = "associationDaoToAssociationApiDetail")
     List<AssociationApi> associationDaoListToAssociationApiListDetail(List<Association> source);
@@ -25,13 +32,11 @@ public interface UtilisateurMapper {
     @Named("associationDaoToAssociationApiAccueil")
     @Mapping(target = "ville", ignore = true)
     @Mapping(target = "college", ignore = true)
-    @Mapping(target = "email", ignore = true)
     AssociationApi associationDaoToAssociationApiAccueil(Association source);
 
     @IterableMapping(qualifiedByName = "associationDaoToAssociationApiAccueil")
     List<AssociationApi> associationDaoListToAssociationApiListAccueil(List<Association> source);
 
-    @Mapping(source = "email", target = "utilisateur.email")
     Association associationApiToAssociationDao(AssociationApi source);
 
     List<Association> associationApiListToAssociationDaoList(List<AssociationApi> source);

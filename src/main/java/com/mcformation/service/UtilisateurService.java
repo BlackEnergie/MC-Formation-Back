@@ -1,16 +1,21 @@
 package com.mcformation.service;
 
+import com.mcformation.mapper.UtilisateurMapper;
+import com.mcformation.model.api.*;
+import com.mcformation.model.database.Association;
+import com.mcformation.model.database.Formateur;
+import com.mcformation.model.database.MembreBureauNational;
 import com.mcformation.model.database.Utilisateur;
 import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
-import com.mcformation.repository.PasswordTokenRepository;
-import com.mcformation.repository.UserTokenRepository;
-import com.mcformation.repository.UtilisateurRepository;
+import com.mcformation.repository.*;
+import com.mcformation.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,7 +27,22 @@ public class UtilisateurService {
     private UtilisateurRepository utilisateurRepository;
 
     @Autowired
+    private AssociationRepository associationRepository;
+
+    @Autowired
+    private FormateurRepository formateurRepository;
+
+    @Autowired
+    private DemandeRepository demandeRepository;
+
+    @Autowired
+    private MembreBureauNationalRepository membreBureauNationalRepository;
+
+    @Autowired
     private UserTokenRepository userTokenRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -38,6 +58,69 @@ public class UtilisateurService {
         return utilisateur;
     }
 
+    public UtilisateurApi findUtilisateurByToken(String authorization){
+        Long id =getIdUtilisateurFromAuthorization(authorization);
+        Utilisateur utilisateur;
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
+        UtilisateurApi utilisateurApi = new UtilisateurApi();
+        if (utilisateurOptional.isPresent()) {
+            utilisateur = utilisateurOptional.get();
+            utilisateurApi.setNomUtilisateur(utilisateur.getNomUtilisateur());
+            utilisateurApi.setEmail(utilisateur.getEmail());
+            switch (utilisateur.getRole().getNom()){
+                case ROLE_ASSO:
+                    Optional<Association> associationOptional = associationRepository.findById(id);
+                    if (associationOptional.isPresent()) {
+                        AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiDetail(associationOptional.get());
+                        utilisateurApi.setAssociation(associationApi);
+                    }
+                    else{
+                        throw new UnsupportedOperationException("Association non trouvée");
+                    }
+                    break;
+                case ROLE_FORMATEUR:
+                    Optional<Formateur> formateurOptional = formateurRepository.findById(id);
+                    if (formateurOptional.isPresent()){
+                        FormateurApi formationApi = UtilisateurMapper.INSTANCE.formateurDaoToFormateurApiDetail(formateurOptional.get());
+                        utilisateurApi.setFormateur(formationApi);
+                    }
+                    else{
+                        throw new UnsupportedOperationException("Formateur non trouvé");
+                    }
+                    break;
+                case ROLE_BN:
+                    Optional<MembreBureauNational> membreBureauNationalOptional = membreBureauNationalRepository.findById(id);
+                    if (membreBureauNationalOptional.isPresent()){
+                        MembreBureauNationalApi membreBureauNationalApi = UtilisateurMapper.INSTANCE.membreBureauNationalDaoTomembreBureauNationalApiDetail(membreBureauNationalOptional.get());
+                        utilisateurApi.setMembreBureauNational(membreBureauNationalApi);
+                    }
+                    else{
+                        throw new UnsupportedOperationException("Bureau national non trouvé");
+                    }
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Role non trouvé");
+            }
+        } else {
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        return utilisateurApi;
+    }
+
+    public UtilisateurDemandeApi findDemandesFavorablesByToken(String authorization) {
+        Long id = getIdUtilisateurFromAuthorization(authorization);
+        UtilisateurDemandeApi utilisateurDemandeApi = new UtilisateurDemandeApi();
+        Optional<Association> association = associationRepository.findById(id);
+        if(association.isPresent()) {
+            List<Long> demandesFavorables = demandeRepository.getListDemandeInteressé(id);
+            utilisateurDemandeApi.setAcronyme(association.get().getAcronyme());
+            utilisateurDemandeApi.setDemandesFavorables(demandesFavorables);
+        }
+        else{
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        return  utilisateurDemandeApi;
+    }
     //PASSWORD
 
     public void createPasswordResetTokenForUtilisateur(Utilisateur utilisateur, String token) {
@@ -98,6 +181,9 @@ public class UtilisateurService {
         final Calendar cal = Calendar.getInstance();
         return passToken.getExpirationDate().before(cal.getTime());
     }
-
+    private Long getIdUtilisateurFromAuthorization(String authorization){
+        String token = authorization.substring(7, authorization.length());
+        return jwtUtils.getIdFromJwtToken(token);
+    }
 
 }

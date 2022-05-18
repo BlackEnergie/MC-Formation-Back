@@ -41,7 +41,6 @@ class UtilisateurMapperTest {
     private AssociationApi getAMBAssociationApi() {
         associationApi.setAcronyme("AMB");
         associationApi.setCollege(College.A);
-        associationApi.setEmail("amb@asso.com");
         associationApi.setNomComplet("Asso MIAGE Bordeaux");
         associationApi.setVille("Bordeaux");
         return associationApi;
@@ -50,7 +49,6 @@ class UtilisateurMapperTest {
     private AssociationApi getMIPAssociationApi() {
         associationApi.setAcronyme("MIP");
         associationApi.setCollege(College.B);
-        associationApi.setEmail("mip@asso.com");
         associationApi.setNomComplet("Miagistes Importés à Paname");
         associationApi.setVille("Paris");
         return associationApi;
@@ -60,16 +58,14 @@ class UtilisateurMapperTest {
         return Objects.equals(association.getAcronyme(), associationApi.getAcronyme())
                 && Objects.equals(association.getNomComplet(), associationApi.getNomComplet())
                 && Objects.equals(association.getCollege(), associationApi.getCollege())
-                && Objects.equals(association.getVille(), associationApi.getVille())
-                && Objects.equals(association.getUtilisateur().getEmail(), associationApi.getEmail());
+                && Objects.equals(association.getVille(), associationApi.getVille());
     }
 
     private boolean compareAssociationAndAssociationApiAccueilValues(Association association, AssociationApi associationApi) {
         return Objects.equals(association.getAcronyme(), associationApi.getAcronyme())
                 && Objects.equals(association.getNomComplet(), associationApi.getNomComplet())
                 && Objects.equals(null, associationApi.getCollege())
-                && Objects.equals(null, associationApi.getVille())
-                && Objects.equals(null, associationApi.getEmail());
+                && Objects.equals(null, associationApi.getVille());
     }
 
     @Test
