@@ -17,4 +17,6 @@ public interface AssociationRepository extends CrudRepository<Association, Long>
     Association findByDemandes(Demande demande);
 
     Association findByUtilisateur(Utilisateur utilisateur);
+
+    Optional<Association> findByUtilisateurId(Long idUtilisateur);
 }

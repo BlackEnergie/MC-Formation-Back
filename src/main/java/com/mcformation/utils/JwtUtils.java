@@ -16,15 +16,17 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     private String jwtSecret = "mcformation";
+    // TODO: le rendre vraiment secret...
 
     private int jwtExpirationMs = 86400000;
 
-    public String generateJwtToken(Authentication authentication, String role) {
+    public String generateJwtToken(Authentication authentication, String role, Long id) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
         return Jwts.builder()
                 .claim("role", (role))
+                .claim("id", (id))
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
@@ -34,6 +36,10 @@ public class JwtUtils {
 
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Long getIdFromJwtToken(String token) {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("id",Long.class);
     }
 
     public boolean validateJwtToken(String authToken) {

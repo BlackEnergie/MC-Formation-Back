@@ -14,6 +14,7 @@ public class CreateUserToken {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String token;
+    @Enumerated(EnumType.STRING)
     private Erole role;
     private String email;
     private Timestamp expirationDate;

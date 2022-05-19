@@ -1,11 +1,9 @@
 package com.mcformation.model.database;
 
-import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 public class Utilisateur {
@@ -37,16 +35,17 @@ public class Utilisateur {
     @PrimaryKeyJoinColumn
     private MembreBureauNational membreBureauNational;
 
-    @OneToOne(mappedBy = "utilisateur")
-    private PasswordResetToken passwordResetToken;
+    @OneToMany(mappedBy = "utilisateur")
+    private List<PasswordResetToken> passwordResetToken;
 
     public Utilisateur(String nomUtilisateur, String email, String password) {
         this.nomUtilisateur = nomUtilisateur;
         this.password = password;
         this.email = email;
     }
-    public Utilisateur(){
-        
+
+    public Utilisateur() {
+
     }
 
 
@@ -114,12 +113,19 @@ public class Utilisateur {
         this.membreBureauNational = membreBureauNational;
     }
 
-    public PasswordResetToken getPasswordResetToken() {
+    public Role getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Role roles) {
+        this.roles = roles;
+    }
+
+    public List<PasswordResetToken> getPasswordResetToken() {
         return passwordResetToken;
     }
 
-    public void setPasswordResetToken(PasswordResetToken passwordResetToken) {
+    public void setPasswordResetToken(List<PasswordResetToken> passwordResetToken) {
         this.passwordResetToken = passwordResetToken;
     }
-
 }

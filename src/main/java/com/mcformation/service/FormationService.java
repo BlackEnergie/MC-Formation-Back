@@ -4,14 +4,17 @@ import com.mcformation.mapper.FormationApiMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
 import com.mcformation.model.database.*;
+import com.mcformation.model.utils.Erole;
 import com.mcformation.model.utils.StatutDemande;
-import com.mcformation.repository.AssociationRepository;
-import com.mcformation.repository.DemandeRepository;
-import com.mcformation.repository.FormateurRepository;
-import com.mcformation.repository.FormationRepository;
+import com.mcformation.repository.*;
+import com.mcformation.utils.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,12 +34,17 @@ public class FormationService {
     private FormationRepository formationRepository;
     @Autowired
     private FormateurRepository formateurRepository;
+
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
     @Autowired
     private DemandeService demandeService;
+  
+    Logger logger = LoggerFactory.getLogger(FormationService.class);
 
-    public List<FormationApi> getFormationsAccueil(int offset, int limit, String statut) {
+    public List<FormationApi> getFormationsAccueil() {
         List<FormationApi> formationApiList = new ArrayList<>();
-        List<Demande> demandeList = demandeRepository.findFormations(offset, limit, statut);
+        List<Demande> demandeList = (List<Demande>) demandeRepository.findAll();
         for (Demande demande : demandeList) {
             FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
             Association association = associationRepository.findByDemandes(demande);
@@ -67,12 +75,12 @@ public class FormationService {
         MessageApi messageApi = new MessageApi();
         Formation formationToSave = FormationApiMapper.INSTANCE.formationApiToFormationDao(formationApi);
         Demande demandeToSave = FormationApiMapper.INSTANCE.formationApiToDemandeDao(formationApi);
-        Optional<Formation> formation = formationRepository.findById(formationToSave.getId());
-        if (!formation.isPresent()) {
+        Optional<Demande> demandeOptional = demandeRepository.findById(formationToSave.getId());
+        if (!demandeOptional.isPresent()) {
             throw new UnsupportedOperationException("Formation non présente");
         }
-        Long idDemande = demandeRepository.getDemandeIdByFormationId(formation.get().getId());
-        demandeToSave.setId(idDemande);
+        Demande demande = demandeOptional.get();
+        demandeToSave.setId(demande.getId());
         List<DomaineApi> domaineApiList = formationApi.getDomaines();
         List<Domaine> domaines = demandeService.getDomainesByCode(domaineApiList);
         demandeToSave.setDomaines(domaines);
@@ -101,9 +109,8 @@ public class FormationService {
                 date = new SimpleDateFormat("yyyy-MM-dd").parse(localDate);
                 message = "La date de la formation n'est pas passée";
             } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
                 message = "Erreur de comparaison de la date";
+                logger.error(message, e);
             }
 
             if (date == null || formationToSave.getDate().after(date)) {
@@ -116,5 +123,86 @@ public class FormationService {
         return messageApi;
     }
 
+
+    public MessageApiDataFormationApi affecterFormateurFormation(Long idUtilisateur, Long idFormation) {
+        MessageApiDataFormationApi messageApi = new MessageApiDataFormationApi();
+
+        Optional<Demande> demandeOptional = demandeRepository.findById(idFormation);
+        if (!demandeOptional.isPresent()) {
+            throw new UnsupportedOperationException("Formation inconnue.");
+        }
+
+        Demande demande = demandeOptional.get();
+        Formation formation = demande.getFormation();
+
+        if (demande.getStatut() != StatutDemande.A_ATTRIBUER) {
+            throw new UnsupportedOperationException("Impossible de modifier les formateurs d'une formation avec un statut différent de 'à attribuer'.");
+        }
+
+        Optional<Formateur> formateurOptional = formateurRepository.findByUtilisateurId(idUtilisateur);
+        if (!formateurOptional.isPresent()) {
+            throw new UnsupportedOperationException("Formateur inconnu.");
+        }
+
+        Formateur formateur = formateurOptional.get();
+        boolean formateurAffecte = formation.getFormateurs().contains(formateur);
+        List<Formateur> formateurList = formation.getFormateurs();
+
+        if (formateurAffecte) {
+            formateurList.remove(formateur);
+            messageApi.setMessage("Le formateur " + formateur.getNomComplet() + " a été retiré de la formation.");
+        } else {
+            formateurList.add(formateur);
+            messageApi.setMessage("Le formateur " + formateur.getNomComplet() + " a été affecté à la formation.");
+        }
+        formation = formationRepository.save(formation);
+        Demande demandeBdd = demandeRepository.findByFormationId(formation.getId());
+        FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demandeBdd);
+        Association association = associationRepository.findByDemandes(demande);
+        AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(association);
+        formationApi.setAssociation(associationApi);
+        messageApi.setFormation(formationApi);
+        messageApi.setCode(HttpStatus.OK.value());
+        return messageApi;
+    }
+
+    public MessageApiDataFormationApi interesserFormation(Long idUtilisateur, Long idFormation) {
+        MessageApiDataFormationApi messageApi = new MessageApiDataFormationApi();
+
+        Optional<Demande> demandeOptional = demandeRepository.findById(idFormation);
+        if (!demandeOptional.isPresent()) {
+            throw new UnsupportedOperationException("Formation inconnue.");
+        }
+        Demande demande = demandeOptional.get();
+
+        Optional<Association> associationOptional = associationRepository.findByUtilisateurId(idUtilisateur);
+        if (!associationOptional.isPresent()) {
+            throw new UnsupportedOperationException("Association inconnue.");
+        }
+        Association association = associationOptional.get();
+        List<Association> listAssociationsFavorables = demande.getAssociationsFavorables();
+        boolean associationsFavorables = listAssociationsFavorables.contains(associationOptional.get());
+
+        if(association.getDemandes().contains(demande)){
+            logger.error("L'association a créé la demande, elle ne peut pas être intéressée par sa demande.");
+            throw new UnsupportedOperationException("Une erreur est survenue");
+        }
+        if (associationsFavorables) {
+            listAssociationsFavorables.remove(association);
+            messageApi.setMessage("Vous n'êtes plus intéressé par cette formation.");
+        } else {
+            listAssociationsFavorables.add(association);
+            messageApi.setMessage("Vous êtes intéressé par cette formation.");
+        }
+        demande.setAssociationsFavorables(listAssociationsFavorables);
+        demande = demandeRepository.save(demande);
+        FormationApi formationApi = FormationApiMapper.INSTANCE.demandeDaoToFormationApiAccueil(demande);
+        Association associationDemandeuse = associationRepository.findByDemandes(demande);
+        AssociationApi associationApi = UtilisateurMapper.INSTANCE.associationDaoToAssociationApiAccueil(associationDemandeuse);
+        formationApi.setAssociation(associationApi);
+        messageApi.setFormation(formationApi);
+        messageApi.setCode(HttpStatus.OK.value());
+        return messageApi;
+    }
 
 }

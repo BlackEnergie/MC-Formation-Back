@@ -6,17 +6,17 @@ import java.util.List;
 
 @Entity
 public class Formation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private Date date;
     private Float duree;
     private String nom;
     private String type;
     private String prerequis;
     private String audience;
+
+    @Column(length = 8191)
     private String parties;
     private String materiels;
     private String objectifs;

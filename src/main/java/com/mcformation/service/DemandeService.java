@@ -30,7 +30,6 @@ public class DemandeService {
 
     @Transactional(rollbackFor = UnsupportedOperationException.class)
     public MessageApi create(DemandeApi demandeApi) {
-
         MessageApi messageApi = new MessageApi();
         Demande demandeDao = DemandeMapper.INSTANCE.demandeApiToDemandeDao(demandeApi);
         List<Domaine> domaineDaoList = this.getDomainesByCode(demandeApi.getDomaines());
@@ -52,7 +51,7 @@ public class DemandeService {
                 throw new UnsupportedOperationException("Cet utilisateur ne peut pas créer de demande de formation.");
             }
         } else {
-            throw new UnsupportedOperationException("Cet email ne correspond à aucun utilisateur.");
+            throw new UnsupportedOperationException("Utilisateur inconnu.");
         }
         messageApi.setMessage(String.format("Votre demande de formation \"%s\" a bien été enregistrée.", demandeCree.getSujet()));
         messageApi.setCode(201);

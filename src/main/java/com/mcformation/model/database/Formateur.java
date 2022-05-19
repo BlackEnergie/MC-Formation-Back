@@ -12,7 +12,6 @@ public class Formateur {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @CreationTimestamp
     private Date dateCreation;
     private String nom;

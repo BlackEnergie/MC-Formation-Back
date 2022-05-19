@@ -17,10 +17,10 @@ public class EmailServiceTemplate {
     private final String EMAIL = "mc.formation.web@gmail.com";
     private final String BASE_URL = "http://localhost:3000";
     private final String SIGNUP_INVITE_URL = "/inscription/";
-    private final String CHANGE_PASSWORD_URL = "/api/auth/changePassword";
+    private final String CHANGE_PASSWORD_URL = "reinitialiserMotDePasse/";
     private final String PREFIX_SUJET = "[MC-Formation-Web] | ";
 
-    private final String MIAGE_CONNECTION_LOGO = "https://www.miage.net/wp-content/uploads/2019/12/logo_mc_wht_bgblue.png";
+    private final String MIAGE_CONNECTION_LOGO = "https://www.miage-connection.fr/wp-content/uploads/2021/06/cropped-logo_wht_bgblue-1.png";
     private final String LINKEDIN_LOGO = "https://www.miage.net/wp-content/uploads/2020/01/linkedin.png";
     private final String TWITTER_LOGO = "https://www.miage.net/wp-content/uploads/2020/01/twitter.png";
     private final String FACEBOOK_LOGO = "https://www.miage.net/wp-content/uploads/2020/01/facebook.png";

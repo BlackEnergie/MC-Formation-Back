@@ -1,5 +1,7 @@
 package com.mcformation.model.api;
 
+import com.mcformation.utils.JsonUtils;
+
 public class MessageApi {
 
     public MessageApi(){
@@ -25,4 +27,6 @@ public class MessageApi {
     public void setMessage(String message) {
         this.message = message;
     }
+
+
 }
