@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 import java.util.*;
 
 @Service
@@ -44,6 +46,7 @@ public class UtilisateurService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
     public Utilisateur findUtilisateurByEmail(String email){
         Utilisateur utilisateur;
@@ -134,22 +137,54 @@ public class UtilisateurService {
         return  formateurApi;
     }
 
+    @Transactional(rollbackOn = UnsupportedOperationException.class)
     public MessageApi modificationUtilisateur(String authorization,UtilisateurApi modificationUtilisateur){
         Utilisateur utilisateur;
         Association association;
+        String email;
+        String newEmail;
+        String username;
+        String newUsername;
         Formateur formateur;
         MembreBureauNational membreBureauNational;
         MessageApi messageApi=new MessageApi();
         Long id =getIdUtilisateurFromAuthorization(authorization);
         Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
-        UtilisateurApi utilisateurApi = new UtilisateurApi();
         if (utilisateurOptional.isPresent()) {
             utilisateur = utilisateurOptional.get();
+            Boolean existsEmail=utilisateurRepository.existsByEmail(modificationUtilisateur.getEmail());
+            if(!existsEmail) {
+                utilisateur.setEmail(modificationUtilisateur.getEmail());
+                utilisateurRepository.save(utilisateur);
+            }
+            else{
+                email=utilisateur.getEmail();
+                newEmail=modificationUtilisateur.getEmail();
+                if(!email.equals(newEmail)){
+                    throw new UnsupportedOperationException("Email déjà utilisé");
+                }
+            }
+            Boolean existsNomUtilisateur=utilisateurRepository.existsByNomUtilisateur(modificationUtilisateur.getNomUtilisateur());
+            if(!existsNomUtilisateur) {
+                utilisateur.setNomUtilisateur(modificationUtilisateur.getNomUtilisateur());
+                utilisateurRepository.save(utilisateur);
+            }
+            else{
+                username=utilisateur.getNomUtilisateur();
+                newUsername=modificationUtilisateur.getNomUtilisateur();
+                if(!username.equals(newUsername)){
+                    throw new UnsupportedOperationException("Nom utilisateur déjà utilisé");
+                }
+            }
             switch (utilisateur.getRole().getNom()) {
                 case ROLE_ASSO:
                     Optional<Association> associationOptional = associationRepository.findById(id);
                     if (associationOptional.isPresent()) {
-                        association = UtilisateurMapper.INSTANCE.associationApiToAssociationDao(modificationUtilisateur.getAssociation());
+                        association = associationOptional.get();
+                        association.setVille(modificationUtilisateur.getAssociation().getVille());
+                        association.setNomComplet(modificationUtilisateur.getAssociation().getNomComplet());
+                        association.setAcronyme(modificationUtilisateur.getAssociation().getAcronyme());
+                        association.setCollege(modificationUtilisateur.getAssociation().getCollege());
                         associationRepository.save(association);
                     } else {
                         throw new UnsupportedOperationException("Association non trouvée");
@@ -158,11 +193,12 @@ public class UtilisateurService {
                 case ROLE_FORMATEUR:
                     Optional<Formateur> formateurOptional = formateurRepository.findById(id);
                     if (formateurOptional.isPresent()) {
-                        formateur = UtilisateurMapper.INSTANCE.formateurApiToFormateurDao(modificationUtilisateur.getFormateur());
+                        formateur = formateurOptional.get();
+                        formateur.setNom(modificationUtilisateur.getFormateur().getNom());
+                        formateur.setPrenom(modificationUtilisateur.getFormateur().getPrenom());
+                        formateur.setNomComplet(modificationUtilisateur.getFormateur().getPrenom()+" "+modificationUtilisateur.getFormateur().getNom());
                         List<DomaineApi> domaineApiList = modificationUtilisateur.getFormateur().getDomaines();
                         List<Domaine> domaines = getDomainesByCode(domaineApiList);
-                        formateur.setDateCreation(formateurOptional.get().getDateCreation());
-                        formateur.setNomComplet(formateur.getPrenom() + formateur.getNom());
                         formateur.setDomaines(domaines);
                         formateurRepository.save(formateur);
                     } else {
@@ -172,35 +208,17 @@ public class UtilisateurService {
                 case ROLE_BN:
                     Optional<MembreBureauNational> membreBureauNationalOptional = membreBureauNationalRepository.findById(id);
                     if (membreBureauNationalOptional.isPresent()) {
-                        membreBureauNational = UtilisateurMapper.INSTANCE.membreBureauNationalApiToMembreBureauNationalDao(modificationUtilisateur.getMembreBureauNational());
-                        MembreBureauNationalApi membreBureauNationalApi = UtilisateurMapper.INSTANCE.membreBureauNationalDaoTomembreBureauNationalApiDetail(membreBureauNationalOptional.get());
+                        membreBureauNational = membreBureauNationalOptional.get();
+                        membreBureauNational.setPoste(modificationUtilisateur.getMembreBureauNational().getPoste());
                         membreBureauNationalRepository.save(membreBureauNational);
                     } else {
                         throw new UnsupportedOperationException("Bureau national non trouvé");
                     }
                     break;
-                default:
-                    throw new UnsupportedOperationException("Role non trouvé");
             }
-            if(!Objects.equals(modificationUtilisateur.getNomUtilisateur(), utilisateur.getNomUtilisateur())){
-                Boolean existsNomUtilisateur=utilisateurRepository.existsByNomUtilisateur(modificationUtilisateur.getNomUtilisateur());
-                if(!existsNomUtilisateur) {
-                    utilisateurApi.setNomUtilisateur(modificationUtilisateur.getNomUtilisateur());
-                }
-                else{
-                    throw new UnsupportedOperationException("Le nom utilisateur est déjà attribué");
-                }
-            }
-            if(!Objects.equals(modificationUtilisateur.getEmail(), utilisateur.getEmail())){
-                Boolean existsEmailUtilisateur=utilisateurRepository.existsByEmail(modificationUtilisateur.getEmail());
-                if(!existsEmailUtilisateur){
-                    utilisateurApi.setEmail(modificationUtilisateur.getEmail());
-                }
-                else{
-                    throw new UnsupportedOperationException("L'email est déjà attribué'");
-                }
-            }
-        } else {
+
+        }
+         else {
             throw new UnsupportedOperationException("Utilisateur non trouvé");
         }
         messageApi.setMessage("Vos informations ont été mises à jour.");
