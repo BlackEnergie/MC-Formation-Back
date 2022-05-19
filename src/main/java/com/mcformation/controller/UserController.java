@@ -1,6 +1,7 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.FormateurApi;
+import com.mcformation.model.api.MessageApi;
 import com.mcformation.model.api.UtilisateurApi;
 import com.mcformation.model.api.UtilisateurDemandeApi;
 import com.mcformation.service.UtilisateurService;
@@ -34,4 +35,11 @@ public class UserController {
         FormateurApi formateurApi = utilisateurService.findFormateurInformationsByToken(Authorization);
         return new ResponseEntity<>(formateurApi,HttpStatus.OK);
     }
+
+    @PutMapping("/modification")
+    public ResponseEntity<MessageApi> putUtilisateur(@RequestHeader String Authorization, @RequestBody UtilisateurApi modificationUtilisateur){
+        MessageApi messageApi = utilisateurService.modificationUtilisateur(Authorization,modificationUtilisateur);
+        return new ResponseEntity<>(messageApi,HttpStatus.OK);
+    }
+
 }
