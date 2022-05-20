@@ -1,14 +1,13 @@
 package com.mcformation.controller;
 
-import com.mcformation.model.api.FormateurApi;
-import com.mcformation.model.api.MessageApi;
-import com.mcformation.model.api.UtilisateurApi;
-import com.mcformation.model.api.UtilisateurDemandeApi;
+import com.mcformation.model.api.*;
 import com.mcformation.service.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -34,6 +33,18 @@ public class UserController {
     public ResponseEntity<FormateurApi> getFormateurInformation(@RequestHeader String Authorization){
         FormateurApi formateurApi = utilisateurService.findFormateurInformationsByToken(Authorization);
         return new ResponseEntity<>(formateurApi,HttpStatus.OK);
+    }
+
+    @GetMapping("/formateurs")
+    public ResponseEntity<List<FormateurUserApi>> getFormateursInformations(){
+        List<FormateurUserApi> formateurUserApi = utilisateurService.findAllFormateursInfos();
+        return new ResponseEntity<>(formateurUserApi,HttpStatus.OK);
+    }
+
+    @GetMapping("/associations")
+    public ResponseEntity<List<AssociationUserApi>> getAssociationsInformations(){
+        List<AssociationUserApi> associationUserApi = utilisateurService.findAllAssociationsInfos();
+        return new ResponseEntity<>(associationUserApi,HttpStatus.OK);
     }
 
     @PutMapping("/modification")

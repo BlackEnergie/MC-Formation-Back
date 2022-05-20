@@ -1,5 +1,6 @@
 package com.mcformation.service;
 
+import com.mcformation.mapper.FormateurMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
 import com.mcformation.model.database.*;
@@ -228,7 +229,19 @@ public class UtilisateurService {
         return messageApi;
     }
 
+
+    public List<FormateurUserApi> findAllFormateursInfos(){
+        List<Formateur> formateurDaoList = (List<Formateur>) formateurRepository.findAll();
+        return UtilisateurMapper.INSTANCE.formateurDaoListToFormateurUserApiList(formateurDaoList);
+    }
+
+    public List<AssociationUserApi>  findAllAssociationsInfos(){
+        List<Association> associationDaoList = (List<Association>) associationRepository.findAll();
+        return UtilisateurMapper.INSTANCE.associationDaoListToAssociationUserApiList(associationDaoList);
+    }
+
     //PASSWORD
+
 
     public void createPasswordResetTokenForUtilisateur(Utilisateur utilisateur, String token) {
         PasswordResetToken myToken = new PasswordResetToken();
