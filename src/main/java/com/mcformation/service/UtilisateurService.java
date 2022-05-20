@@ -197,9 +197,11 @@ public class UtilisateurService {
                         formateur.setNom(modificationUtilisateur.getFormateur().getNom());
                         formateur.setPrenom(modificationUtilisateur.getFormateur().getPrenom());
                         formateur.setNomComplet(modificationUtilisateur.getFormateur().getPrenom()+" "+modificationUtilisateur.getFormateur().getNom());
-                        List<DomaineApi> domaineApiList = modificationUtilisateur.getFormateur().getDomaines();
-                        List<Domaine> domaines = getDomainesByCode(domaineApiList);
-                        formateur.setDomaines(domaines);
+                        if(modificationUtilisateur.getFormateur().getDomaines()!=null) {
+                            List<DomaineApi> domaineApiList = modificationUtilisateur.getFormateur().getDomaines();
+                            List<Domaine> domaines = getDomainesByCode(domaineApiList);
+                            formateur.setDomaines(domaines);
+                        }
                         formateurRepository.save(formateur);
                     } else {
                         throw new UnsupportedOperationException("Formateur non trouvé");
