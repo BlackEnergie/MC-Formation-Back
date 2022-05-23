@@ -1,5 +1,6 @@
 package com.mcformation.model.api;
 
+import java.util.Date;
 import java.util.List;
 
 public class FormateurUserApi {
@@ -9,6 +10,8 @@ public class FormateurUserApi {
     private String prenom;
 
     private String nomUtilisateur;
+
+    private Date dateCreation;
 
     private String email;
 
@@ -62,4 +65,11 @@ public class FormateurUserApi {
         this.email = email;
     }
 
+    public Date getDateCreation() {
+        return dateCreation;
+    }
+
+    public void setDateCreation(Date dateCreation) {
+        this.dateCreation = dateCreation;
+    }
 }

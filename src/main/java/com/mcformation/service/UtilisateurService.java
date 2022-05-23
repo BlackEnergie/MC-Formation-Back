@@ -3,6 +3,7 @@ package com.mcformation.service;
 import com.mcformation.mapper.FormateurMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
+import com.mcformation.model.api.auth.CreateUserTokenApi;
 import com.mcformation.model.database.*;
 import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
@@ -229,6 +230,10 @@ public class UtilisateurService {
         return messageApi;
     }
 
+    public List<MembreBureauNationalUserApi> findAllMembresBureauNationalInfos(){
+        List<MembreBureauNational> membreBureauNationalList = (List<MembreBureauNational>) membreBureauNationalRepository.findAll();
+        return UtilisateurMapper.INSTANCE.membreBureauNationalDaoListToMembreBureauNationalUserApiList(membreBureauNationalList);
+    }
 
     public List<FormateurUserApi> findAllFormateursInfos(){
         List<Formateur> formateurDaoList = (List<Formateur>) formateurRepository.findAll();
@@ -238,6 +243,11 @@ public class UtilisateurService {
     public List<AssociationUserApi>  findAllAssociationsInfos(){
         List<Association> associationDaoList = (List<Association>) associationRepository.findAll();
         return UtilisateurMapper.INSTANCE.associationDaoListToAssociationUserApiList(associationDaoList);
+    }
+
+    public List<CreateUserTokenApi> findAllCreateUserTokenInfos() {
+        List<CreateUserToken> createUserTokenList = userTokenRepository.findAllByExpirationDateAfterNow();
+        return UtilisateurMapper.INSTANCE.createUserTokenListToCreateUserTokenApiList(createUserTokenList);
     }
 
     //PASSWORD
