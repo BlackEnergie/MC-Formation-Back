@@ -4,6 +4,7 @@ import com.mcformation.model.api.FormateurApi;
 import com.mcformation.model.api.MessageApi;
 import com.mcformation.model.api.UtilisateurApi;
 import com.mcformation.model.api.UtilisateurDemandeApi;
+import com.mcformation.model.api.UtilisateurChangePasswordApi;
 import com.mcformation.service.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,12 @@ public class UserController {
     @PutMapping("/modification")
     public ResponseEntity<MessageApi> putUtilisateur(@RequestHeader String Authorization, @RequestBody UtilisateurApi modificationUtilisateur){
         MessageApi messageApi = utilisateurService.modificationUtilisateur(Authorization,modificationUtilisateur);
+        return new ResponseEntity<>(messageApi,HttpStatus.OK);
+    }
+
+    @PutMapping("/modification/motdepasse")
+    public ResponseEntity<MessageApi> putUtilisateurPassword(@RequestHeader String Authorization, @RequestBody UtilisateurChangePasswordApi utilisateurChangePassword){
+        MessageApi messageApi = utilisateurService.modificationUtilisateurPassword(Authorization,utilisateurChangePassword);
         return new ResponseEntity<>(messageApi,HttpStatus.OK);
     }
 
