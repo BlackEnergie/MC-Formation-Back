@@ -244,7 +244,7 @@ public class UtilisateurService {
         else{
             throw new UnsupportedOperationException("Utilisateur non trouvé");
         }
-        messageApi.setMessage("Votre mot de passe à été mis à jour.");
+        messageApi.setMessage("Votre mot de passe a été mis à jour.");
         messageApi.setCode(200);
         return messageApi;
     }
