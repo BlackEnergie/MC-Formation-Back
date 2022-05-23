@@ -4,17 +4,14 @@ import com.mcformation.mapper.FormationApiMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
 import com.mcformation.model.database.*;
-import com.mcformation.model.utils.Erole;
 import com.mcformation.model.utils.StatutDemande;
 import com.mcformation.repository.*;
-import com.mcformation.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,7 +36,7 @@ public class FormationService {
     private UtilisateurRepository utilisateurRepository;
     @Autowired
     private DemandeService demandeService;
-  
+
     Logger logger = LoggerFactory.getLogger(FormationService.class);
 
     public List<FormationApi> getFormationsAccueil() {
@@ -183,7 +180,7 @@ public class FormationService {
         List<Association> listAssociationsFavorables = demande.getAssociationsFavorables();
         boolean associationsFavorables = listAssociationsFavorables.contains(associationOptional.get());
 
-        if(association.getDemandes().contains(demande)){
+        if (association.getDemandes().contains(demande)) {
             logger.error("L'association a créé la demande, elle ne peut pas être intéressée par sa demande.");
             throw new UnsupportedOperationException("Une erreur est survenue");
         }
