@@ -15,6 +15,8 @@ public class FormateurUserApi {
 
     private String email;
 
+    private Boolean actif;
+
     private List<DomaineApi> domaines;
 
     public Long getId() {
@@ -72,4 +74,8 @@ public class FormateurUserApi {
     public void setDateCreation(Date dateCreation) {
         this.dateCreation = dateCreation;
     }
+
+    public Boolean getActif() {return actif;}
+
+    public void setActif(Boolean actif) {this.actif = actif;}
 }

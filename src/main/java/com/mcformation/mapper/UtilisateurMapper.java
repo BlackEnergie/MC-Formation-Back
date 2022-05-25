@@ -49,6 +49,7 @@ public interface UtilisateurMapper {
     @Mapping(source = "source.poste", target = "poste")
     @Mapping(source = "source.utilisateur.nomUtilisateur", target = "nomUtilisateur")
     @Mapping(source = "source.utilisateur.email", target = "email")
+    @Mapping(source = "source.utilisateur.actif", target = "actif")
     MembreBureauNationalUserApi membreBureauNationalDaoToMembreBureauNationalUserApi(MembreBureauNational source);
 
     List<MembreBureauNationalUserApi> membreBureauNationalDaoListToMembreBureauNationalUserApiList(List<MembreBureauNational> source);
@@ -59,6 +60,7 @@ public interface UtilisateurMapper {
     @Mapping(source = "source.dateCreation", target = "dateCreation")
     @Mapping(source = "source.utilisateur.nomUtilisateur", target = "nomUtilisateur")
     @Mapping(source = "source.utilisateur.email", target = "email")
+    @Mapping(source = "source.utilisateur.actif", target = "actif")
     FormateurUserApi formateurDaoToFormateurUserApi(Formateur source);
 
     List<FormateurUserApi> formateurDaoListToFormateurUserApiList(List<Formateur> source);
@@ -70,6 +72,7 @@ public interface UtilisateurMapper {
     @Mapping(source = "source.nomComplet", target = "nomComplet")
     @Mapping(source = "source.utilisateur.nomUtilisateur", target = "nomUtilisateur")
     @Mapping(source = "source.utilisateur.email", target = "email")
+    @Mapping(source = "source.utilisateur.actif", target = "actif")
     AssociationUserApi associationDaoToAssociationUserApi(Association source);
 
     List<AssociationUserApi> associationDaoListToAssociationUserApiList(List<Association> source);

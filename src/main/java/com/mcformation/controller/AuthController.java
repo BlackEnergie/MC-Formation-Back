@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -80,7 +81,11 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Optional<Utilisateur> utilisateur = utilisateurRepository.findByNomUtilisateur(loginRequest.getNomUtilisateur());
-
+        if(utilisateur.isPresent()){
+            if(!utilisateur.get().getActif()){
+                throw new DisabledException("Votre compte est désactivé");
+            }
+        }
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
@@ -165,19 +170,16 @@ public class AuthController {
         MembreBureauNational membreBureauNational = signUpRequest.getMembreBureauNational();
 
         if (erole == Erole.ROLE_ASSO && association != null) {
-            utilisateur.setRole(role);
             utilisateur = saveUtilisateur(utilisateur, erole);
             association.setUtilisateur(utilisateur);
             associationRepository.save(association);
 
         } else if (erole == Erole.ROLE_FORMATEUR && formateur != null) {
-            utilisateur.setRole(role);
             utilisateur = saveUtilisateur(utilisateur, erole);
             formateur.setUtilisateur(utilisateur);
             formateurRepository.save(formateur);
 
         } else if (erole == Erole.ROLE_BN && membreBureauNational != null) {
-            utilisateur.setRole(role);
             utilisateur = saveUtilisateur(utilisateur, erole);
             membreBureauNational.setUtilisateur(utilisateur);
             membreBureauNationalRepository.save(membreBureauNational);
@@ -253,6 +255,7 @@ public class AuthController {
     private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
         Role role = roleRepository.findByNom(erole).orElseThrow(() -> new UnsupportedOperationException("Le role n'existe pas"));
         utilisateur.setRole(role);
+        utilisateur.setActif(true);
         return utilisateurRepository.save(utilisateur);
     }
 

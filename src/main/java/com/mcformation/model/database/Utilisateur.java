@@ -20,6 +20,9 @@ public class Utilisateur {
 
     private String password;
 
+    @Column(columnDefinition = "boolean default true")
+    private Boolean actif;
+
     @ManyToOne
     private Role roles;
 
@@ -47,7 +50,6 @@ public class Utilisateur {
     public Utilisateur() {
 
     }
-
 
     public Long getId() {
         return id;
@@ -80,6 +82,10 @@ public class Utilisateur {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Boolean getActif() {return actif;}
+
+    public void setActif(Boolean actif) {this.actif = actif;}
 
     public Role getRole() {
         return roles;

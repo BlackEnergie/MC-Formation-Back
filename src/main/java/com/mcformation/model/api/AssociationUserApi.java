@@ -17,6 +17,8 @@ public class AssociationUserApi {
 
     private String email;
 
+    private Boolean actif;
+
     public Long getId() {
         return id;
     }
@@ -72,4 +74,8 @@ public class AssociationUserApi {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Boolean getActif() {return actif;}
+
+    public void setActif(Boolean actif) {this.actif = actif;}
 }

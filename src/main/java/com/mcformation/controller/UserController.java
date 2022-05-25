@@ -71,4 +71,11 @@ public class UserController {
         return new ResponseEntity<>(createUserTokenApiList, HttpStatus.OK);
     }
 
+    @PostMapping("/modification/actif/{id}")
+    @PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<MessageApi> postUtilisateurInactif(@PathVariable Long id){
+        MessageApi messageApi = utilisateurService.modificationUtilisateurInactif(id);
+        return new ResponseEntity<>(messageApi,HttpStatus.OK);
+    }
+
 }

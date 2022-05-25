@@ -8,6 +8,8 @@ public class MembreBureauNationalUserApi {
 
     private String nomUtilisateur;
 
+    private  Boolean actif;
+
     private String poste;
 
     public Long getId() {
@@ -34,6 +36,9 @@ public class MembreBureauNationalUserApi {
         this.nomUtilisateur = nomUtilisateur;
     }
 
+    public Boolean getActif() {return actif;}
+
+    public void setActif(Boolean actif) {this.actif = actif;}
     public String getPoste() {
         return poste;
     }

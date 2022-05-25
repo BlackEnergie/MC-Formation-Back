@@ -1,6 +1,5 @@
 package com.mcformation.service;
 
-import com.mcformation.mapper.FormateurMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
 import com.mcformation.model.api.auth.CreateUserTokenApi;
@@ -226,6 +225,29 @@ public class UtilisateurService {
             throw new UnsupportedOperationException("Utilisateur non trouvé");
         }
         messageApi.setMessage("Vos informations ont été mises à jour.");
+        messageApi.setCode(200);
+        return messageApi;
+    }
+
+    public  MessageApi modificationUtilisateurInactif(Long userId){
+        MessageApi messageApi = new MessageApi();
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(userId);
+        if(utilisateurOptional.isPresent()){
+            if(utilisateurOptional.get().getActif()==true) {
+                utilisateurOptional.get().setActif(false);
+                utilisateurRepository.save(utilisateurOptional.get());
+                messageApi.setMessage("L'utilisateur est maintenant inactif");
+            }
+            else{
+                utilisateurOptional.get().setActif(true);
+                utilisateurRepository.save(utilisateurOptional.get());
+                messageApi.setMessage("L'utilisateur est maintenant actif");
+            }
+        }
+        else{
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+
         messageApi.setCode(200);
         return messageApi;
     }
