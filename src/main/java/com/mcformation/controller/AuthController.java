@@ -125,7 +125,6 @@ public class AuthController {
 
 
     public void checkToken(String token) {
-
         String result = utilisateurService.validateEmailToken(token);
         if (result != null) {
             throw new BadCredentialsException(result);

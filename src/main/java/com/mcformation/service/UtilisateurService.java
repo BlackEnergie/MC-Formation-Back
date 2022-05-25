@@ -8,6 +8,8 @@ import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 import com.mcformation.repository.*;
 import com.mcformation.utils.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,7 @@ public class UtilisateurService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    Logger logger = LoggerFactory.getLogger(UtilisateurService.class);
 
     public Utilisateur findUtilisateurByEmail(String email){
         Utilisateur utilisateur;
@@ -231,23 +234,27 @@ public class UtilisateurService {
 
     public  MessageApi modificationUtilisateurInactif(Long userId){
         MessageApi messageApi = new MessageApi();
+        boolean success = true;
         Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(userId);
         if(utilisateurOptional.isPresent()){
-            if(utilisateurOptional.get().getActif()==true) {
+            boolean actif = utilisateurOptional.get().getActif();
+            if(actif) {
                 utilisateurOptional.get().setActif(false);
-                utilisateurRepository.save(utilisateurOptional.get());
-                messageApi.setMessage("L'utilisateur est maintenant inactif");
+                success = !utilisateurRepository.save(utilisateurOptional.get()).getActif();
+                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' est maintenant inactif");
             }
             else{
                 utilisateurOptional.get().setActif(true);
-                utilisateurRepository.save(utilisateurOptional.get());
-                messageApi.setMessage("L'utilisateur est maintenant actif");
+                success = !utilisateurRepository.save(utilisateurOptional.get()).getActif();
+                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' est maintenant actif");
             }
+        } else{
+            throw new UnsupportedOperationException("Utilisateur inconnu");
         }
-        else{
-            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        if (!success) {
+            logger.error("Erreur lors du changement de statut d'activté de l'utilisateur: " + utilisateurOptional.get().getNomUtilisateur());
+            throw new RuntimeException("Une erreur s'est produite");
         }
-
         messageApi.setCode(200);
         return messageApi;
     }
