@@ -234,7 +234,7 @@ public class UtilisateurService {
 
     public  MessageApi modificationUtilisateurInactif(Long userId){
         MessageApi messageApi = new MessageApi();
-        boolean success = true;
+        boolean success;
         Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(userId);
         if(utilisateurOptional.isPresent()){
             boolean actif = utilisateurOptional.get().getActif();
@@ -275,12 +275,11 @@ public class UtilisateurService {
     }
 
     public List<CreateUserTokenApi> findAllCreateUserTokenInfos() {
-        List<CreateUserToken> createUserTokenList = userTokenRepository.findAllByExpirationDateAfterNow();
+        List<CreateUserToken> createUserTokenList = userTokenRepository.findAllUncompleted();
         return UtilisateurMapper.INSTANCE.createUserTokenListToCreateUserTokenApiList(createUserTokenList);
     }
 
     //PASSWORD
-
 
     public void createPasswordResetTokenForUtilisateur(Utilisateur utilisateur, String token) {
         PasswordResetToken myToken = new PasswordResetToken();

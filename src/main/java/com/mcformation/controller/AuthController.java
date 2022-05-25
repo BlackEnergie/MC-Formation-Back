@@ -1,6 +1,7 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.MessageApi;
+import com.mcformation.model.api.MessageApiDataInvitationExpiration;
 import com.mcformation.model.api.auth.*;
 import com.mcformation.model.database.*;
 import com.mcformation.model.database.auth.CreateUserToken;
@@ -103,7 +104,6 @@ public class AuthController {
     @PostMapping("/signup/invite")
     @PreAuthorize("hasRole('ROLE_BN')")
     public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) throws MessagingException {
-
         CreateUserToken createUserToken = new CreateUserToken();
         createUserToken.setToken(UUID.randomUUID().toString());
         String email = inviteRequest.getEmail();
@@ -133,14 +133,45 @@ public class AuthController {
 
     @PostMapping("/signup/checkToken")
     public ResponseEntity<MessageApi> checkEmailToken(@RequestParam("token") String token) {
-
         checkToken(token);
         Erole role = userTokenRepository.findByToken(token).getRole();
-
         MessageApi messageApi = new MessageApi(200, role.name());
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
+    @PostMapping("/signup/notify/{id}")
+    @PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<MessageApiDataInvitationExpiration> prolongAndNotifyInvite(@PathVariable("id") Long id) throws MessagingException {
+        Optional<CreateUserToken> optionalCreateUserToken = userTokenRepository.findById(id);
+        if (!optionalCreateUserToken.isPresent()) {
+            throw new UnsupportedOperationException("Invitation inconnue.");
+        }
+        CreateUserToken createUserToken = optionalCreateUserToken.get();
+        Timestamp newExpiration = new Timestamp(System.currentTimeMillis() + CreateUserToken.getEXPIRATION());
+        createUserToken.setExpirationDate(newExpiration);
+        Timestamp expiration = userTokenRepository.save(createUserToken).getExpirationDate();
+        emailServiceTemplate.envoieMailCreationCompte(createUserToken.getEmail(), createUserToken.getToken(), createUserToken.getRole());
+        MessageApiDataInvitationExpiration messageApi = new MessageApiDataInvitationExpiration();
+        messageApi.setMessage("Relance effectuée");
+        messageApi.setCode(200);
+        messageApi.setExpiration(expiration);
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+    @PostMapping("/signup/invite/cancel/{id}")
+    @PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<MessageApi> cancelUserInvite(@PathVariable("id") Long id) {
+        MessageApi messageApi = new MessageApi();
+        Optional<CreateUserToken> optionalCreateUserToken = userTokenRepository.findById(id);
+        if (!optionalCreateUserToken.isPresent()) {
+            throw new UnsupportedOperationException("Invitation inconnue.");
+        }
+        CreateUserToken createUserToken = optionalCreateUserToken.get();
+        userTokenRepository.delete(createUserToken);
+        messageApi.setMessage("L'invitation a bien été supprimée");
+        messageApi.setCode(200);
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
 
     @PostMapping("/signup/create")
     public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) throws MessagingException {
@@ -188,8 +219,7 @@ public class AuthController {
 
         emailServiceTemplate.confirmationCreationCompte(utilisateur.getEmail(), utilisateur.getNomUtilisateur());
         CreateUserToken createUserToken = userTokenRepository.findByToken(token);
-        createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
-        userTokenRepository.save(createUserToken);
+        userTokenRepository.delete(createUserToken);
         return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
     }
 
