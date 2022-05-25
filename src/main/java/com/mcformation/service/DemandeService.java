@@ -5,6 +5,7 @@ import com.mcformation.model.api.DemandeApi;
 import com.mcformation.model.api.DomaineApi;
 import com.mcformation.model.api.MessageApi;
 import com.mcformation.model.database.*;
+import com.mcformation.model.utils.StatutDemande;
 import com.mcformation.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,32 @@ public class DemandeService {
         return messageApi;
     }
 
+    @Transactional(rollbackFor = UnsupportedOperationException.class)
+    public MessageApi delete(Long id) {
+        MessageApi messageApi = new MessageApi();
+        Demande demande;
+        Optional<Demande> demandeOptional = demandeRepository.findById(id);
+        if(demandeOptional.isPresent()){
+            if(demandeOptional.get().getStatut()== StatutDemande.DEMANDE){
+                demande = demandeOptional.get();
+                demandeRepository.deleteAssociationDemande(demande.getId());
+                demandeRepository.deleteDemandeAssociationsFavorables(demande.getId());
+                demandeRepository.deleteDemandeDomaines(demande.getId());
+                demandeRepository.deleteById(demande.getId());
+                formationRepository.delete(demande.getFormation());
+            }
+            else{
+                throw new UnsupportedOperationException("La formation n'est plus au statut demandé, impossible de la supprimer");
+            }
+        }
+        else{
+            throw new UnsupportedOperationException("La demande n'existe pas");
+        }
+        messageApi.setMessage("La formation "+ demandeOptional.get().getId()+ " a bien été supprimée");
+        messageApi.setCode(200);
+        return messageApi;
+    }
+
     public List<Domaine> getDomainesByCode(List<DomaineApi> domaineApiList) {
         List<Domaine> domaineDaoList = new ArrayList<>();
         for (DomaineApi domaineApi : domaineApiList) {
@@ -66,4 +93,5 @@ public class DemandeService {
         }
         return domaineDaoList;
     }
+
 }
