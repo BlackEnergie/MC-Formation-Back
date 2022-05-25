@@ -241,11 +241,11 @@ public class UtilisateurService {
             if(actif) {
                 utilisateurOptional.get().setActif(false);
                 success = !utilisateurRepository.save(utilisateurOptional.get()).getActif();
-                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' est maintenant inactif");
+                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' sera inactif d'ici 24h");
             }
             else{
                 utilisateurOptional.get().setActif(true);
-                success = !utilisateurRepository.save(utilisateurOptional.get()).getActif();
+                success = utilisateurRepository.save(utilisateurOptional.get()).getActif();
                 messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' est maintenant actif");
             }
         } else{
