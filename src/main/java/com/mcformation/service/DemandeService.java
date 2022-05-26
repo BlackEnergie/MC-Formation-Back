@@ -65,7 +65,7 @@ public class DemandeService {
         Demande demande;
         Optional<Demande> demandeOptional = demandeRepository.findById(id);
         if(demandeOptional.isPresent()){
-            if(demandeOptional.get().getStatut()== StatutDemande.DEMANDE){
+            if(demandeOptional.get().getStatut()==StatutDemande.DEMANDE){
                 demande = demandeOptional.get();
                 demandeRepository.deleteAssociationDemande(demande.getId());
                 demandeRepository.deleteDemandeAssociationsFavorables(demande.getId());
@@ -74,7 +74,7 @@ public class DemandeService {
                 formationRepository.delete(demande.getFormation());
             }
             else{
-                throw new UnsupportedOperationException("La formation n'est plus au statut demandé, impossible de la supprimer");
+                throw new UnsupportedOperationException("Impossible de supprimer, vérifier le statut");
             }
         }
         else{
