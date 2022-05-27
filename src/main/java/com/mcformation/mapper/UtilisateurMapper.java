@@ -22,6 +22,7 @@ public interface UtilisateurMapper {
     @Named("associationDaoToAssociationApiDetail")
     AssociationApi associationDaoToAssociationApiDetail(Association source);
 
+    @Mapping(source = "source.domaines", target = "domaines")
     FormateurApi formateurDaoToFormateurApiDetail(Formateur source);
 
     MembreBureauNationalApi membreBureauNationalDaoTomembreBureauNationalApiDetail(MembreBureauNational source);
@@ -39,6 +40,10 @@ public interface UtilisateurMapper {
 
     Association associationApiToAssociationDao(AssociationApi source);
 
+
+    Formateur formateurApiToFormateurDao(FormateurApi source);
+
+    MembreBureauNational membreBureauNationalApiToMembreBureauNationalDao(MembreBureauNationalApi source);
     List<Association> associationApiListToAssociationDaoList(List<AssociationApi> source);
 
 }
