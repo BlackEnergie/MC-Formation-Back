@@ -82,10 +82,6 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             Optional<Utilisateur> utilisateur = utilisateurRepository.findByNomUtilisateur(loginRequest.getNomUtilisateur());
-
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            Optional<Utilisateur> utilisateur = utilisateurRepository.findByNomUtilisateur(loginRequest.getNomUtilisateur());
             if(utilisateur.isPresent()){
                 if(!utilisateur.get().getActif()){
                     throw new DisabledException("Votre compte est désactivé");
@@ -341,7 +337,7 @@ public class AuthController {
             throw new BadCredentialsException(result);
         }
         PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(passwordApi.getToken());
-        Utilisateur utilisateur = (Utilisateur) passwordResetToken.getUtilisateur();
+        Utilisateur utilisateur = passwordResetToken.getUtilisateur();
         if (utilisateur != null) {
             utilisateurService.changeUserPassword(utilisateur, passwordApi.getNewPassword());
         } else {

@@ -1,6 +1,7 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.*;
+import com.mcformation.model.api.auth.CreateUserTokenApi;
 import com.mcformation.service.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
