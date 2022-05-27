@@ -1,16 +1,23 @@
 package com.mcformation.model.api;
 
-import com.mcformation.model.database.Demande;
 import com.mcformation.model.utils.College;
 
-import java.util.List;
 
 public class AssociationApi {
 
+    private Long id;
     private String ville;
     private College college;
     private String acronyme;
     private String nomComplet;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getVille() {
         return ville;

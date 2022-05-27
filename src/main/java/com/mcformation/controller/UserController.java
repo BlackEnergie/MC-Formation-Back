@@ -1,7 +1,6 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.*;
-import com.mcformation.model.api.auth.CreateUserTokenApi;
 import com.mcformation.service.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,12 +22,6 @@ public class UserController {
     public ResponseEntity<UtilisateurApi> getUtilisateur(@RequestHeader String Authorization) {
         UtilisateurApi utilisateurApi = utilisateurService.findUtilisateurByToken(Authorization);
         return new ResponseEntity<>(utilisateurApi, HttpStatus.OK);
-    }
-
-    @PutMapping("/modification")
-    public ResponseEntity<MessageApi> putUtilisateur(@RequestHeader String Authorization, @RequestBody UtilisateurApi modificationUtilisateur) {
-        MessageApi messageApi = utilisateurService.modificationUtilisateur(Authorization, modificationUtilisateur);
-        return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
     @GetMapping("/demandesFavorables")
@@ -75,6 +68,18 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_BN')")
     public ResponseEntity<MessageApi> postUtilisateurInactif(@PathVariable Long id){
         MessageApi messageApi = utilisateurService.modificationUtilisateurInactif(id);
+        return new ResponseEntity<>(messageApi,HttpStatus.OK);
+    }
+  
+    @PutMapping("/modification")
+    public ResponseEntity<MessageApi> putUtilisateur(@RequestHeader String Authorization, @RequestBody UtilisateurApi modificationUtilisateur){
+        MessageApi messageApi = utilisateurService.modificationUtilisateur(Authorization,modificationUtilisateur);
+        return new ResponseEntity<>(messageApi,HttpStatus.OK);
+    }
+
+    @PutMapping("/modification/motdepasse")
+    public ResponseEntity<MessageApi> putUtilisateurPassword(@RequestHeader String Authorization, @RequestBody UtilisateurChangePasswordApi utilisateurChangePassword){
+        MessageApi messageApi = utilisateurService.modificationUtilisateurPassword(Authorization,utilisateurChangePassword);
         return new ResponseEntity<>(messageApi,HttpStatus.OK);
     }
 

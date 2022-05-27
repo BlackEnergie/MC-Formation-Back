@@ -292,7 +292,45 @@ class UserControllerTest {
                         result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Nom utilisateur dÃ©j"))
                 );
     }
+  
+    @Test
+    @Sql("classpath:test/data-user-test.sql")
+    void putUtilisateurPassword() throws Exception {
+        UtilisateurChangePasswordApi utilisateurChangePasswordApi = new UtilisateurChangePasswordApi();
+        utilisateurChangePasswordApi.setPassword(password);
+        utilisateurChangePasswordApi.setNewPassword("testpassword");
+        String accessToken = getLoginAccessToken("asso", password);
+        String request = JsonUtils.objectToJson(utilisateurChangePasswordApi);
+        this.mvc.perform(
+                        put("/utilisateur/modification/motdepasse")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .content(request)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isOk()
+                );
+    }
 
+    @Test
+    @Sql("classpath:test/data-user-test.sql")
+    void putUtilisateurPassword_BadPassword() throws Exception {
+        UtilisateurChangePasswordApi utilisateurChangePasswordApi = new UtilisateurChangePasswordApi();
+        utilisateurChangePasswordApi.setPassword("testbadpassword");
+        utilisateurChangePasswordApi.setNewPassword("testpassword");
+        String accessToken = getLoginAccessToken("asso", password);
+        String request = JsonUtils.objectToJson(utilisateurChangePasswordApi);
+        this.mvc.perform(
+                        put("/utilisateur/modification/motdepasse")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                                .content(request)
+                                .characterEncoding(StandardCharsets.UTF_8))
+                .andExpectAll(
+                        status().isBadRequest()
+                );
+    }
+    
     private String getLoginAccessToken(String nomUtilisateur, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setNomUtilisateur(nomUtilisateur);

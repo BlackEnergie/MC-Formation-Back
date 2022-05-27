@@ -12,22 +12,6 @@ public class UtilisateurApi {
 
     private MembreBureauNationalApi membreBureauNational;
 
-    public AssociationApi getAssociation() {
-        return association;
-    }
-
-    public void setAssociation(AssociationApi association) {
-        this.association = association;
-    }
-
-    public FormateurApi getFormateur() {
-        return formateur;
-    }
-
-    public void setFormateur(FormateurApi formateur) {
-        this.formateur = formateur;
-    }
-
     public String getNomUtilisateur() {
         return nomUtilisateur;
     }
@@ -44,11 +28,26 @@ public class UtilisateurApi {
         this.email = email;
     }
 
+
+    public AssociationApi getAssociation() {
+        return association;
+    }
+
+    public void setAssociation(AssociationApi association) {
+        this.association = association;
+    }
+
+    public FormateurApi getFormateur() {
+        return formateur;
+    }
+
+    public void setFormateur(FormateurApi formateur) {
+        this.formateur = formateur;
+    }
+
     public MembreBureauNationalApi getMembreBureauNational() {
         return membreBureauNational;
     }
 
-    public void setMembreBureauNational(MembreBureauNationalApi membreBureauNational) {
-        this.membreBureauNational = membreBureauNational;
-    }
+    public void setMembreBureauNational(MembreBureauNationalApi membreBureauNational) {this.membreBureauNational = membreBureauNational;}
 }

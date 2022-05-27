@@ -49,7 +49,7 @@ public class UtilisateurService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+  
     Logger logger = LoggerFactory.getLogger(UtilisateurService.class);
 
     public Utilisateur findUtilisateurByEmail(String email){
@@ -255,10 +255,31 @@ public class UtilisateurService {
             logger.error("Erreur lors du changement de statut d'activté de l'utilisateur: " + utilisateurOptional.get().getNomUtilisateur());
             throw new RuntimeException("Une erreur s'est produite");
         }
-        messageApi.setCode(200);
+         messageApi.setCode(200);
         return messageApi;
     }
 
+    public MessageApi modificationUtilisateurPassword(String authorization,UtilisateurChangePasswordApi utilisateurChangePassword){
+        MessageApi messageApi=new MessageApi();
+        Long id =getIdUtilisateurFromAuthorization(authorization);
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
+        if(utilisateurOptional.isPresent()){
+            Boolean passwordMatches = passwordEncoder.matches(utilisateurChangePassword.getPassword(),utilisateurOptional.get().getPassword());
+            if(passwordMatches){
+                changeUserPassword(utilisateurOptional.get(),utilisateurChangePassword.getNewPassword());
+            }
+            else{
+                throw new UnsupportedOperationException("Votre ancien mot de passe ne correspond pas");
+            }
+        }
+        else{
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        messageApi.setMessage("Votre mot de passe a été mis à jour.");
+        messageApi.setCode(200);
+        return messageApi;
+    }
+  
     public List<MembreBureauNationalUserApi> findAllMembresBureauNationalInfos(){
         List<MembreBureauNational> membreBureauNationalList = (List<MembreBureauNational>) membreBureauNationalRepository.findAll();
         return UtilisateurMapper.INSTANCE.membreBureauNationalDaoListToMembreBureauNationalUserApiList(membreBureauNationalList);
