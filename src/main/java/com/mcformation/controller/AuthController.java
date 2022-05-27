@@ -168,7 +168,7 @@ public class AuthController {
         }
         CreateUserToken createUserToken = optionalCreateUserToken.get();
         userTokenRepository.delete(createUserToken);
-        messageApi.setMessage("L'invitation a bien été supprimée");
+        messageApi.setMessage("L'invitation a bien été annulée");
         messageApi.setCode(200);
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
