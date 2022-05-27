@@ -2,11 +2,14 @@ package com.mcformation.service;
 
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
+import com.mcformation.model.api.auth.CreateUserTokenApi;
 import com.mcformation.model.database.*;
 import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 import com.mcformation.repository.*;
 import com.mcformation.utils.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,7 +49,8 @@ public class UtilisateurService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+  
+    Logger logger = LoggerFactory.getLogger(UtilisateurService.class);
 
     public Utilisateur findUtilisateurByEmail(String email){
         Utilisateur utilisateur;
@@ -228,6 +232,33 @@ public class UtilisateurService {
         return messageApi;
     }
 
+    public  MessageApi modificationUtilisateurInactif(Long userId){
+        MessageApi messageApi = new MessageApi();
+        boolean success;
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(userId);
+        if(utilisateurOptional.isPresent()){
+            boolean actif = utilisateurOptional.get().getActif();
+            if(actif) {
+                utilisateurOptional.get().setActif(false);
+                success = !utilisateurRepository.save(utilisateurOptional.get()).getActif();
+                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' sera inactif d'ici 24h");
+            }
+            else{
+                utilisateurOptional.get().setActif(true);
+                success = utilisateurRepository.save(utilisateurOptional.get()).getActif();
+                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' est maintenant actif");
+            }
+        } else{
+            throw new UnsupportedOperationException("Utilisateur inconnu");
+        }
+        if (!success) {
+            logger.error("Erreur lors du changement de statut d'activté de l'utilisateur: " + utilisateurOptional.get().getNomUtilisateur());
+            throw new RuntimeException("Une erreur s'est produite");
+        }
+         messageApi.setCode(200);
+        return messageApi;
+    }
+
     public MessageApi modificationUtilisateurPassword(String authorization,UtilisateurChangePasswordApi utilisateurChangePassword){
         MessageApi messageApi=new MessageApi();
         Long id =getIdUtilisateurFromAuthorization(authorization);
@@ -247,6 +278,26 @@ public class UtilisateurService {
         messageApi.setMessage("Votre mot de passe a été mis à jour.");
         messageApi.setCode(200);
         return messageApi;
+    }
+  
+    public List<MembreBureauNationalUserApi> findAllMembresBureauNationalInfos(){
+        List<MembreBureauNational> membreBureauNationalList = (List<MembreBureauNational>) membreBureauNationalRepository.findAll();
+        return UtilisateurMapper.INSTANCE.membreBureauNationalDaoListToMembreBureauNationalUserApiList(membreBureauNationalList);
+    }
+
+    public List<FormateurUserApi> findAllFormateursInfos(){
+        List<Formateur> formateurDaoList = (List<Formateur>) formateurRepository.findAll();
+        return UtilisateurMapper.INSTANCE.formateurDaoListToFormateurUserApiList(formateurDaoList);
+    }
+
+    public List<AssociationUserApi>  findAllAssociationsInfos(){
+        List<Association> associationDaoList = (List<Association>) associationRepository.findAll();
+        return UtilisateurMapper.INSTANCE.associationDaoListToAssociationUserApiList(associationDaoList);
+    }
+
+    public List<CreateUserTokenApi> findAllCreateUserTokenInfos() {
+        List<CreateUserToken> createUserTokenList = userTokenRepository.findAllUncompleted();
+        return UtilisateurMapper.INSTANCE.createUserTokenListToCreateUserTokenApiList(createUserTokenList);
     }
 
     //PASSWORD

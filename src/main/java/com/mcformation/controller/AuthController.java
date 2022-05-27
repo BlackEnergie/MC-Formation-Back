@@ -1,6 +1,7 @@
 package com.mcformation.controller;
 
 import com.mcformation.model.api.MessageApi;
+import com.mcformation.model.api.MessageApiDataInvitationExpiration;
 import com.mcformation.model.api.auth.*;
 import com.mcformation.model.database.*;
 import com.mcformation.model.database.auth.CreateUserToken;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -80,13 +82,18 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getNomUtilisateur(), loginRequest.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             Optional<Utilisateur> utilisateur = utilisateurRepository.findByNomUtilisateur(loginRequest.getNomUtilisateur());
-
+            if(utilisateur.isPresent()){
+                if(!utilisateur.get().getActif()){
+                    throw new DisabledException("Votre compte est désactivé");
+                }
+            }
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(item -> item.getAuthority())
                     .collect(Collectors.toList());
 
-            String jwt = jwtUtils.generateJwtToken(authentication, roles.get(0), userDetails.getId());
+                String jwt = jwtUtils.generateJwtToken(authentication, roles.get(0), userDetails.getId());
+
 
             return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getNomUtilisateur(), userDetails.getEmail(), roles));
         }
@@ -100,7 +107,6 @@ public class AuthController {
     @PostMapping("/signup/invite")
     @PreAuthorize("hasRole('ROLE_BN')")
     public ResponseEntity<MessageApi> inviteUtilisateur(@RequestBody SignupInviteRequest inviteRequest) throws MessagingException {
-
         CreateUserToken createUserToken = new CreateUserToken();
         createUserToken.setToken(UUID.randomUUID().toString());
         String email = inviteRequest.getEmail();
@@ -122,7 +128,6 @@ public class AuthController {
 
 
     public void checkToken(String token) {
-
         String result = utilisateurService.validateEmailToken(token);
         if (result != null) {
             throw new BadCredentialsException(result);
@@ -131,14 +136,45 @@ public class AuthController {
 
     @PostMapping("/signup/checkToken")
     public ResponseEntity<MessageApi> checkEmailToken(@RequestParam("token") String token) {
-
         checkToken(token);
         Erole role = userTokenRepository.findByToken(token).getRole();
-
         MessageApi messageApi = new MessageApi(200, role.name());
         return new ResponseEntity<>(messageApi, HttpStatus.OK);
     }
 
+    @PostMapping("/signup/notify/{id}")
+    @PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<MessageApiDataInvitationExpiration> prolongAndNotifyInvite(@PathVariable("id") Long id) throws MessagingException {
+        Optional<CreateUserToken> optionalCreateUserToken = userTokenRepository.findById(id);
+        if (!optionalCreateUserToken.isPresent()) {
+            throw new UnsupportedOperationException("Invitation inconnue.");
+        }
+        CreateUserToken createUserToken = optionalCreateUserToken.get();
+        Timestamp newExpiration = new Timestamp(System.currentTimeMillis() + CreateUserToken.getEXPIRATION());
+        createUserToken.setExpirationDate(newExpiration);
+        Timestamp expiration = userTokenRepository.save(createUserToken).getExpirationDate();
+        emailServiceTemplate.envoieMailCreationCompte(createUserToken.getEmail(), createUserToken.getToken(), createUserToken.getRole());
+        MessageApiDataInvitationExpiration messageApi = new MessageApiDataInvitationExpiration();
+        messageApi.setMessage("Relance effectuée");
+        messageApi.setCode(200);
+        messageApi.setExpiration(expiration);
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
+
+    @PostMapping("/signup/invite/cancel/{id}")
+    @PreAuthorize("hasRole('ROLE_BN')")
+    public ResponseEntity<MessageApi> cancelUserInvite(@PathVariable("id") Long id) {
+        MessageApi messageApi = new MessageApi();
+        Optional<CreateUserToken> optionalCreateUserToken = userTokenRepository.findById(id);
+        if (!optionalCreateUserToken.isPresent()) {
+            throw new UnsupportedOperationException("Invitation inconnue.");
+        }
+        CreateUserToken createUserToken = optionalCreateUserToken.get();
+        userTokenRepository.delete(createUserToken);
+        messageApi.setMessage("L'invitation a bien été annulée");
+        messageApi.setCode(200);
+        return new ResponseEntity<>(messageApi, HttpStatus.OK);
+    }
 
     @PostMapping("/signup/create")
     public ResponseEntity<?> creationUtilisateur(@Valid @RequestBody SignupRequest signUpRequest, @RequestParam String token) throws MessagingException {
@@ -167,19 +203,16 @@ public class AuthController {
         MembreBureauNational membreBureauNational = signUpRequest.getMembreBureauNational();
 
         if (erole == Erole.ROLE_ASSO && association != null) {
-            utilisateur.setRole(role);
             utilisateur = saveUtilisateur(utilisateur, erole);
             association.setUtilisateur(utilisateur);
             associationRepository.save(association);
 
         } else if (erole == Erole.ROLE_FORMATEUR && formateur != null) {
-            utilisateur.setRole(role);
             utilisateur = saveUtilisateur(utilisateur, erole);
             formateur.setUtilisateur(utilisateur);
             formateurRepository.save(formateur);
 
         } else if (erole == Erole.ROLE_BN && membreBureauNational != null) {
-            utilisateur.setRole(role);
             utilisateur = saveUtilisateur(utilisateur, erole);
             membreBureauNational.setUtilisateur(utilisateur);
             membreBureauNationalRepository.save(membreBureauNational);
@@ -189,8 +222,7 @@ public class AuthController {
 
         emailServiceTemplate.confirmationCreationCompte(utilisateur.getEmail(), utilisateur.getNomUtilisateur());
         CreateUserToken createUserToken = userTokenRepository.findByToken(token);
-        createUserToken.setExpirationDate(new Timestamp(System.currentTimeMillis()));
-        userTokenRepository.save(createUserToken);
+        userTokenRepository.delete(createUserToken);
         return ResponseEntity.ok(new MessageResponse("Utilisateur enregistré avec succès"));
     }
 
@@ -255,6 +287,7 @@ public class AuthController {
     private Utilisateur saveUtilisateur(Utilisateur utilisateur, Erole erole) {
         Role role = roleRepository.findByNom(erole).orElseThrow(() -> new UnsupportedOperationException("Le role n'existe pas"));
         utilisateur.setRole(role);
+        utilisateur.setActif(true);
         return utilisateurRepository.save(utilisateur);
     }
 
@@ -304,7 +337,7 @@ public class AuthController {
             throw new BadCredentialsException(result);
         }
         PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(passwordApi.getToken());
-        Utilisateur utilisateur = (Utilisateur) passwordResetToken.getUtilisateur();
+        Utilisateur utilisateur = passwordResetToken.getUtilisateur();
         if (utilisateur != null) {
             utilisateurService.changeUserPassword(utilisateur, passwordApi.getNewPassword());
         } else {

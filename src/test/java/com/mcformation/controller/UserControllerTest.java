@@ -292,7 +292,7 @@ class UserControllerTest {
                         result -> Assertions.assertTrue(result.getResponse().getContentAsString().contains("Nom utilisateur dÃ©j"))
                 );
     }
-
+  
     @Test
     @Sql("classpath:test/data-user-test.sql")
     void putUtilisateurPassword() throws Exception {
@@ -331,7 +331,6 @@ class UserControllerTest {
                 );
     }
     
-
     private String getLoginAccessToken(String nomUtilisateur, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setNomUtilisateur(nomUtilisateur);

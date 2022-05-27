@@ -1,8 +1,12 @@
 package com.mcformation.mapper;
 
 import com.mcformation.model.api.FormateurApi;
+import com.mcformation.model.api.FormateurUserApi;
 import com.mcformation.model.database.Formateur;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -19,4 +23,5 @@ public interface FormateurMapper {
     Formateur formateurApiToFormateurDao(FormateurApi source);
 
     List<Formateur> formateurApiListToFormateurDaoList(List<FormateurApi> source);
+
 }
