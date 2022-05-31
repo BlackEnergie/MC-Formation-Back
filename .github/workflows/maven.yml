@@ -46,4 +46,13 @@ jobs:
         
     - uses: actions/checkout@v3
     - name: Test
+
+      env:
+        MCFORMATION_DATABASE_URL: ${{ secrets.MCFORMATION_DATABASE_URL }}
+        MCFORMATION_DATABASE_USERNAME: ${{ secrets.MCFORMATION_DATABASE_USERNAME }}
+        MCFORMATION_DATABASE_PASSWORD: ${{ secrets.MCFORMATION_DATABASE_PASSWORD }}
+        MCFORMATION_SERVER_PORT: ${{ secrets.MCFORMATION_SERVER_PORT }}
+        MCFORMATION_EMAIL_USERNAME: ${{ secrets.MCFORMATION_EMAIL_USERNAME }}
+        MCFORMATION_EMAIL_PASSWORD: ${{ secrets.MCFORMATION_EMAIL_PASSWORD }}
+        
       run: mvn test

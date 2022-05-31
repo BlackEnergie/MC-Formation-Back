@@ -4,6 +4,7 @@ import com.mcformation.mapper.FormationApiMapper;
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
 import com.mcformation.model.database.*;
+import com.mcformation.model.utils.Erole;
 import com.mcformation.model.utils.StatutDemande;
 import com.mcformation.repository.*;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,7 +38,7 @@ public class FormationService {
     private UtilisateurRepository utilisateurRepository;
     @Autowired
     private DemandeService demandeService;
-
+  
     Logger logger = LoggerFactory.getLogger(FormationService.class);
 
     public List<FormationApi> getFormationsAccueil() {

@@ -364,6 +364,7 @@ public class UtilisateurService {
         String token = authorization.substring(7, authorization.length());
         return jwtUtils.getIdFromJwtToken(token);
     }
+
     public List<Domaine> getDomainesByCode(List<DomaineApi> domaineApiList) {
         List<Domaine> domaineDaoList = new ArrayList<>();
         for (DomaineApi domaineApi : domaineApiList) {

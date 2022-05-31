@@ -1,7 +1,7 @@
 package com.mcformation.model.api;
 
+import com.mcformation.model.database.Demande;
 import com.mcformation.model.utils.College;
-
 
 public class AssociationApi {
 
