@@ -91,7 +91,10 @@ public class AuthController {
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(item -> item.getAuthority())
                     .collect(Collectors.toList());
-            String jwt = jwtUtils.generateJwtToken(authentication, roles.get(0), userDetails.getId());
+
+                String jwt = jwtUtils.generateJwtToken(authentication, roles.get(0), userDetails.getId());
+
+
             return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getNomUtilisateur(), userDetails.getEmail(), roles));
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -334,7 +337,7 @@ public class AuthController {
             throw new BadCredentialsException(result);
         }
         PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(passwordApi.getToken());
-        Utilisateur utilisateur = (Utilisateur) passwordResetToken.getUtilisateur();
+        Utilisateur utilisateur = passwordResetToken.getUtilisateur();
         if (utilisateur != null) {
             utilisateurService.changeUserPassword(utilisateur, passwordApi.getNewPassword());
         } else {

@@ -28,6 +28,7 @@ public class UtilisateurApi {
         this.email = email;
     }
 
+
     public AssociationApi getAssociation() {
         return association;
     }
@@ -48,8 +49,5 @@ public class UtilisateurApi {
         return membreBureauNational;
     }
 
-    public void setMembreBureauNational(MembreBureauNationalApi membreBureauNational) {
-        this.membreBureauNational = membreBureauNational;
-    }
-
+    public void setMembreBureauNational(MembreBureauNationalApi membreBureauNational) {this.membreBureauNational = membreBureauNational;}
 }

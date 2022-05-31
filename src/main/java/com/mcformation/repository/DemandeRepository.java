@@ -34,5 +34,4 @@ public interface DemandeRepository extends CrudRepository<Demande,Long>{
     @Modifying
     @Query(value="DELETE FROM demande_domaines WHERE demande_id=:id",nativeQuery =true)
     void deleteDemandeDomaines(@Param("id") Long id);
-
 }

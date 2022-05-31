@@ -22,7 +22,6 @@ public interface UtilisateurMapper {
     @Named("associationDaoToAssociationApiDetail")
     AssociationApi associationDaoToAssociationApiDetail(Association source);
 
-
     @Mapping(source = "source.domaines", target = "domaines")
     FormateurApi formateurDaoToFormateurApiDetail(Formateur source);
 
