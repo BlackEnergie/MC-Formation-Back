@@ -2,21 +2,21 @@ package com.mcformation.service;
 
 import com.mcformation.mapper.UtilisateurMapper;
 import com.mcformation.model.api.*;
-import com.mcformation.model.database.Association;
-import com.mcformation.model.database.Formateur;
-import com.mcformation.model.database.MembreBureauNational;
-import com.mcformation.model.database.Utilisateur;
+import com.mcformation.model.api.auth.CreateUserTokenApi;
+import com.mcformation.model.database.*;
 import com.mcformation.model.database.auth.CreateUserToken;
 import com.mcformation.model.database.auth.PasswordResetToken;
 import com.mcformation.repository.*;
 import com.mcformation.utils.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import javax.transaction.Transactional;
+
+import java.util.*;
 
 @Service
 public class UtilisateurService {
@@ -39,6 +39,9 @@ public class UtilisateurService {
     private MembreBureauNationalRepository membreBureauNationalRepository;
 
     @Autowired
+    private DomaineRepository domaineRepository;
+
+    @Autowired
     private UserTokenRepository userTokenRepository;
 
     @Autowired
@@ -46,6 +49,8 @@ public class UtilisateurService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+  
+    Logger logger = LoggerFactory.getLogger(UtilisateurService.class);
 
     public Utilisateur findUtilisateurByEmail(String email){
         Utilisateur utilisateur;
@@ -135,6 +140,166 @@ public class UtilisateurService {
         }
         return  formateurApi;
     }
+
+    @Transactional(rollbackOn = UnsupportedOperationException.class)
+    public MessageApi modificationUtilisateur(String authorization,UtilisateurApi modificationUtilisateur){
+        Utilisateur utilisateur;
+        Association association;
+        String email;
+        String newEmail;
+        String username;
+        String newUsername;
+        Formateur formateur;
+        MembreBureauNational membreBureauNational;
+        MessageApi messageApi=new MessageApi();
+        Long id =getIdUtilisateurFromAuthorization(authorization);
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
+        if (utilisateurOptional.isPresent()) {
+            utilisateur = utilisateurOptional.get();
+            Boolean existsEmail=utilisateurRepository.existsByEmail(modificationUtilisateur.getEmail());
+            if(!existsEmail) {
+                utilisateur.setEmail(modificationUtilisateur.getEmail());
+                utilisateurRepository.save(utilisateur);
+            }
+            else{
+                email=utilisateur.getEmail();
+                newEmail=modificationUtilisateur.getEmail();
+                if(!email.equals(newEmail)){
+                    throw new UnsupportedOperationException("Email déjà utilisé");
+                }
+            }
+            Boolean existsNomUtilisateur=utilisateurRepository.existsByNomUtilisateur(modificationUtilisateur.getNomUtilisateur());
+            if(!existsNomUtilisateur) {
+                utilisateur.setNomUtilisateur(modificationUtilisateur.getNomUtilisateur());
+                utilisateurRepository.save(utilisateur);
+            }
+            else{
+                username=utilisateur.getNomUtilisateur();
+                newUsername=modificationUtilisateur.getNomUtilisateur();
+                if(!username.equals(newUsername)){
+                    throw new UnsupportedOperationException("Nom utilisateur déjà utilisé");
+                }
+            }
+            switch (utilisateur.getRole().getNom()) {
+                case ROLE_ASSO:
+                    Optional<Association> associationOptional = associationRepository.findById(id);
+                    if (associationOptional.isPresent()) {
+                        association = associationOptional.get();
+                        association.setVille(modificationUtilisateur.getAssociation().getVille());
+                        association.setNomComplet(modificationUtilisateur.getAssociation().getNomComplet());
+                        association.setAcronyme(modificationUtilisateur.getAssociation().getAcronyme());
+                        association.setCollege(modificationUtilisateur.getAssociation().getCollege());
+                        associationRepository.save(association);
+                    } else {
+                        throw new UnsupportedOperationException("Association non trouvée");
+                    }
+                    break;
+                case ROLE_FORMATEUR:
+                    Optional<Formateur> formateurOptional = formateurRepository.findById(id);
+                    if (formateurOptional.isPresent()) {
+                        formateur = formateurOptional.get();
+                        formateur.setNom(modificationUtilisateur.getFormateur().getNom());
+                        formateur.setPrenom(modificationUtilisateur.getFormateur().getPrenom());
+                        formateur.setNomComplet(modificationUtilisateur.getFormateur().getPrenom()+" "+modificationUtilisateur.getFormateur().getNom());
+                        if(modificationUtilisateur.getFormateur().getDomaines()!=null) {
+                            List<DomaineApi> domaineApiList = modificationUtilisateur.getFormateur().getDomaines();
+                            List<Domaine> domaines = getDomainesByCode(domaineApiList);
+                            formateur.setDomaines(domaines);
+                        }
+                        formateurRepository.save(formateur);
+                    } else {
+                        throw new UnsupportedOperationException("Formateur non trouvé");
+                    }
+                    break;
+                case ROLE_BN:
+                    Optional<MembreBureauNational> membreBureauNationalOptional = membreBureauNationalRepository.findById(id);
+                    if (membreBureauNationalOptional.isPresent()) {
+                        membreBureauNational = membreBureauNationalOptional.get();
+                        membreBureauNational.setPoste(modificationUtilisateur.getMembreBureauNational().getPoste());
+                        membreBureauNationalRepository.save(membreBureauNational);
+                    } else {
+                        throw new UnsupportedOperationException("Bureau national non trouvé");
+                    }
+                    break;
+            }
+
+        }
+         else {
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        messageApi.setMessage("Vos informations ont été mises à jour.");
+        messageApi.setCode(200);
+        return messageApi;
+    }
+
+    public  MessageApi modificationUtilisateurInactif(Long userId){
+        MessageApi messageApi = new MessageApi();
+        boolean success;
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(userId);
+        if(utilisateurOptional.isPresent()){
+            boolean actif = utilisateurOptional.get().getActif();
+            if(actif) {
+                utilisateurOptional.get().setActif(false);
+                success = !utilisateurRepository.save(utilisateurOptional.get()).getActif();
+                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' sera inactif d'ici 24h");
+            }
+            else{
+                utilisateurOptional.get().setActif(true);
+                success = utilisateurRepository.save(utilisateurOptional.get()).getActif();
+                messageApi.setMessage("L'utilisateur '" + utilisateurOptional.get().getNomUtilisateur() + "' est maintenant actif");
+            }
+        } else{
+            throw new UnsupportedOperationException("Utilisateur inconnu");
+        }
+        if (!success) {
+            logger.error("Erreur lors du changement de statut d'activté de l'utilisateur: " + utilisateurOptional.get().getNomUtilisateur());
+            throw new RuntimeException("Une erreur s'est produite");
+        }
+         messageApi.setCode(200);
+        return messageApi;
+    }
+
+    public MessageApi modificationUtilisateurPassword(String authorization,UtilisateurChangePasswordApi utilisateurChangePassword){
+        MessageApi messageApi=new MessageApi();
+        Long id =getIdUtilisateurFromAuthorization(authorization);
+        Optional<Utilisateur> utilisateurOptional = utilisateurRepository.findById(id);
+        if(utilisateurOptional.isPresent()){
+            Boolean passwordMatches = passwordEncoder.matches(utilisateurChangePassword.getPassword(),utilisateurOptional.get().getPassword());
+            if(passwordMatches){
+                changeUserPassword(utilisateurOptional.get(),utilisateurChangePassword.getNewPassword());
+            }
+            else{
+                throw new UnsupportedOperationException("Votre ancien mot de passe ne correspond pas");
+            }
+        }
+        else{
+            throw new UnsupportedOperationException("Utilisateur non trouvé");
+        }
+        messageApi.setMessage("Votre mot de passe a été mis à jour.");
+        messageApi.setCode(200);
+        return messageApi;
+    }
+  
+    public List<MembreBureauNationalUserApi> findAllMembresBureauNationalInfos(){
+        List<MembreBureauNational> membreBureauNationalList = (List<MembreBureauNational>) membreBureauNationalRepository.findAll();
+        return UtilisateurMapper.INSTANCE.membreBureauNationalDaoListToMembreBureauNationalUserApiList(membreBureauNationalList);
+    }
+
+    public List<FormateurUserApi> findAllFormateursInfos(){
+        List<Formateur> formateurDaoList = (List<Formateur>) formateurRepository.findAll();
+        return UtilisateurMapper.INSTANCE.formateurDaoListToFormateurUserApiList(formateurDaoList);
+    }
+
+    public List<AssociationUserApi>  findAllAssociationsInfos(){
+        List<Association> associationDaoList = (List<Association>) associationRepository.findAll();
+        return UtilisateurMapper.INSTANCE.associationDaoListToAssociationUserApiList(associationDaoList);
+    }
+
+    public List<CreateUserTokenApi> findAllCreateUserTokenInfos() {
+        List<CreateUserToken> createUserTokenList = userTokenRepository.findAllUncompleted();
+        return UtilisateurMapper.INSTANCE.createUserTokenListToCreateUserTokenApiList(createUserTokenList);
+    }
+
     //PASSWORD
 
     public void createPasswordResetTokenForUtilisateur(Utilisateur utilisateur, String token) {
@@ -198,6 +363,15 @@ public class UtilisateurService {
     private Long getIdUtilisateurFromAuthorization(String authorization){
         String token = authorization.substring(7, authorization.length());
         return jwtUtils.getIdFromJwtToken(token);
+    }
+
+    public List<Domaine> getDomainesByCode(List<DomaineApi> domaineApiList) {
+        List<Domaine> domaineDaoList = new ArrayList<>();
+        for (DomaineApi domaineApi : domaineApiList) {
+            Optional<Domaine> domaineDao = domaineRepository.findByCode(domaineApi.getCode());
+            domaineDao.ifPresent(domaineDaoList::add);
+        }
+        return domaineDaoList;
     }
 
 }

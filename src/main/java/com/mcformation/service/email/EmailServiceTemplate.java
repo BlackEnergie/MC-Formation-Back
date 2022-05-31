@@ -17,7 +17,7 @@ public class EmailServiceTemplate {
     private final String EMAIL = "mc.formation.web@gmail.com";
     private final String BASE_URL = "http://localhost:3000";
     private final String SIGNUP_INVITE_URL = "/inscription/";
-    private final String CHANGE_PASSWORD_URL = "reinitialiserMotDePasse/";
+    private final String CHANGE_PASSWORD_URL = "/reinitialiserMotDePasse/";
     private final String PREFIX_SUJET = "[MC-Formation-Web] | ";
 
     private final String MIAGE_CONNECTION_LOGO = "https://www.miage-connection.fr/wp-content/uploads/2021/06/cropped-logo_wht_bgblue-1.png";
@@ -54,7 +54,7 @@ public class EmailServiceTemplate {
     }
 
     public void envoieResetPassowrd(String token, Utilisateur utilisateur) throws MessagingException {
-        String url = BASE_URL + CHANGE_PASSWORD_URL + "?token=" + token;
+        String url = BASE_URL + CHANGE_PASSWORD_URL + token;
         String sujet = PREFIX_SUJET + "Changement de mot de votre passe";
         String message = "Réinitialisez votre mot de passe";
         Context context = createContext(url,"", message);

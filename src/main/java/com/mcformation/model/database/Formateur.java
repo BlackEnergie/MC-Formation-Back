@@ -20,7 +20,7 @@ public class Formateur {
 
     @PrePersist
     public void setup(){
-        this.nomComplet = this.nom+" "+this.prenom;
+        this.nomComplet = this.prenom+" "+this.nom;
     }
     @OneToOne
     @MapsId

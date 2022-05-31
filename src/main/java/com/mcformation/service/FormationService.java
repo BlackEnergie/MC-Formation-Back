@@ -7,7 +7,6 @@ import com.mcformation.model.database.*;
 import com.mcformation.model.utils.Erole;
 import com.mcformation.model.utils.StatutDemande;
 import com.mcformation.repository.*;
-import com.mcformation.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,7 +182,7 @@ public class FormationService {
         List<Association> listAssociationsFavorables = demande.getAssociationsFavorables();
         boolean associationsFavorables = listAssociationsFavorables.contains(associationOptional.get());
 
-        if(association.getDemandes().contains(demande)){
+        if (association.getDemandes().contains(demande)) {
             logger.error("L'association a créé la demande, elle ne peut pas être intéressée par sa demande.");
             throw new UnsupportedOperationException("Une erreur est survenue");
         }
