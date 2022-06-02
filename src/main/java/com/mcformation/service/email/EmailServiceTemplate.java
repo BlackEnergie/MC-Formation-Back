@@ -15,7 +15,7 @@ import javax.mail.MessagingException;
 public class EmailServiceTemplate {
 
     private final String EMAIL = "mc.formation.web@gmail.com";
-    private final String BASE_URL = "http://localhost:3000";
+    private final String BASE_URL = "https://mcformation.blackenergy.click";
     private final String SIGNUP_INVITE_URL = "/inscription/";
     private final String CHANGE_PASSWORD_URL = "/reinitialiserMotDePasse/";
     private final String PREFIX_SUJET = "[MC-Formation-Web] | ";
