@@ -56,3 +56,17 @@ jobs:
         MCFORMATION_EMAIL_PASSWORD: ${{ secrets.MCFORMATION_EMAIL_PASSWORD }}
         
       run: mvn test
+  
+  Package:
+    runs-on: ubuntu-latest
+    needs: 
+      - Build
+      - Test
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Package
+      run: mvn package -DskipTests
+    
+      
