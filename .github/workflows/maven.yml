@@ -64,9 +64,25 @@ jobs:
       - Test
     
     steps:
+    
     - name: Checkout
       uses: actions/checkout@v3
+      
     - name: Package
-      run: mvn package -DskipTests
-    
+      run: | 
+        mvn package -DskipTests
+        mkdir staging && cp target/*.jar staging
+        
+    - name: Cache maven
+      uses: actions/cache@v2
+      with: 
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Persist workflow data as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+          name: github-actions-artifact
+          path: staging
       
