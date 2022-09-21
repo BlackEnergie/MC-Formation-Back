@@ -70,7 +70,7 @@ jobs:
       
     - name: Package
       run: | 
-        mvn package -DskipTests
+        mvn package -Dmaven.test.skip=true
         mkdir staging && cp target/*.jar staging
         
     - name: Cache maven
